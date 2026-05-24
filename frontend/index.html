@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam Agent</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="nav-brand">
+        <span class="nav-icon">🌱</span>
+        <span class="nav-title">AgroLatam Agent</span>
+        <span class="nav-sub">Powered by Gemini + Fivetran</span>
+      </div>
+      <div class="nav-links">
+        <a class="nav-link active" onclick="showSection('dashboard')"
+          >Dashboard</a
+        >
+        <a class="nav-link" onclick="showSection('markets')">Markets</a>
+        <a class="nav-link" onclick="showSection('alerts')">Alerts</a>
+        <a class="nav-link" onclick="showSection('agent')">Agent</a>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span>Agent running</span>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- SECTION: DASHBOARD -->
+      <section id="section-dashboard" class="section active">
+        <div class="page-header">
+          <h1>Agricultural Intelligence Dashboard</h1>
+          <p>Real-time monitoring across 18 Latin American countries</p>
+        </div>
+
+        <!-- METRICS -->
+        <div class="metrics-grid" id="metrics-grid">
+          <div class="metric-card loading">Loading prices...</div>
+        </div>
+
+        <!-- TWO COLUMNS -->
+        <div class="two-col">
+          <!-- ALERTS -->
+          <div class="card">
+            <div class="card-header">
+              <span>🔔 Active Alerts</span>
+              <span class="badge-live">LIVE</span>
+            </div>
+            <div id="alerts-list">
+              <div class="loading-text">Loading alerts...</div>
+            </div>
+          </div>
+
+          <!-- PIPELINE STATUS -->
+          <div class="card">
+            <div class="card-header">
+              <span>⚡ Fivetran Pipelines</span>
+              <span class="badge-ok">All synced</span>
+            </div>
+            <div class="pipeline-list">
+              <div class="pipeline-row">
+                <span>Commodity prices</span>
+                <span class="pipe-status synced">● Synced · 2min ago</span>
+              </div>
+              <div class="pipeline-row">
+                <span>Weather data (LATAM)</span>
+                <span class="pipe-status synced">● Synced · 5min ago</span>
+              </div>
+              <div class="pipeline-row">
+                <span>Export statistics (FAO)</span>
+                <span class="pipe-status synced">● Synced · 1h ago</span>
+              </div>
+              <div class="pipeline-row">
+                <span>Credit database</span>
+                <span class="pipe-status synced">● Synced · 6h ago</span>
+              </div>
+            </div>
+            <div class="coverage-title">Countries monitored</div>
+            <div class="country-chips">
+              <span class="chip">🇵🇪 Peru</span>
+              <span class="chip">🇧🇷 Brazil</span>
+              <span class="chip">🇨🇴 Colombia</span>
+              <span class="chip">🇲🇽 Mexico</span>
+              <span class="chip">🇦🇷 Argentina</span>
+              <span class="chip">🇪🇨 Ecuador</span>
+              <span class="chip">🇧🇴 Bolivia</span>
+              <span class="chip">🇨🇱 Chile</span>
+              <span class="chip">🇬🇹 Guatemala</span>
+              <span class="chip">🇭🇳 Honduras</span>
+              <span class="chip">+ 8 more</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: MARKETS -->
+      <section id="section-markets" class="section">
+        <div class="page-header">
+          <h1>Commodity Markets</h1>
+          <p>Live prices from ICE NY, ICE London, CME and FAO</p>
+        </div>
+        <div class="card">
+          <table class="market-table">
+            <thead>
+              <tr>
+                <th>Crop</th>
+                <th>Price</th>
+                <th>Change</th>
+                <th>Unit</th>
+                <th>Exchange</th>
+                <th>Signal</th>
+              </tr>
+            </thead>
+            <tbody id="market-table-body">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 20px">
+                  Loading...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION: ALERTS -->
+      <section id="section-alerts" class="section">
+        <div class="page-header">
+          <h1>Autonomous Alerts</h1>
+          <p>Generated and sent by the agent without human intervention</p>
+        </div>
+        <div id="alerts-full-list">
+          <div class="loading-text">Loading alerts...</div>
+        </div>
+      </section>
+
+      <!-- SECTION: AGENT CHAT -->
+      <section id="section-agent" class="section">
+        <div class="page-header">
+          <h1>Talk to the Agent</h1>
+          <p>Ask anything about LATAM agricultural markets</p>
+        </div>
+        <div class="chat-wrapper">
+          <div class="chat-messages" id="chat-messages">
+            <div class="msg agent-msg">
+              Hello! I am AgroLatam Agent. I monitor commodity prices, weather,
+              and export markets across 18 Latin American countries in real
+              time. How can I help you today?
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input
+              type="text"
+              id="chat-input"
+              placeholder="Ask the agent... (e.g. Should I sell my coffee harvest this week?)"
+              onkeydown="if (event.key === 'Enter') sendChat();"
+            />
+            <button onclick="sendChat()">Send ↗</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
