@@ -3,121 +3,258 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AgroLatam Agent</title>
+    <title>AgroLatam Agent — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <!-- NAVBAR -->
     <nav class="navbar">
       <div class="nav-brand">
-        <span class="nav-icon">🌱</span>
-        <span class="nav-title">AgroLatam Agent</span>
-        <span class="nav-sub">Powered by Gemini + Fivetran</span>
+        <div class="nav-logo">🌱</div>
+        <div>
+          <div class="nav-title">AgroLatam Agent</div>
+          <div
+            class="nav-sub"
+            data-en="Powered by Gemini + Fivetran"
+            data-es="Impulsado por Gemini + Fivetran"
+          >
+            Powered by Gemini + Fivetran
+          </div>
+        </div>
       </div>
       <div class="nav-links">
-        <a class="nav-link active" onclick="showSection('dashboard')"
+        <a
+          class="nav-link active"
+          onclick="showSection('dashboard', this)"
+          data-en="Dashboard"
+          data-es="Panel"
           >Dashboard</a
         >
-        <a class="nav-link" onclick="showSection('markets')">Markets</a>
-        <a class="nav-link" onclick="showSection('alerts')">Alerts</a>
-        <a class="nav-link" onclick="showSection('agent')">Agent</a>
+        <a
+          class="nav-link"
+          onclick="showSection('markets', this)"
+          data-en="Markets"
+          data-es="Mercados"
+          >Markets</a
+        >
+        <a
+          class="nav-link"
+          onclick="showSection('alerts', this)"
+          data-en="Alerts"
+          data-es="Alertas"
+          >Alerts</a
+        >
+        <a
+          class="nav-link"
+          onclick="showSection('agent', this)"
+          data-en="Agent"
+          data-es="Agente"
+          >Agent</a
+        >
       </div>
-      <div class="nav-status">
-        <span class="status-dot"></span>
-        <span>Agent running</span>
+      <div class="nav-right">
+        <div class="lang-switcher">
+          <button class="lang-opt active" onclick="setLang('en')">EN</button>
+          <button class="lang-opt" onclick="setLang('es')">ES</button>
+        </div>
+        <div class="nav-status">
+          <span class="status-dot"></span>
+          <span data-en="Agent running" data-es="Agente activo"
+            >Agent running</span
+          >
+        </div>
+        <a
+          href="auth/login.html"
+          class="nav-login"
+          data-en="Sign In"
+          data-es="Iniciar sesión"
+          >Sign In</a
+        >
       </div>
     </nav>
 
-    <!-- MAIN -->
     <main class="main">
-      <!-- SECTION: DASHBOARD -->
+      <!-- DASHBOARD -->
       <section id="section-dashboard" class="section active">
         <div class="page-header">
-          <h1>Agricultural Intelligence Dashboard</h1>
-          <p>Real-time monitoring across 18 Latin American countries</p>
+          <h1
+            data-en="Agricultural Intelligence Dashboard"
+            data-es="Panel de Inteligencia Agrícola"
+          >
+            Agricultural Intelligence Dashboard
+          </h1>
+          <p
+            data-en="Real-time monitoring across 18 Latin American countries"
+            data-es="Monitoreo en tiempo real en 18 países latinoamericanos"
+          >
+            Real-time monitoring across 18 Latin American countries
+          </p>
         </div>
-
-        <!-- METRICS -->
         <div class="metrics-grid" id="metrics-grid">
-          <div class="metric-card loading">Loading prices...</div>
+          <div class="metric-skeleton"></div>
+          <div class="metric-skeleton"></div>
+          <div class="metric-skeleton"></div>
+          <div class="metric-skeleton"></div>
+          <div class="metric-skeleton"></div>
         </div>
-
-        <!-- TWO COLUMNS -->
         <div class="two-col">
-          <!-- ALERTS -->
           <div class="card">
             <div class="card-header">
-              <span>🔔 Active Alerts</span>
+              <span
+                >🔔
+                <span data-en="Active Alerts" data-es="Alertas Activas"
+                  >Active Alerts</span
+                ></span
+              >
               <span class="badge-live">LIVE</span>
             </div>
             <div id="alerts-list">
-              <div class="loading-text">Loading alerts...</div>
+              <div
+                class="loading-text"
+                data-en="Loading alerts..."
+                data-es="Cargando alertas..."
+              >
+                Loading alerts...
+              </div>
             </div>
           </div>
-
-          <!-- PIPELINE STATUS -->
           <div class="card">
             <div class="card-header">
-              <span>⚡ Fivetran Pipelines</span>
-              <span class="badge-ok">All synced</span>
+              <span
+                >⚡
+                <span data-en="Fivetran Pipelines" data-es="Pipelines Fivetran"
+                  >Fivetran Pipelines</span
+                ></span
+              >
+              <span
+                class="badge-ok"
+                data-en="All synced"
+                data-es="Todo sincronizado"
+                >All synced</span
+              >
             </div>
             <div class="pipeline-list">
               <div class="pipeline-row">
-                <span>Commodity prices</span>
-                <span class="pipe-status synced">● Synced · 2min ago</span>
+                <span
+                  data-en="Commodity prices"
+                  data-es="Precios de materias primas"
+                  >Commodity prices</span
+                ><span class="pipe-synced"
+                  >●
+                  <span
+                    data-en="Synced · 2min ago"
+                    data-es="Sincronizado · hace 2min"
+                    >Synced · 2min ago</span
+                  ></span
+                >
               </div>
               <div class="pipeline-row">
-                <span>Weather data (LATAM)</span>
-                <span class="pipe-status synced">● Synced · 5min ago</span>
+                <span
+                  data-en="Weather data (LATAM)"
+                  data-es="Datos meteorológicos"
+                  >Weather data (LATAM)</span
+                ><span class="pipe-synced"
+                  >●
+                  <span
+                    data-en="Synced · 5min ago"
+                    data-es="Sincronizado · hace 5min"
+                    >Synced · 5min ago</span
+                  ></span
+                >
               </div>
               <div class="pipeline-row">
-                <span>Export statistics (FAO)</span>
-                <span class="pipe-status synced">● Synced · 1h ago</span>
+                <span
+                  data-en="Export statistics (FAO)"
+                  data-es="Estadísticas de exportación"
+                  >Export statistics (FAO)</span
+                ><span class="pipe-synced"
+                  >●
+                  <span
+                    data-en="Synced · 1h ago"
+                    data-es="Sincronizado · hace 1h"
+                    >Synced · 1h ago</span
+                  ></span
+                >
               </div>
               <div class="pipeline-row">
-                <span>Credit database</span>
-                <span class="pipe-status synced">● Synced · 6h ago</span>
+                <span
+                  data-en="Credit database"
+                  data-es="Base de datos de crédito"
+                  >Credit database</span
+                ><span class="pipe-synced"
+                  >●
+                  <span
+                    data-en="Synced · 6h ago"
+                    data-es="Sincronizado · hace 6h"
+                    >Synced · 6h ago</span
+                  ></span
+                >
               </div>
             </div>
-            <div class="coverage-title">Countries monitored</div>
-            <div class="country-chips">
-              <span class="chip">🇵🇪 Peru</span>
-              <span class="chip">🇧🇷 Brazil</span>
-              <span class="chip">🇨🇴 Colombia</span>
-              <span class="chip">🇲🇽 Mexico</span>
-              <span class="chip">🇦🇷 Argentina</span>
-              <span class="chip">🇪🇨 Ecuador</span>
-              <span class="chip">🇧🇴 Bolivia</span>
-              <span class="chip">🇨🇱 Chile</span>
-              <span class="chip">🇬🇹 Guatemala</span>
-              <span class="chip">🇭🇳 Honduras</span>
-              <span class="chip">+ 8 more</span>
+            <div
+              class="coverage-title"
+              data-en="Countries monitored"
+              data-es="Países monitoreados"
+            >
+              Countries monitored
+            </div>
+            <div class="chips">
+              <span class="chip">🇵🇪 Peru</span
+              ><span class="chip">🇧🇷 Brazil</span
+              ><span class="chip">🇨🇴 Colombia</span>
+              <span class="chip">🇲🇽 Mexico</span
+              ><span class="chip">🇦🇷 Argentina</span
+              ><span class="chip">🇪🇨 Ecuador</span>
+              <span class="chip">🇧🇴 Bolivia</span
+              ><span class="chip">🇨🇱 Chile</span
+              ><span class="chip">🇬🇹 Guatemala</span>
+              <span class="chip">🇭🇳 Honduras</span
+              ><span class="chip"
+                >+ 8 <span data-en="more" data-es="más">more</span></span
+              >
             </div>
           </div>
         </div>
       </section>
 
-      <!-- SECTION: MARKETS -->
+      <!-- MARKETS -->
       <section id="section-markets" class="section">
         <div class="page-header">
-          <h1>Commodity Markets</h1>
-          <p>Live prices from ICE NY, ICE London, CME and FAO</p>
+          <h1 data-en="Commodity Markets" data-es="Mercados de Materias Primas">
+            Commodity Markets
+          </h1>
+          <p
+            data-en="Live prices from ICE NY, ICE London, CME and FAO"
+            data-es="Precios en vivo de ICE NY, ICE Londres, CME y FAO"
+          >
+            Live prices from ICE NY, ICE London, CME and FAO
+          </p>
         </div>
         <div class="card">
-          <table class="market-table">
+          <table class="mkt-table">
             <thead>
               <tr>
-                <th>Crop</th>
-                <th>Price</th>
-                <th>Change</th>
-                <th>Unit</th>
-                <th>Exchange</th>
-                <th>Signal</th>
+                <th data-en="Crop" data-es="Cultivo">Crop</th>
+                <th data-en="Price" data-es="Precio">Price</th>
+                <th data-en="Change" data-es="Cambio">Change</th>
+                <th data-en="Unit" data-es="Unidad">Unit</th>
+                <th data-en="Exchange" data-es="Bolsa">Exchange</th>
+                <th data-en="Signal" data-es="Señal">Signal</th>
               </tr>
             </thead>
-            <tbody id="market-table-body">
+            <tbody id="market-tbody">
               <tr>
-                <td colspan="6" style="text-align: center; padding: 20px">
+                <td
+                  colspan="6"
+                  style="text-align: center; padding: 20px; color: #aaa"
+                  data-en="Loading..."
+                  data-es="Cargando..."
+                >
                   Loading...
                 </td>
               </tr>
@@ -126,26 +263,52 @@
         </div>
       </section>
 
-      <!-- SECTION: ALERTS -->
+      <!-- ALERTS -->
       <section id="section-alerts" class="section">
         <div class="page-header">
-          <h1>Autonomous Alerts</h1>
-          <p>Generated and sent by the agent without human intervention</p>
+          <h1 data-en="Autonomous Alerts" data-es="Alertas Autónomas">
+            Autonomous Alerts
+          </h1>
+          <p
+            data-en="Generated and sent by the agent without human intervention"
+            data-es="Generadas y enviadas por el agente sin intervención humana"
+          >
+            Generated and sent by the agent without human intervention
+          </p>
         </div>
-        <div id="alerts-full-list">
-          <div class="loading-text">Loading alerts...</div>
+        <div id="alerts-full">
+          <div class="card">
+            <div
+              class="loading-text"
+              data-en="Loading..."
+              data-es="Cargando..."
+            >
+              Loading...
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- SECTION: AGENT CHAT -->
+      <!-- AGENT -->
       <section id="section-agent" class="section">
         <div class="page-header">
-          <h1>Talk to the Agent</h1>
-          <p>Ask anything about LATAM agricultural markets</p>
+          <h1 data-en="Talk to the Agent" data-es="Habla con el Agente">
+            Talk to the Agent
+          </h1>
+          <p
+            data-en="Ask anything about LATAM agricultural markets"
+            data-es="Pregunta cualquier cosa sobre los mercados agrícolas de LATAM"
+          >
+            Ask anything about LATAM agricultural markets
+          </p>
         </div>
-        <div class="chat-wrapper">
-          <div class="chat-messages" id="chat-messages">
-            <div class="msg agent-msg">
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="chat-msgs">
+            <div
+              class="msg agent-msg"
+              data-en="Hello! I am AgroLatam Agent. I monitor commodity prices, weather, and export markets across 18 Latin American countries in real time. How can I help you today?"
+              data-es="¡Hola! Soy AgroLatam Agent. Monitoreo precios de materias primas, clima y mercados de exportación en 18 países latinoamericanos en tiempo real. ¿Cómo puedo ayudarte hoy?"
+            >
               Hello! I am AgroLatam Agent. I monitor commodity prices, weather,
               and export markets across 18 Latin American countries in real
               time. How can I help you today?
@@ -155,10 +318,14 @@
             <input
               type="text"
               id="chat-input"
-              placeholder="Ask the agent... (e.g. Should I sell my coffee harvest this week?)"
+              data-en-placeholder="Ask the agent... (e.g. Should I sell my coffee this week?)"
+              data-es-placeholder="Pregunta al agente... (ej. ¿Debo vender mi café esta semana?)"
+              placeholder="Ask the agent..."
               onkeydown="if (event.key === 'Enter') sendChat();"
             />
-            <button onclick="sendChat()">Send ↗</button>
+            <button onclick="sendChat()" data-en="Send ↗" data-es="Enviar ↗">
+              Send ↗
+            </button>
           </div>
         </div>
       </section>

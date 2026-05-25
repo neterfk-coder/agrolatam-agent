@@ -1,88 +1,109 @@
 const API = "https://netricd-agrolatam-agent.hf.space";
 
-// ── NAV ──────────────────────────────────────────────────────────────────────
-function showSection(name) {
+// ── LANGUAGE ──────────────────────────────────────────────────────────────────
+let lang = localStorage.getItem("lang") || "en";
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem("lang", l);
+  document
+    .querySelectorAll(".lang-opt")
+    .forEach((b, i) =>
+      b.classList.toggle(
+        "active",
+        (l === "en" && i === 0) || (l === "es" && i === 1),
+      ),
+    );
+  document.querySelectorAll("[data-en]").forEach((el) => {
+    el.textContent = el.dataset[l];
+  });
+  document.querySelectorAll("[data-en-placeholder]").forEach((el) => {
+    el.placeholder = el.dataset[l + "Placeholder"];
+  });
+  const initMsg = document.querySelector(".agent-msg");
+  if (initMsg) initMsg.textContent = initMsg.dataset[l];
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function showSection(name, el) {
   document
     .querySelectorAll(".section")
     .forEach((s) => s.classList.remove("active"));
   document
     .querySelectorAll(".nav-link")
     .forEach((l) => l.classList.remove("active"));
-  document.getElementById(`section-${name}`).classList.add("active");
-  event.target.classList.add("active");
+  document.getElementById("section-" + name).classList.add("active");
+  if (el) el.classList.add("active");
 }
 
-// ── PRICES ───────────────────────────────────────────────────────────────────
-async function loadPrices() {
-  const grid = document.getElementById("metrics-grid");
-  const tbody = document.getElementById("market-table-body");
+// ── PRICES ────────────────────────────────────────────────────────────────────
+const ICONS = {
+  coffee: "☕",
+  cacao: "🍫",
+  corn: "🌽",
+  banana: "🍌",
+  soy: "🌱",
+};
+const NAMES_ES = {
+  coffee: "Café",
+  cacao: "Cacao",
+  corn: "Maíz",
+  banana: "Banano",
+  soy: "Soya",
+};
 
+async function loadPrices() {
   try {
     const res = await fetch(`${API}/api/prices`);
     const data = await res.json();
-
-    const icons = {
-      coffee: "☕",
-      cacao: "🍫",
-      corn: "🌽",
-      banana: "🍌",
-      soy: "🌱",
-    };
+    const grid = document.getElementById("metrics-grid");
+    const tbody = document.getElementById("market-tbody");
 
     grid.innerHTML = Object.entries(data)
       .map(
         ([crop, d]) => `
       <div class="metric-card">
-        <div class="metric-crop">${icons[crop] || ""} ${crop}</div>
-        <div class="metric-price">${
-          typeof d.price === "number" && d.price > 100
-            ? "$" + d.price.toLocaleString()
-            : "$" + d.price.toFixed(2)
-        }</div>
+        <div class="metric-crop">${ICONS[crop] || ""} ${lang === "es" ? NAMES_ES[crop] || crop : crop}</div>
+        <div class="metric-price">${d.price > 100 ? "$" + d.price.toLocaleString() : "$" + d.price.toFixed(2)}</div>
         <div class="metric-unit">${d.unit}</div>
         <div class="metric-change ${d.change > 0 ? "up" : "down"}">
-          ${d.change > 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}% today
+          ${d.change > 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%
         </div>
         <div class="metric-exchange">${d.exchange}</div>
-      </div>
-    `,
+      </div>`,
       )
       .join("");
 
+    const buyTxt = lang === "es" ? "COMPRAR" : "BUY";
+    const sellTxt = lang === "es" ? "VENDER" : "SELL";
+    const holdTxt = lang === "es" ? "MANTENER" : "HOLD";
+
     tbody.innerHTML = Object.entries(data)
       .map(([crop, d]) => {
-        const up = d.change > 0;
         const big = Math.abs(d.change) > 2;
-        const signal =
-          big && up
-            ? `<span class="signal-buy">BUY</span>`
-            : big && !up
-              ? `<span class="signal-sell">SELL</span>`
-              : `<span class="signal-hold">HOLD</span>`;
-        return `
-        <tr>
-          <td>${icons[crop] || ""} ${crop}</td>
-          <td class="price-val">${
-            typeof d.price === "number" && d.price > 100
-              ? "$" + d.price.toLocaleString()
-              : "$" + d.price.toFixed(2)
-          }</td>
-          <td class="${up ? "up-text" : "down-text"}">
-            ${up ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%
-          </td>
-          <td>${d.unit}</td>
-          <td>${d.exchange}</td>
-          <td>${signal}</td>
-        </tr>`;
+        const sig =
+          big && d.change > 0
+            ? `<span class="sig-buy">${buyTxt}</span>`
+            : big && d.change < 0
+              ? `<span class="sig-sell">${sellTxt}</span>`
+              : `<span class="sig-hold">${holdTxt}</span>`;
+        return `<tr>
+        <td>${ICONS[crop] || ""} ${lang === "es" ? NAMES_ES[crop] || crop : crop}</td>
+        <td class="price-val">${d.price > 100 ? "$" + d.price.toLocaleString() : "$" + d.price.toFixed(2)}</td>
+        <td class="${d.change > 0 ? "up-text" : "down-text"}">${d.change > 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%</td>
+        <td>${d.unit}</td>
+        <td>${d.exchange}</td>
+        <td>${sig}</td>
+      </tr>`;
       })
       .join("");
   } catch {
-    grid.innerHTML = `<div class="metric-card loading">Backend offline — run: uvicorn main:app</div>`;
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">Backend offline</td></tr>`;
+    document.getElementById("metrics-grid").innerHTML =
+      `<div class="metric-skeleton"></div>`.repeat(5);
   }
 }
 
-// ── ALERTS ───────────────────────────────────────────────────────────────────
+// ── ALERTS ────────────────────────────────────────────────────────────────────
 function renderAlert(a) {
   const dotClass =
     a.type === "critical"
@@ -90,48 +111,43 @@ function renderAlert(a) {
       : a.type === "warning"
         ? "dot-warning"
         : "dot-opportunity";
-  return `
-    <div class="alert-item">
-      <span class="alert-dot ${dotClass}"></span>
-      <div>
-        <div class="alert-title">${a.title}</div>
-        <div class="alert-desc">${a.description}</div>
-        <div class="alert-meta">
-          ${a.countries.join(", ")} · ${a.time} ·
-          <span class="alert-action">${a.action}</span>
-        </div>
-      </div>
-    </div>`;
+  return `<div class="alert-item">
+    <span class="alert-dot ${dotClass}"></span>
+    <div>
+      <div class="alert-title">${a.title}</div>
+      <div class="alert-desc">${a.description}</div>
+      <div class="alert-meta">${a.countries.join(", ")} · ${a.time} · <span class="alert-action">${a.action}</span></div>
+    </div>
+  </div>`;
 }
 
 async function loadAlerts() {
-  const list = document.getElementById("alerts-list");
-  const fullList = document.getElementById("alerts-full-list");
   try {
     const res = await fetch(`${API}/api/alerts`);
     const alerts = await res.json();
     const html = alerts.map(renderAlert).join("");
-    list.innerHTML = html;
-    fullList.innerHTML = `<div class="card">${html}</div>`;
+    document.getElementById("alerts-list").innerHTML =
+      html ||
+      `<div class="loading-text">${lang === "es" ? "Sin alertas" : "No alerts"}</div>`;
+    document.getElementById("alerts-full").innerHTML =
+      `<div class="card">${html}</div>`;
   } catch {
-    list.innerHTML = `<div class="loading-text">Backend offline</div>`;
-    fullList.innerHTML = `<div class="card"><div class="loading-text">Backend offline</div></div>`;
+    const msg = lang === "es" ? "Backend offline" : "Backend offline";
+    document.getElementById("alerts-list").innerHTML =
+      `<div class="loading-text">${msg}</div>`;
   }
 }
 
-// ── CHAT ─────────────────────────────────────────────────────────────────────
+// ── CHAT ──────────────────────────────────────────────────────────────────────
 async function sendChat() {
   const input = document.getElementById("chat-input");
-  const messages = document.getElementById("chat-messages");
+  const msgs = document.getElementById("chat-msgs");
   const text = input.value.trim();
   if (!text) return;
-
   input.value = "";
-
-  messages.innerHTML += `<div class="msg user-msg">${text}</div>`;
-  messages.innerHTML += `<div class="msg typing" id="typing">Agent is thinking...</div>`;
-  messages.scrollTop = messages.scrollHeight;
-
+  msgs.innerHTML += `<div class="msg user-msg">${text}</div>`;
+  msgs.innerHTML += `<div class="msg typing" id="typing">${lang === "es" ? "El agente está pensando..." : "Agent is thinking..."}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
   try {
     const res = await fetch(`${API}/api/chat`, {
       method: "POST",
@@ -140,16 +156,16 @@ async function sendChat() {
     });
     const data = await res.json();
     document.getElementById("typing")?.remove();
-    messages.innerHTML += `<div class="msg agent-msg">${data.response}</div>`;
+    msgs.innerHTML += `<div class="msg agent-msg">${data.response}</div>`;
   } catch {
     document.getElementById("typing")?.remove();
-    messages.innerHTML += `<div class="msg agent-msg">Backend offline — start the server first.</div>`;
+    msgs.innerHTML += `<div class="msg agent-msg">${lang === "es" ? "Backend offline — inicia el servidor." : "Backend offline — start the server."}</div>`;
   }
-
-  messages.scrollTop = messages.scrollHeight;
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
+setLang(lang);
 loadPrices();
 loadAlerts();
 setInterval(loadPrices, 60000);

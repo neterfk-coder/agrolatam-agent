@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam Agent — Reset Password</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f8f4ee;
+        --white: #ffffff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+        --error: #b03a2e;
+        --error-bg: #fdf0ee;
+        --success: #0a4a35;
+        --success-bg: #eaf5ef;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .container {
+        width: 100%;
+        max-width: 460px;
+      }
+      .lang-top {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 32px;
+      }
+      .lang-btn {
+        display: flex;
+        background: var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 500;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        transition: all 0.2s;
+      }
+      .lang-opt.active {
+        background: var(--forest);
+        color: #fff;
+      }
+      .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 48px;
+      }
+      .icon-wrap {
+        width: 64px;
+        height: 64px;
+        background: var(--success-bg);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 24px;
+      }
+      .auth-title {
+        font-family: "Fraunces", serif;
+        font-size: 30px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+        margin-bottom: 8px;
+      }
+      .auth-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 28px;
+        line-height: 1.7;
+      }
+      .field {
+        margin-bottom: 20px;
+      }
+      .field label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--ink);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 7px;
+      }
+      .field input {
+        width: 100%;
+        padding: 13px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--cream);
+        outline: none;
+        transition: all 0.2s;
+      }
+      .field input:focus {
+        border-color: var(--forest);
+        background: var(--white);
+        box-shadow: 0 0 0 3px rgba(10, 74, 53, 0.1);
+      }
+      .field input::placeholder {
+        color: #c5bfb5;
+      }
+      .btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        letter-spacing: 0.02em;
+      }
+      .btn:hover {
+        background: var(--forest2);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(10, 74, 53, 0.25);
+      }
+      .btn:disabled {
+        background: #bbb;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .back {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 20px;
+        justify-content: center;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .back a {
+        color: var(--forest);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .back a:hover {
+        text-decoration: underline;
+      }
+      .msg {
+        padding: 12px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+        line-height: 1.5;
+      }
+      .msg.error {
+        background: var(--error-bg);
+        color: var(--error);
+        display: block;
+      }
+      .msg.success {
+        background: var(--success-bg);
+        color: var(--success);
+        display: block;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 40px;
+      }
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        background: var(--forest);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      .brand-name {
+        font-family: "Fraunces", serif;
+        font-size: 18px;
+        color: var(--ink);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="lang-top">
+        <div class="lang-btn">
+          <button class="lang-opt active" onclick="setLang('en')">EN</button>
+          <button class="lang-opt" onclick="setLang('es')">ES</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="brand">
+          <div class="brand-mark">🌱</div>
+          <span class="brand-name">AgroLatam Agent</span>
+        </div>
+
+        <div class="icon-wrap">🔑</div>
+
+        <div class="msg" id="msg"></div>
+
+        <div
+          class="auth-title"
+          data-en="Reset your password"
+          data-es="Restablecer contraseña"
+        >
+          Reset your password
+        </div>
+        <div
+          class="auth-sub"
+          data-en="Enter your email address and we'll send you a link to reset your password."
+          data-es="Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña."
+        >
+          Enter your email address and we'll send you a link to reset your
+          password.
+        </div>
+
+        <div class="field">
+          <label data-en="Email address" data-es="Correo electrónico"
+            >Email address</label
+          >
+          <input
+            type="email"
+            id="email"
+            placeholder="you@example.com"
+            onkeydown="if (event.key === 'Enter') reset();"
+          />
+        </div>
+
+        <button
+          class="btn"
+          id="btn"
+          onclick="reset()"
+          data-en="Send Reset Link →"
+          data-es="Enviar enlace →"
+        >
+          Send Reset Link →
+        </button>
+
+        <div class="back">
+          ←
+          <a
+            href="login.html"
+            data-en="Back to Sign In"
+            data-es="Volver a iniciar sesión"
+            >Back to Sign In</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
+      const SUPABASE_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
+      const { createClient } = supabase;
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const t = {
+        en: {
+          sending: "Sending...",
+          errorEmpty: "Please enter your email.",
+          success: "✅ Reset link sent! Check your inbox.",
+          error: "Could not send reset email. Try again.",
+        },
+        es: {
+          sending: "Enviando...",
+          errorEmpty: "Por favor ingresa tu correo.",
+          success: "✅ ¡Enlace enviado! Revisa tu bandeja de entrada.",
+          error: "No se pudo enviar el correo. Intenta de nuevo.",
+        },
+      };
+
+      let lang = localStorage.getItem("lang") || "en";
+      setLang(lang);
+
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document.querySelectorAll("[data-en]").forEach((el) => {
+          el.textContent = el.dataset[l];
+        });
+      }
+
+      function showMsg(text, type) {
+        const el = document.getElementById("msg");
+        el.className = "msg " + type;
+        el.textContent = text;
+      }
+
+      async function reset() {
+        const email = document.getElementById("email").value.trim();
+        if (!email) {
+          showMsg(t[lang].errorEmpty, "error");
+          return;
+        }
+        const btn = document.getElementById("btn");
+        btn.disabled = true;
+        btn.textContent = t[lang].sending;
+        const { error } = await sb.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + "/auth/login.html",
+        });
+        btn.disabled = false;
+        btn.textContent =
+          lang === "en" ? "Send Reset Link →" : "Enviar enlace →";
+        if (error) {
+          showMsg(t[lang].error, "error");
+        } else {
+          showMsg(t[lang].success, "success");
+        }
+      }
+    </script>
+  </body>
+</html>

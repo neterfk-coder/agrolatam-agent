@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam Agent — Create Account</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f8f4ee;
+        --white: #ffffff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+        --error: #b03a2e;
+        --error-bg: #fdf0ee;
+        --success: #0a4a35;
+        --success-bg: #eaf5ef;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .left {
+        background: var(--forest);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 52px;
+      }
+      .left::before {
+        content: "";
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: rgba(200, 144, 42, 0.07);
+        top: -100px;
+        right: -100px;
+      }
+      .left::after {
+        content: "";
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.04);
+        bottom: -60px;
+        left: -60px;
+      }
+      .brand {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        background: var(--gold);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+      .brand-name {
+        font-family: "Fraunces", serif;
+        font-size: 22px;
+        color: #fff;
+        letter-spacing: -0.3px;
+      }
+      .left-hero {
+        position: relative;
+        z-index: 1;
+      }
+      .left-hero h1 {
+        font-family: "Fraunces", serif;
+        font-size: 40px;
+        line-height: 1.15;
+        color: #fff;
+        letter-spacing: -1px;
+        margin-bottom: 20px;
+      }
+      .left-hero h1 em {
+        font-style: italic;
+        color: rgba(200, 144, 42, 0.9);
+      }
+      .left-hero p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.8;
+        max-width: 320px;
+      }
+      .features {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .feature {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .feature-icon {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      .feature-text {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.5;
+      }
+      .feature-title {
+        color: #fff;
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 2px;
+      }
+      .right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 52px 72px;
+      }
+      .auth-box {
+        width: 100%;
+        max-width: 400px;
+      }
+      .lang-top {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 28px;
+      }
+      .lang-btn {
+        display: flex;
+        background: var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 500;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        transition: all 0.2s;
+      }
+      .lang-opt.active {
+        background: var(--forest);
+        color: #fff;
+      }
+      .auth-title {
+        font-family: "Fraunces", serif;
+        font-size: 32px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+      }
+      .auth-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 28px;
+        line-height: 1.6;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .field {
+        margin-bottom: 16px;
+      }
+      .field label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--ink);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 7px;
+      }
+      .field input,
+      .field select {
+        width: 100%;
+        padding: 13px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--white);
+        outline: none;
+        transition: all 0.2s;
+        appearance: none;
+      }
+      .field input:focus,
+      .field select:focus {
+        border-color: var(--forest);
+        box-shadow: 0 0 0 3px rgba(10, 74, 53, 0.1);
+      }
+      .field input::placeholder {
+        color: #c5bfb5;
+      }
+      .btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        letter-spacing: 0.02em;
+      }
+      .btn:hover {
+        background: var(--forest2);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(10, 74, 53, 0.25);
+      }
+      .btn:disabled {
+        background: #bbb;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .terms {
+        font-size: 11px;
+        color: var(--muted);
+        text-align: center;
+        margin: 14px 0;
+        line-height: 1.6;
+      }
+      .terms a {
+        color: var(--forest);
+        text-decoration: none;
+      }
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 18px 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+      .auth-links {
+        text-align: center;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .auth-links a {
+        color: var(--forest);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .msg {
+        padding: 12px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+        line-height: 1.5;
+      }
+      .msg.error {
+        background: var(--error-bg);
+        color: var(--error);
+        display: block;
+      }
+      .msg.success {
+        background: var(--success-bg);
+        color: var(--success);
+        display: block;
+      }
+      @media (max-width: 768px) {
+        body {
+          grid-template-columns: 1fr;
+        }
+        .left {
+          display: none;
+        }
+        .right {
+          padding: 40px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="left">
+      <div class="brand">
+        <div class="brand-mark">🌱</div>
+        <span class="brand-name">AgroLatam Agent</span>
+      </div>
+      <div class="left-hero">
+        <h1>
+          Join <em>60 million</em><br />farmers across<br />Latin America.
+        </h1>
+        <p
+          data-en="Get real-time alerts, market intelligence, and autonomous insights — completely free."
+          data-es="Obtén alertas en tiempo real, inteligencia de mercado e insights autónomos — completamente gratis."
+        >
+          Get real-time alerts, market intelligence, and autonomous insights —
+          completely free.
+        </p>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">📈</div>
+          <div class="feature-text">
+            <div
+              class="feature-title"
+              data-en="Live commodity prices"
+              data-es="Precios en tiempo real"
+            >
+              Live commodity prices
+            </div>
+            <span
+              data-en="Coffee, cacao, corn, banana and soy across 18 countries"
+              data-es="Café, cacao, maíz, banano y soya en 18 países"
+              >Coffee, cacao, corn, banana and soy across 18 countries</span
+            >
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-text">
+            <div
+              class="feature-title"
+              data-en="Autonomous AI agent"
+              data-es="Agente IA autónomo"
+            >
+              Autonomous AI agent
+            </div>
+            <span
+              data-en="Powered by Gemini — acts, not just answers"
+              data-es="Impulsado por Gemini — actúa, no solo responde"
+              >Powered by Gemini — acts, not just answers</span
+            >
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-text">
+            <div
+              class="feature-title"
+              data-en="Fivetran data pipelines"
+              data-es="Pipelines de datos Fivetran"
+            >
+              Fivetran data pipelines
+            </div>
+            <span
+              data-en="Synced every 5 minutes from global sources"
+              data-es="Sincronizado cada 5 minutos de fuentes globales"
+              >Synced every 5 minutes from global sources</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="auth-box">
+        <div class="lang-top">
+          <div class="lang-btn">
+            <button class="lang-opt active" onclick="setLang('en')">EN</button>
+            <button class="lang-opt" onclick="setLang('es')">ES</button>
+          </div>
+        </div>
+
+        <div class="msg" id="msg"></div>
+
+        <div class="auth-title" data-en="Create account" data-es="Crear cuenta">
+          Create account
+        </div>
+        <div
+          class="auth-sub"
+          data-en="Join AgroLatam Agent for free"
+          data-es="Únete a AgroLatam Agent gratis"
+        >
+          Join AgroLatam Agent for free
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label data-en="First name" data-es="Nombre">First name</label>
+            <input type="text" id="fname" placeholder="Arnold" />
+          </div>
+          <div class="field">
+            <label data-en="Last name" data-es="Apellido">Last name</label>
+            <input type="text" id="lname" placeholder="Smith" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label data-en="Email address" data-es="Correo electrónico"
+            >Email address</label
+          >
+          <input type="email" id="email" placeholder="you@example.com" />
+        </div>
+
+        <div class="field">
+          <label data-en="Country" data-es="País">Country</label>
+          <select id="country">
+            <option
+              value=""
+              data-en="Select your country"
+              data-es="Selecciona tu país"
+            >
+              Select your country
+            </option>
+            <option value="PE">🇵🇪 Peru</option>
+            <option value="BR">🇧🇷 Brazil</option>
+            <option value="CO">🇨🇴 Colombia</option>
+            <option value="MX">🇲🇽 Mexico</option>
+            <option value="AR">🇦🇷 Argentina</option>
+            <option value="EC">🇪🇨 Ecuador</option>
+            <option value="BO">🇧🇴 Bolivia</option>
+            <option value="CL">🇨🇱 Chile</option>
+            <option value="GT">🇬🇹 Guatemala</option>
+            <option value="HN">🇭🇳 Honduras</option>
+            <option value="OTHER" data-en="Other" data-es="Otro">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label data-en="Password" data-es="Contraseña">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Min. 6 characters"
+          />
+        </div>
+
+        <button
+          class="btn"
+          id="btn"
+          onclick="register()"
+          data-en="Create Account →"
+          data-es="Crear Cuenta →"
+        >
+          Create Account →
+        </button>
+
+        <div class="terms">
+          <span
+            data-en="By creating an account you agree to our"
+            data-es="Al crear una cuenta aceptas nuestros"
+            >By creating an account you agree to our</span
+          >
+          <a
+            href="#"
+            data-en=" Terms of Service"
+            data-es=" Términos de Servicio"
+          >
+            Terms of Service</a
+          >
+        </div>
+
+        <div class="divider" data-en="or" data-es="o">or</div>
+        <div class="auth-links">
+          <span data-en="Already have an account?" data-es="¿Ya tienes cuenta?"
+            >Already have an account?</span
+          >
+          <a href="login.html" data-en=" Sign in" data-es=" Iniciar sesión">
+            Sign in</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
+      const SUPABASE_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
+      const { createClient } = supabase;
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const t = {
+        en: {
+          creating: "Creating account...",
+          errorEmpty: "Please fill in all fields.",
+          errorPass: "Password must be at least 6 characters.",
+          success: "✅ Account created! Check your email to confirm.",
+        },
+        es: {
+          creating: "Creando cuenta...",
+          errorEmpty: "Por favor completa todos los campos.",
+          errorPass: "La contraseña debe tener al menos 6 caracteres.",
+          success: "✅ ¡Cuenta creada! Revisa tu correo para confirmar.",
+        },
+      };
+
+      let lang = localStorage.getItem("lang") || "en";
+      setLang(lang);
+
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document.querySelectorAll("[data-en]").forEach((el) => {
+          el.textContent = el.dataset[l];
+        });
+      }
+
+      function showMsg(text, type) {
+        const el = document.getElementById("msg");
+        el.className = "msg " + type;
+        el.textContent = text;
+      }
+
+      async function register() {
+        const fname = document.getElementById("fname").value.trim();
+        const lname = document.getElementById("lname").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const country = document.getElementById("country").value;
+        const pass = document.getElementById("password").value;
+        if (!fname || !lname || !email || !country || !pass) {
+          showMsg(t[lang].errorEmpty, "error");
+          return;
+        }
+        if (pass.length < 6) {
+          showMsg(t[lang].errorPass, "error");
+          return;
+        }
+        const btn = document.getElementById("btn");
+        btn.disabled = true;
+        btn.textContent = t[lang].creating;
+        const { error } = await sb.auth.signUp({
+          email,
+          password: pass,
+          options: { data: { full_name: fname + " " + lname, country } },
+        });
+        btn.disabled = false;
+        btn.textContent = lang === "en" ? "Create Account →" : "Crear Cuenta →";
+        if (error) {
+          showMsg(error.message, "error");
+        } else {
+          showMsg(t[lang].success, "success");
+        }
+      }
+    </script>
+  </body>
+</html>

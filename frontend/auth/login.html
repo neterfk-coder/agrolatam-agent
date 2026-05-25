@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam Agent — Sign In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f8f4ee;
+        --white: #ffffff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+        --error: #b03a2e;
+        --error-bg: #fdf0ee;
+        --success: #0a4a35;
+        --success-bg: #eaf5ef;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      /* LEFT */
+      .left {
+        background: var(--forest);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 52px;
+      }
+      .left::before {
+        content: "";
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: rgba(200, 144, 42, 0.08);
+        top: -150px;
+        left: -150px;
+      }
+      .left::after {
+        content: "";
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.04);
+        bottom: -80px;
+        right: -80px;
+      }
+      .left-grain {
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+        opacity: 0.4;
+      }
+      .brand {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        background: var(--gold);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+      .brand-name {
+        font-family: "Fraunces", serif;
+        font-size: 22px;
+        color: #fff;
+        letter-spacing: -0.3px;
+      }
+      .left-hero {
+        position: relative;
+        z-index: 1;
+      }
+      .left-hero h1 {
+        font-family: "Fraunces", serif;
+        font-size: 46px;
+        line-height: 1.1;
+        color: #fff;
+        letter-spacing: -1px;
+        margin-bottom: 20px;
+      }
+      .left-hero h1 em {
+        font-style: italic;
+        color: rgba(200, 144, 42, 0.9);
+      }
+      .left-hero p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.65);
+        line-height: 1.8;
+        max-width: 340px;
+      }
+      .left-stats {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .stat {
+        padding: 18px 16px;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .stat:last-child {
+        border-right: none;
+      }
+      .stat-n {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        color: #fff;
+      }
+      .stat-l {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.45);
+        margin-top: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      /* RIGHT */
+      .right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 52px 72px;
+      }
+      .auth-box {
+        width: 100%;
+        max-width: 400px;
+      }
+      .lang-top {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 32px;
+      }
+      .lang-btn {
+        display: flex;
+        background: var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        border: none;
+      }
+      .lang-opt {
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 500;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        transition: all 0.2s;
+      }
+      .lang-opt.active {
+        background: var(--forest);
+        color: #fff;
+      }
+      .auth-title {
+        font-family: "Fraunces", serif;
+        font-size: 32px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+      }
+      .auth-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 32px;
+        line-height: 1.6;
+      }
+      .field {
+        margin-bottom: 18px;
+      }
+      .field label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--ink);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 7px;
+      }
+      .field input {
+        width: 100%;
+        padding: 13px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--white);
+        outline: none;
+        transition: all 0.2s;
+      }
+      .field input:focus {
+        border-color: var(--forest);
+        box-shadow: 0 0 0 3px rgba(10, 74, 53, 0.1);
+      }
+      .field input::placeholder {
+        color: #c5bfb5;
+      }
+      .forgot {
+        display: flex;
+        justify-content: flex-end;
+        margin: -8px 0 18px;
+      }
+      .forgot a {
+        font-size: 12px;
+        color: var(--forest);
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .forgot a:hover {
+        text-decoration: underline;
+      }
+      .btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 4px;
+        letter-spacing: 0.02em;
+      }
+      .btn:hover {
+        background: var(--forest2);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(10, 74, 53, 0.25);
+      }
+      .btn:active {
+        transform: translateY(0);
+      }
+      .btn:disabled {
+        background: #bbb;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 22px 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+      .auth-links {
+        text-align: center;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .auth-links a {
+        color: var(--forest);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .auth-links a:hover {
+        text-decoration: underline;
+      }
+      .msg {
+        padding: 12px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+        line-height: 1.5;
+      }
+      .msg.error {
+        background: var(--error-bg);
+        color: var(--error);
+        display: block;
+      }
+      .msg.success {
+        background: var(--success-bg);
+        color: var(--success);
+        display: block;
+      }
+      @media (max-width: 768px) {
+        body {
+          grid-template-columns: 1fr;
+        }
+        .left {
+          display: none;
+        }
+        .right {
+          padding: 40px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="left">
+      <div class="left-grain"></div>
+      <div class="brand">
+        <div class="brand-mark">🌱</div>
+        <span class="brand-name">AgroLatam Agent</span>
+      </div>
+      <div class="left-hero">
+        <h1>
+          Intelligence for<br /><em>every farmer</em><br />in Latin America.
+        </h1>
+        <p
+          data-en="Real-time commodity prices, weather alerts, and autonomous market intelligence for 60 million farmers across 18 countries."
+          data-es="Precios de materias primas en tiempo real, alertas meteorológicas e inteligencia de mercado autónoma para 60 millones de agricultores en 18 países."
+        >
+          Real-time commodity prices, weather alerts, and autonomous market
+          intelligence for 60 million farmers across 18 countries.
+        </p>
+      </div>
+      <div class="left-stats">
+        <div class="stat">
+          <div class="stat-n">60M+</div>
+          <div class="stat-l" data-en="Farmers" data-es="Agricultores">
+            Farmers
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">18</div>
+          <div class="stat-l" data-en="Countries" data-es="Países">
+            Countries
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">5</div>
+          <div class="stat-l" data-en="Crops" data-es="Cultivos">Crops</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="auth-box">
+        <div class="lang-top">
+          <div class="lang-btn">
+            <button class="lang-opt active" onclick="setLang('en')">EN</button>
+            <button class="lang-opt" onclick="setLang('es')">ES</button>
+          </div>
+        </div>
+
+        <div class="msg" id="msg"></div>
+
+        <div class="auth-title" data-en="Welcome back" data-es="Bienvenido">
+          Welcome back
+        </div>
+        <div
+          class="auth-sub"
+          data-en="Sign in to your AgroLatam account"
+          data-es="Inicia sesión en tu cuenta AgroLatam"
+        >
+          Sign in to your AgroLatam account
+        </div>
+
+        <div class="field">
+          <label data-en="Email address" data-es="Correo electrónico"
+            >Email address</label
+          >
+          <input type="email" id="email" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label data-en="Password" data-es="Contraseña">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="••••••••"
+            onkeydown="if (event.key === 'Enter') login();"
+          />
+        </div>
+        <div class="forgot">
+          <a
+            onclick="window.location.href = 'forgot.html'"
+            data-en="Forgot password?"
+            data-es="¿Olvidaste tu contraseña?"
+            >Forgot password?</a
+          >
+        </div>
+
+        <button
+          class="btn"
+          id="btn"
+          onclick="login()"
+          data-en="Sign In →"
+          data-es="Iniciar sesión →"
+        >
+          Sign In →
+        </button>
+
+        <div class="divider" data-en="or" data-es="o">or</div>
+        <div class="auth-links">
+          <span data-en="Don't have an account?" data-es="¿No tienes cuenta?"
+            >Don't have an account?</span
+          >
+          <a
+            href="register.html"
+            data-en=" Create one free"
+            data-es=" Regístrate gratis"
+          >
+            Create one free</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
+      const SUPABASE_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
+      const { createClient } = supabase;
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const t = {
+        en: {
+          signing: "Signing in...",
+          errorEmpty: "Please fill in all fields.",
+          errorInvalid: "Invalid email or password.",
+          success: "✅ Welcome! Redirecting...",
+        },
+        es: {
+          signing: "Iniciando sesión...",
+          errorEmpty: "Por favor completa todos los campos.",
+          errorInvalid: "Correo o contraseña incorrectos.",
+          success: "✅ ¡Bienvenido! Redirigiendo...",
+        },
+      };
+
+      let lang = localStorage.getItem("lang") || "en";
+      setLang(lang);
+
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document.querySelectorAll("[data-en]").forEach((el) => {
+          el.textContent = el.dataset[l];
+        });
+      }
+
+      function showMsg(text, type) {
+        const el = document.getElementById("msg");
+        el.className = "msg " + type;
+        el.textContent = text;
+      }
+
+      async function login() {
+        const email = document.getElementById("email").value.trim();
+        const pass = document.getElementById("password").value;
+        if (!email || !pass) {
+          showMsg(t[lang].errorEmpty, "error");
+          return;
+        }
+        const btn = document.getElementById("btn");
+        btn.disabled = true;
+        btn.textContent = t[lang].signing;
+        const { error } = await sb.auth.signInWithPassword({
+          email,
+          password: pass,
+        });
+        btn.disabled = false;
+        btn.textContent = lang === "en" ? "Sign In →" : "Iniciar sesión →";
+        if (error) {
+          showMsg(t[lang].errorInvalid, "error");
+        } else {
+          showMsg(t[lang].success, "success");
+          setTimeout(() => (window.location.href = "../index.html"), 1200);
+        }
+      }
+
+      sb.auth.getSession().then(({ data: { session } }) => {
+        if (session) window.location.href = "../index.html";
+      });
+    </script>
+  </body>
+</html>
