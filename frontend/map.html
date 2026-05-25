@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam Agent — My Region</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        min-height: 100vh;
+      }
+
+      /* NAV */
+      .navbar {
+        background: var(--forest);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .nav-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+      .nav-back {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s;
+      }
+      .nav-back:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .lang-switcher {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.2s;
+      }
+      .lang-opt.active {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* LAYOUT */
+      .page {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        height: calc(100vh - 60px);
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        background: var(--white);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .sidebar-title {
+        font-family: "Fraunces", serif;
+        font-size: 20px;
+        color: var(--ink);
+        margin-bottom: 4px;
+      }
+      .sidebar-sub {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      /* SEARCH */
+      .search-wrap {
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .search-box {
+        display: flex;
+        gap: 8px;
+      }
+      .search-input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 13px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--cream);
+        outline: none;
+        transition: all 0.2s;
+      }
+      .search-input:focus {
+        border-color: var(--forest);
+        background: var(--white);
+        box-shadow: 0 0 0 3px rgba(10, 74, 53, 0.1);
+      }
+      .btn-search {
+        padding: 10px 14px;
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.2s;
+      }
+      .btn-search:hover {
+        background: var(--forest2);
+      }
+      .btn-locate {
+        padding: 10px 14px;
+        background: var(--cream);
+        color: var(--forest);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .btn-locate:hover {
+        border-color: var(--forest);
+      }
+
+      /* LOCATION CARD */
+      .location-card {
+        margin: 16px;
+        background: linear-gradient(135deg, var(--forest), var(--forest2));
+        border-radius: 14px;
+        padding: 18px;
+        color: #fff;
+      }
+      .loc-label {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
+      }
+      .loc-name {
+        font-family: "Fraunces", serif;
+        font-size: 22px;
+        margin-bottom: 4px;
+      }
+      .loc-coords {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .loc-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .loc-stat {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px 12px;
+        flex: 1;
+        text-align: center;
+      }
+      .loc-stat-n {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .loc-stat-l {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 2px;
+      }
+
+      /* WEATHER CARD */
+      .weather-card {
+        margin: 0 16px 16px;
+        background: var(--cream);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .wcard-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 12px;
+      }
+      .weather-days {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .wday {
+        text-align: center;
+        background: var(--white);
+        border-radius: 10px;
+        padding: 10px 6px;
+      }
+      .wday-label {
+        font-size: 10px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .wday-icon {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+      .wday-temp {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .wday-rain {
+        font-size: 10px;
+        color: #4a90d9;
+        margin-top: 2px;
+      }
+
+      /* PRICES PANEL */
+      .prices-panel {
+        padding: 16px;
+        flex: 1;
+      }
+      .panel-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 12px;
+      }
+      .crop-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: var(--cream);
+        border-radius: 10px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1.5px solid transparent;
+      }
+      .crop-row:hover {
+        border-color: var(--forest);
+        background: var(--white);
+      }
+      .crop-row.active {
+        border-color: var(--forest);
+        background: var(--white);
+      }
+      .crop-icon {
+        font-size: 20px;
+      }
+      .crop-info {
+        flex: 1;
+      }
+      .crop-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .crop-region {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .crop-price {
+        text-align: right;
+      }
+      .crop-val {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+      }
+      .crop-change {
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+      .up {
+        color: #1a6b35;
+      }
+      .down {
+        color: #9b2b2b;
+      }
+
+      /* MAP */
+      .map-container {
+        position: relative;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* MAP OVERLAY CARD */
+      .map-info-card {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 500;
+        background: var(--white);
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        width: 280px;
+        display: none;
+      }
+      .map-info-card.show {
+        display: block;
+      }
+      .mic-close {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: var(--muted);
+      }
+      .mic-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 4px;
+        padding-right: 20px;
+      }
+      .mic-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 14px;
+      }
+      .mic-crop {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: var(--cream);
+        border-radius: 8px;
+        margin-bottom: 6px;
+      }
+      .mic-crop-icon {
+        font-size: 16px;
+      }
+      .mic-crop-name {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ink);
+        flex: 1;
+      }
+      .mic-crop-price {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--forest);
+      }
+
+      /* MAP CONTROLS */
+      .map-controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 500;
+        display: flex;
+        gap: 8px;
+      }
+      .map-btn {
+        padding: 10px 18px;
+        border-radius: 20px;
+        border: none;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      }
+      .map-btn-primary {
+        background: var(--forest);
+        color: #fff;
+      }
+      .map-btn-primary:hover {
+        background: var(--forest2);
+      }
+      .map-btn-secondary {
+        background: var(--white);
+        color: var(--ink);
+      }
+      .map-btn-secondary:hover {
+        background: var(--cream);
+      }
+
+      /* LOADING */
+      .loading-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(247, 243, 237, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 400;
+        backdrop-filter: blur(4px);
+      }
+      .loading-overlay.hidden {
+        display: none;
+      }
+      .loading-spinner {
+        text-align: center;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border);
+        border-top-color: var(--forest);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 12px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .loading-text {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      @media (max-width: 768px) {
+        .page {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto 400px;
+        }
+        .sidebar {
+          height: auto;
+          overflow-y: visible;
+        }
+        .map-container {
+          height: 400px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-logo">🌱</div>
+        <span class="nav-title">AgroLatam Agent</span>
+      </a>
+      <div class="nav-right">
+        <div class="lang-switcher">
+          <button class="lang-opt active" onclick="setLang('en')">EN</button>
+          <button class="lang-opt" onclick="setLang('es')">ES</button>
+        </div>
+        <a href="index.html" class="nav-back"
+          >← <span data-en="Dashboard" data-es="Panel">Dashboard</span></a
+        >
+      </div>
+    </nav>
+
+    <div class="page">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div
+            class="sidebar-title"
+            data-en="🗺️ My Region"
+            data-es="🗺️ Mi Región"
+          >
+            🗺️ My Region
+          </div>
+          <div
+            class="sidebar-sub"
+            data-en="Real-time prices and weather for your location"
+            data-es="Precios y clima en tiempo real para tu ubicación"
+          >
+            Real-time prices and weather for your location
+          </div>
+        </div>
+
+        <div class="search-wrap">
+          <div class="search-box">
+            <input
+              class="search-input"
+              id="search-input"
+              type="text"
+              data-en-placeholder="Search city or region..."
+              data-es-placeholder="Buscar ciudad o región..."
+              placeholder="Search city or region..."
+              onkeydown="if (event.key === 'Enter') searchLocation();"
+            />
+            <button class="btn-search" onclick="searchLocation()">🔍</button>
+          </div>
+          <button
+            class="btn-locate"
+            style="width: 100%; margin-top: 8px"
+            onclick="locateMe()"
+          >
+            📍
+            <span
+              data-en="Use my current location"
+              data-es="Usar mi ubicación actual"
+              >Use my current location</span
+            >
+          </button>
+        </div>
+
+        <!-- LOCATION INFO -->
+        <div class="location-card" id="location-card">
+          <div class="loc-label" data-en="Your Location" data-es="Tu Ubicación">
+            Your Location
+          </div>
+          <div class="loc-name" id="loc-name">—</div>
+          <div class="loc-coords" id="loc-coords">Lat: — · Lon: —</div>
+          <div class="loc-row">
+            <div class="loc-stat">
+              <div class="loc-stat-n" id="loc-temp">—</div>
+              <div class="loc-stat-l" data-en="°C Temp" data-es="°C Temp">
+                °C Temp
+              </div>
+            </div>
+            <div class="loc-stat">
+              <div class="loc-stat-n" id="loc-rain">—</div>
+              <div class="loc-stat-l" data-en="mm Rain" data-es="mm Lluvia">
+                mm Rain
+              </div>
+            </div>
+            <div class="loc-stat">
+              <div class="loc-stat-n" id="loc-risk">—</div>
+              <div class="loc-stat-l" data-en="Risk" data-es="Riesgo">Risk</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WEATHER -->
+        <div class="weather-card" id="weather-card" style="display: none">
+          <div
+            class="wcard-title"
+            data-en="3-Day Forecast"
+            data-es="Pronóstico 3 días"
+          >
+            3-Day Forecast
+          </div>
+          <div class="weather-days" id="weather-days"></div>
+        </div>
+
+        <!-- PRICES -->
+        <div class="prices-panel">
+          <div
+            class="panel-title"
+            data-en="Crops in your region"
+            data-es="Cultivos en tu región"
+          >
+            Crops in your region
+          </div>
+          <div id="crops-list">
+            <div
+              style="
+                font-size: 13px;
+                color: var(--muted);
+                text-align: center;
+                padding: 20px;
+              "
+              data-en="Search your location to see relevant crops"
+              data-es="Busca tu ubicación para ver cultivos relevantes"
+            >
+              Search your location to see relevant crops
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAP -->
+      <div class="map-container">
+        <div id="map"></div>
+
+        <!-- LOADING -->
+        <div class="loading-overlay" id="loading">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <div
+              class="loading-text"
+              data-en="Loading map..."
+              data-es="Cargando mapa..."
+            >
+              Loading map...
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO CARD on map -->
+        <div class="map-info-card" id="map-info-card">
+          <button
+            class="mic-close"
+            onclick="
+              document.getElementById('map-info-card').classList.remove('show')
+            "
+          >
+            ✕
+          </button>
+          <div class="mic-title" id="mic-title">—</div>
+          <div class="mic-sub" id="mic-sub">—</div>
+          <div id="mic-crops"></div>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="map-controls">
+          <button class="map-btn map-btn-primary" onclick="locateMe()">
+            📍 <span data-en="Find me" data-es="Localizarme">Find me</span>
+          </button>
+          <button class="map-btn map-btn-secondary" onclick="showAllZones()">
+            🌍
+            <span data-en="All LATAM zones" data-es="Zonas LATAM"
+              >All LATAM zones</span
+            >
+          </button>
+          <button class="map-btn map-btn-secondary" onclick="resetView()">
+            🔄
+            <span data-en="Reset view" data-es="Restablecer vista"
+              >Reset view</span
+            >
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API = "https://netricd-agrolatam-agent.hf.space";
+      let lang = localStorage.getItem("lang") || "en";
+      let map, userMarker, userCircle;
+
+      // ── LANGUAGE ──────────────────────────────────────────────────────────────────
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[l]));
+        document
+          .querySelectorAll("[data-en-placeholder]")
+          .forEach((el) => (el.placeholder = el.dataset[l + "Placeholder"]));
+      }
+
+      // ── CROP DATA ─────────────────────────────────────────────────────────────────
+      const ALL_CROPS = {
+        coffee: {
+          icon: "☕",
+          en: "Coffee",
+          es: "Café",
+          price: 2.34,
+          change: -3.2,
+        },
+        cacao: {
+          icon: "🍫",
+          en: "Cacao",
+          es: "Cacao",
+          price: 3812,
+          change: 1.8,
+        },
+        corn: { icon: "🌽", en: "Corn", es: "Maíz", price: 4.52, change: 0.5 },
+        banana: {
+          icon: "🍌",
+          en: "Banana",
+          es: "Banano",
+          price: 0.89,
+          change: -1.1,
+        },
+        soy: { icon: "🌱", en: "Soy", es: "Soya", price: 11.2, change: 2.3 },
+        palm_oil: {
+          icon: "🌴",
+          en: "Palm Oil",
+          es: "Palma Aceitera",
+          price: 1124,
+          change: 0.8,
+        },
+        rice: {
+          icon: "🌾",
+          en: "Rice",
+          es: "Arroz",
+          price: 17.4,
+          change: -0.6,
+        },
+        sugarcane: {
+          icon: "🍬",
+          en: "Sugarcane",
+          es: "Caña de Azúcar",
+          price: 0.21,
+          change: 1.2,
+        },
+        avocado: {
+          icon: "🥑",
+          en: "Avocado",
+          es: "Aguacate",
+          price: 2.15,
+          change: 3.4,
+        },
+        orange: {
+          icon: "🍊",
+          en: "Orange",
+          es: "Naranja",
+          price: 1.85,
+          change: -0.9,
+        },
+        tomato: {
+          icon: "🍅",
+          en: "Tomato",
+          es: "Tomate",
+          price: 1.1,
+          change: 0.4,
+        },
+      };
+
+      // ── AGRICULTURAL ZONES ────────────────────────────────────────────────────────
+      const AG_ZONES = [
+        {
+          name: "Valle del Cauca",
+          country: "Colombia",
+          lat: 3.8,
+          lon: -76.5,
+          crops: ["sugarcane", "coffee", "cacao"],
+          color: "#0A4A35",
+        },
+        {
+          name: "Huánuco / Tingo María",
+          country: "Peru",
+          lat: -9.3,
+          lon: -76.0,
+          crops: ["coffee", "cacao", "palm_oil"],
+          color: "#0A4A35",
+        },
+        {
+          name: "São Paulo (Café)",
+          country: "Brazil",
+          lat: -22.9,
+          lon: -47.1,
+          crops: ["coffee", "sugarcane", "orange"],
+          color: "#1A5276",
+        },
+        {
+          name: "Mato Grosso",
+          country: "Brazil",
+          lat: -12.6,
+          lon: -55.9,
+          crops: ["soy", "corn", "rice"],
+          color: "#1A5276",
+        },
+        {
+          name: "Jalisco",
+          country: "Mexico",
+          lat: 20.6,
+          lon: -103.3,
+          crops: ["avocado", "corn", "tomato"],
+          color: "#6C3483",
+        },
+        {
+          name: "La Libertad",
+          country: "Peru",
+          lat: -7.8,
+          lon: -78.3,
+          crops: ["avocado", "sugarcane", "rice"],
+          color: "#0A4A35",
+        },
+        {
+          name: "Antioquia",
+          country: "Colombia",
+          lat: 6.2,
+          lon: -75.6,
+          crops: ["coffee", "palm_oil", "cacao"],
+          color: "#0A4A35",
+        },
+        {
+          name: "Guayas",
+          country: "Ecuador",
+          lat: -2.1,
+          lon: -79.9,
+          crops: ["banana", "cacao", "rice"],
+          color: "#C8902A",
+        },
+        {
+          name: "Esmeraldas",
+          country: "Ecuador",
+          lat: 0.9,
+          lon: -79.7,
+          crops: ["palm_oil", "banana", "cacao"],
+          color: "#C8902A",
+        },
+        {
+          name: "Santa Cruz",
+          country: "Bolivia",
+          lat: -17.8,
+          lon: -63.2,
+          crops: ["soy", "rice", "corn"],
+          color: "#854F0B",
+        },
+        {
+          name: "Córdoba",
+          country: "Argentina",
+          lat: -31.4,
+          lon: -64.2,
+          crops: ["soy", "corn", "orange"],
+          color: "#1A5276",
+        },
+        {
+          name: "Atlántico Sur",
+          country: "Honduras",
+          lat: 15.5,
+          lon: -87.2,
+          crops: ["palm_oil", "banana", "coffee"],
+          color: "#B03A2E",
+        },
+        {
+          name: "Alta Verapaz",
+          country: "Guatemala",
+          lat: 15.5,
+          lon: -90.3,
+          crops: ["coffee", "palm_oil", "sugarcane"],
+          color: "#B03A2E",
+        },
+        {
+          name: "Tocantins",
+          country: "Brazil",
+          lat: -10.2,
+          lon: -48.3,
+          crops: ["soy", "rice", "corn"],
+          color: "#1A5276",
+        },
+        {
+          name: "Cundinamarca",
+          country: "Colombia",
+          lat: 4.6,
+          lon: -74.0,
+          crops: ["coffee", "tomato", "corn"],
+          color: "#0A4A35",
+        },
+        {
+          name: "Piura",
+          country: "Peru",
+          lat: -5.2,
+          lon: -80.6,
+          crops: ["rice", "banana", "avocado"],
+          color: "#0A4A35",
+        },
+        {
+          name: "Veracruz",
+          country: "Mexico",
+          lat: 19.2,
+          lon: -96.1,
+          crops: ["sugarcane", "coffee", "orange"],
+          color: "#6C3483",
+        },
+        {
+          name: "Bio-Bío",
+          country: "Chile",
+          lat: -37.5,
+          lon: -72.3,
+          crops: ["tomato", "corn", "avocado"],
+          color: "#185FA5",
+        },
+      ];
+
+      // ── INIT MAP ──────────────────────────────────────────────────────────────────
+      function initMap() {
+        map = L.map("map", { zoomControl: true }).setView([-10, -65], 4);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+          maxZoom: 18,
+        }).addTo(map);
+
+        // Add agricultural zones
+        AG_ZONES.forEach((zone) => addZoneMarker(zone));
+
+        document.getElementById("loading").classList.add("hidden");
+        setLang(lang);
+      }
+
+      function addZoneMarker(zone) {
+        const cropsHtml = zone.crops
+          .slice(0, 3)
+          .map((c) => `${ALL_CROPS[c]?.icon || "🌿"}`)
+          .join(" ");
+
+        const icon = L.divIcon({
+          html: `<div style="background:${zone.color};color:#fff;border-radius:12px;padding:6px 10px;font-size:11px;font-weight:600;font-family:Sora,sans-serif;white-space:nowrap;box-shadow:0 3px 12px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.3);">${cropsHtml}</div>`,
+          className: "",
+          iconAnchor: [40, 20],
+        });
+
+        const marker = L.marker([zone.lat, zone.lon], { icon })
+          .addTo(map)
+          .on("click", () => showZoneInfo(zone));
+      }
+
+      function showZoneInfo(zone) {
+        const card = document.getElementById("map-info-card");
+        document.getElementById("mic-title").textContent = zone.name;
+        document.getElementById("mic-sub").textContent =
+          `${zone.country} · ${zone.crops.length} ${lang === "es" ? "cultivos principales" : "main crops"}`;
+
+        const cropsHtml = zone.crops
+          .map((key) => {
+            const c = ALL_CROPS[key];
+            if (!c) return "";
+            const name = lang === "es" ? c.es : c.en;
+            const price =
+              c.price > 100
+                ? "$" + c.price.toLocaleString()
+                : "$" + c.price.toFixed(2);
+            const chg =
+              c.change > 0
+                ? `<span style="color:#1A6B35">▲${c.change}%</span>`
+                : `<span style="color:#9B2B2B">▼${Math.abs(c.change)}%</span>`;
+            return `<div class="mic-crop"><span class="mic-crop-icon">${c.icon}</span><span class="mic-crop-name">${name}</span><span class="mic-crop-price">${price} ${chg}</span></div>`;
+          })
+          .join("");
+
+        document.getElementById("mic-crops").innerHTML = cropsHtml;
+        card.classList.add("show");
+        map.setView([zone.lat, zone.lon], 8, { animate: true });
+      }
+
+      // ── LOCATE ME ─────────────────────────────────────────────────────────────────
+      function locateMe() {
+        const loadingEl = document.getElementById("loading");
+        loadingEl.classList.remove("hidden");
+        document.querySelector(".loading-text").textContent =
+          lang === "es" ? "Detectando ubicación..." : "Detecting location...";
+
+        if (!navigator.geolocation) {
+          alert(
+            lang === "es"
+              ? "Tu navegador no soporta geolocalización."
+              : "Your browser doesn't support geolocation.",
+          );
+          loadingEl.classList.add("hidden");
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude: lat, longitude: lon } = pos.coords;
+            loadingEl.classList.add("hidden");
+            updateLocation(lat, lon);
+          },
+          (err) => {
+            loadingEl.classList.add("hidden");
+            alert(
+              lang === "es"
+                ? "No se pudo obtener tu ubicación. Intenta buscar manualmente."
+                : "Could not get your location. Try searching manually.",
+            );
+          },
+          { timeout: 10000 },
+        );
+      }
+
+      // ── SEARCH ────────────────────────────────────────────────────────────────────
+      async function searchLocation() {
+        const q = document.getElementById("search-input").value.trim();
+        if (!q) return;
+
+        const loadingEl = document.getElementById("loading");
+        loadingEl.classList.remove("hidden");
+        document.querySelector(".loading-text").textContent =
+          lang === "es" ? "Buscando..." : "Searching...";
+
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + " Latin America")}&format=json&limit=1`,
+            {
+              headers: { "Accept-Language": lang },
+            },
+          );
+          const data = await res.json();
+          loadingEl.classList.add("hidden");
+
+          if (data.length === 0) {
+            alert(
+              lang === "es"
+                ? "Ubicación no encontrada. Intenta con otra ciudad."
+                : "Location not found. Try another city.",
+            );
+            return;
+          }
+
+          const { lat, lon, display_name } = data[0];
+          updateLocation(parseFloat(lat), parseFloat(lon), display_name);
+        } catch {
+          loadingEl.classList.add("hidden");
+          alert(
+            lang === "es"
+              ? "Error al buscar. Intenta de nuevo."
+              : "Search error. Try again.",
+          );
+        }
+      }
+
+      // ── UPDATE LOCATION ───────────────────────────────────────────────────────────
+      async function updateLocation(lat, lon, displayName) {
+        // Move map
+        map.setView([lat, lon], 10, { animate: true });
+
+        // Remove old marker
+        if (userMarker) {
+          map.removeLayer(userMarker);
+          map.removeLayer(userCircle);
+        }
+
+        // Add user marker
+        const userIcon = L.divIcon({
+          html: `<div style="width:16px;height:16px;background:#C8902A;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);"></div>`,
+          className: "",
+          iconAnchor: [8, 8],
+        });
+        userMarker = L.marker([lat, lon], { icon: userIcon }).addTo(map);
+        userCircle = L.circle([lat, lon], {
+          radius: 15000,
+          color: "#C8902A",
+          fillColor: "#C8902A",
+          fillOpacity: 0.06,
+          weight: 1.5,
+        }).addTo(map);
+
+        // Reverse geocode if no name
+        let locName = displayName;
+        if (!locName) {
+          try {
+            const r = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
+              { headers: { "Accept-Language": lang } },
+            );
+            const d = await r.json();
+            locName =
+              d.address?.city ||
+              d.address?.town ||
+              d.address?.village ||
+              d.address?.county ||
+              d.display_name ||
+              `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+          } catch {
+            locName = `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+          }
+        } else {
+          locName = locName.split(",").slice(0, 2).join(",");
+        }
+
+        document.getElementById("loc-name").textContent = locName;
+        document.getElementById("loc-coords").textContent =
+          `Lat: ${lat.toFixed(4)} · Lon: ${lon.toFixed(4)}`;
+
+        // Get weather
+        await fetchWeather(lat, lon);
+
+        // Show relevant crops
+        showRegionalCrops(lat, lon);
+      }
+
+      // ── WEATHER ───────────────────────────────────────────────────────────────────
+      async function fetchWeather(lat, lon) {
+        try {
+          const r = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,precipitation_sum,weathercode&forecast_days=3&timezone=auto`,
+          );
+          const data = await r.json();
+          const d = data.daily;
+
+          const temp = d.temperature_2m_max[0].toFixed(1);
+          const rain = d.precipitation_sum
+            .reduce((a, b) => a + b, 0)
+            .toFixed(1);
+          const risk =
+            parseFloat(rain) > 30
+              ? lang === "es"
+                ? "🔴 Alto"
+                : "🔴 High"
+              : parseFloat(rain) > 10
+                ? lang === "es"
+                  ? "🟡 Medio"
+                  : "🟡 Med"
+                : lang === "es"
+                  ? "🟢 Bajo"
+                  : "🟢 Low";
+
+          document.getElementById("loc-temp").textContent = temp;
+          document.getElementById("loc-rain").textContent = rain;
+          document.getElementById("loc-risk").textContent = risk;
+
+          const days = [
+            lang === "es" ? "Hoy" : "Today",
+            lang === "es" ? "Mañana" : "Tomorrow",
+            lang === "es" ? "Pasado" : "Day 3",
+          ];
+          const weatherIcons = (code) => {
+            if (code === 0) return "☀️";
+            if (code <= 3) return "⛅";
+            if (code <= 48) return "🌫️";
+            if (code <= 67) return "🌧️";
+            if (code <= 77) return "❄️";
+            if (code <= 82) return "🌦️";
+            return "⛈️";
+          };
+
+          document.getElementById("weather-days").innerHTML = [0, 1, 2]
+            .map(
+              (i) => `
+      <div class="wday">
+        <div class="wday-label">${days[i]}</div>
+        <div class="wday-icon">${weatherIcons(d.weathercode[i])}</div>
+        <div class="wday-temp">${d.temperature_2m_max[i].toFixed(0)}°C</div>
+        <div class="wday-rain">💧 ${d.precipitation_sum[i].toFixed(1)}mm</div>
+      </div>`,
+            )
+            .join("");
+
+          document.getElementById("weather-card").style.display = "block";
+        } catch {
+          document.getElementById("loc-temp").textContent = "—";
+        }
+      }
+
+      // ── REGIONAL CROPS ────────────────────────────────────────────────────────────
+      function showRegionalCrops(lat, lon) {
+        // Find nearby zones (within ~500km)
+        let nearestCrops = new Set();
+        let minDist = Infinity;
+        let nearestZone = null;
+
+        AG_ZONES.forEach((zone) => {
+          const dist = Math.sqrt(
+            Math.pow(lat - zone.lat, 2) + Math.pow(lon - zone.lon, 2),
+          );
+          if (dist < 8) {
+            zone.crops.forEach((c) => nearestCrops.add(c));
+          }
+          if (dist < minDist) {
+            minDist = dist;
+            nearestZone = zone;
+          }
+        });
+
+        if (nearestCrops.size === 0 && nearestZone) {
+          nearestZone.crops.forEach((c) => nearestCrops.add(c));
+        }
+
+        const crops = Array.from(nearestCrops).slice(0, 6);
+
+        document.getElementById("crops-list").innerHTML = crops
+          .map((key) => {
+            const c = ALL_CROPS[key];
+            if (!c) return "";
+            const name = lang === "es" ? c.es : c.en;
+            const price =
+              c.price > 100
+                ? "$" + c.price.toLocaleString()
+                : "$" + c.price.toFixed(2);
+            const chgClass = c.change > 0 ? "up" : "down";
+            const chgIcon = c.change > 0 ? "▲" : "▼";
+            return `<div class="crop-row" onclick="highlightCrop('${key}')">
+      <span class="crop-icon">${c.icon}</span>
+      <div class="crop-info">
+        <div class="crop-name">${name}</div>
+        <div class="crop-region">${lang === "es" ? "Tu región" : "Your region"}</div>
+      </div>
+      <div class="crop-price">
+        <div class="crop-val">${price}</div>
+        <div class="crop-change ${chgClass}">${chgIcon} ${Math.abs(c.change)}%</div>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function highlightCrop(key) {
+        document
+          .querySelectorAll(".crop-row")
+          .forEach((r) => r.classList.remove("active"));
+        event.currentTarget.classList.add("active");
+      }
+
+      function showAllZones() {
+        map.setView([-10, -65], 4, { animate: true });
+        document.getElementById("map-info-card").classList.remove("show");
+      }
+
+      function resetView() {
+        map.setView([-10, -65], 4, { animate: true });
+        if (userMarker) {
+          map.removeLayer(userMarker);
+          map.removeLayer(userCircle);
+          userMarker = null;
+        }
+        document.getElementById("loc-name").textContent = "—";
+        document.getElementById("loc-coords").textContent = "Lat: — · Lon: —";
+        document.getElementById("weather-card").style.display = "none";
+        document.getElementById("map-info-card").classList.remove("show");
+        document.getElementById("crops-list").innerHTML =
+          `<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px;">${lang === "es" ? "Busca tu ubicación para ver cultivos relevantes" : "Search your location to see relevant crops"}</div>`;
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────────────────────
+      setLang(lang);
+      window.onload = initMap;
+    </script>
+  </body>
+</html>
