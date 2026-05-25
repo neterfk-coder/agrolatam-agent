@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import httpx
 import os
@@ -10,7 +9,6 @@ from datetime import datetime
 
 load_dotenv()
 
-# ── Supabase ──────────────────────────────────────────────────────────────────
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 
@@ -21,7 +19,6 @@ except Exception as e:
     print(f"Supabase warning: {e}")
     sb = None
 
-# ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(title="AgroLatam Agent API")
 
 app.add_middleware(
@@ -33,7 +30,6 @@ app.add_middleware(
 
 agent = AgroLatamAgent()
 
-# ── Models ────────────────────────────────────────────────────────────────────
 class ChatMessage(BaseModel):
     message: str
 
@@ -43,13 +39,21 @@ class FarmerProfile(BaseModel):
     country: str
     crop: str
 
-# ── Prices ────────────────────────────────────────────────────────────────────
+# ── 11 CROPS ──────────────────────────────────────────────────────────────────
 PRICES = {
-    "coffee": {"price": 2.34,  "change": -3.2, "unit": "USD/lb",     "exchange": "ICE NY"},
-    "cacao":  {"price": 3812,  "change":  1.8,  "unit": "USD/ton",    "exchange": "ICE London"},
-    "corn":   {"price": 4.52,  "change":  0.5,  "unit": "USD/bushel", "exchange": "CME"},
-    "banana": {"price": 0.89,  "change": -1.1,  "unit": "USD/kg",     "exchange": "FAO"},
-    "soy":    {"price": 11.20, "change":  2.3,  "unit": "USD/bushel", "exchange": "CME"},
+    # Original 5
+    "coffee":     {"price": 2.34,  "change": -3.2, "unit": "USD/lb",     "exchange": "ICE NY"},
+    "cacao":      {"price": 3812,  "change":  1.8,  "unit": "USD/ton",    "exchange": "ICE London"},
+    "corn":       {"price": 4.52,  "change":  0.5,  "unit": "USD/bushel", "exchange": "CME"},
+    "banana":     {"price": 0.89,  "change": -1.1,  "unit": "USD/kg",     "exchange": "FAO"},
+    "soy":        {"price": 11.20, "change":  2.3,  "unit": "USD/bushel", "exchange": "CME"},
+    # New 6
+    "palm_oil":   {"price": 1124,  "change":  0.8,  "unit": "USD/ton",    "exchange": "BMD Malaysia"},
+    "rice":       {"price": 17.40, "change": -0.6,  "unit": "USD/cwt",    "exchange": "CBOT"},
+    "sugarcane":  {"price": 0.21,  "change":  1.2,  "unit": "USD/kg",     "exchange": "ICE NY"},
+    "avocado":    {"price": 2.15,  "change":  3.4,  "unit": "USD/kg",     "exchange": "FAO"},
+    "orange":     {"price": 1.85,  "change": -0.9,  "unit": "USD/kg",     "exchange": "FAO"},
+    "tomato":     {"price": 1.10,  "change":  0.4,  "unit": "USD/kg",     "exchange": "FAO"},
 }
 
 @app.get("/api/prices")
@@ -64,7 +68,6 @@ async def get_prices():
             pass
     return PRICES
 
-# ── Weather ───────────────────────────────────────────────────────────────────
 @app.get("/api/weather")
 async def get_weather():
     countries = [
@@ -75,6 +78,8 @@ async def get_weather():
         {"name": "Bolivia",   "lat": -16.290, "lon": -63.589},
         {"name": "Argentina", "lat": -38.416, "lon": -63.617},
         {"name": "Mexico",    "lat":  23.634, "lon": -102.552},
+        {"name": "Honduras",  "lat":  15.199, "lon": -86.241},
+        {"name": "Guatemala", "lat":  15.783, "lon": -90.230},
     ]
     results = []
     async with httpx.AsyncClient(timeout=10) as client:
@@ -96,7 +101,6 @@ async def get_weather():
                 results.append({"country": c["name"], "rain_72h": 0, "max_temp": 0})
     return results
 
-# ── Alerts ────────────────────────────────────────────────────────────────────
 @app.get("/api/alerts")
 async def get_alerts():
     alerts = await agent.generate_alerts()
@@ -112,16 +116,24 @@ async def get_alerts():
             pass
     return alerts
 
-# ── Chat ──────────────────────────────────────────────────────────────────────
 @app.post("/api/chat")
 async def chat(msg: ChatMessage):
     response = await agent.chat(msg.message)
     return {"response": response}
 
-# ── Health ────────────────────────────────────────────────────────────────────
+@app.post("/api/farmer")
+async def save_farmer(profile: FarmerProfile):
+    if not sb:
+        return {"ok": True}
+    try:
+        sb.table("farmers").upsert({
+            "id": profile.user_id, "full_name": profile.full_name,
+            "country": profile.country, "crop": profile.crop,
+        }).execute()
+        return {"ok": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "project": "AgroLatam Agent"}
-
-# ── Frontend ──────────────────────────────────────────────────────────────────
-app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
+    return {"status": "ok", "project": "AgroLatam Agent", "crops": len(PRICES)}

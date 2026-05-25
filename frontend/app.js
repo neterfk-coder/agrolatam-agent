@@ -34,46 +34,96 @@ function showSection(name, el) {
     .forEach((l) => l.classList.remove("active"));
   document.getElementById("section-" + name).classList.add("active");
   if (el) el.classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ── PRICES ────────────────────────────────────────────────────────────────────
+// ── CROP DATA ─────────────────────────────────────────────────────────────────
 const ICONS = {
   coffee: "☕",
   cacao: "🍫",
   corn: "🌽",
   banana: "🍌",
   soy: "🌱",
+  palm_oil: "🌴",
+  rice: "🌾",
+  sugarcane: "🍬",
+  avocado: "🥑",
+  orange: "🍊",
+  tomato: "🍅",
 };
+
+const NAMES_EN = {
+  coffee: "Coffee",
+  cacao: "Cacao",
+  corn: "Corn",
+  banana: "Banana",
+  soy: "Soy",
+  palm_oil: "Palm Oil",
+  rice: "Rice",
+  sugarcane: "Sugarcane",
+  avocado: "Avocado",
+  orange: "Orange",
+  tomato: "Tomato",
+};
+
 const NAMES_ES = {
   coffee: "Café",
   cacao: "Cacao",
   corn: "Maíz",
   banana: "Banano",
   soy: "Soya",
+  palm_oil: "Palma Aceitera",
+  rice: "Arroz",
+  sugarcane: "Caña de Azúcar",
+  avocado: "Aguacate",
+  orange: "Naranja",
+  tomato: "Tomate",
 };
 
+const REGIONS = {
+  coffee: "Peru · Colombia · Honduras · Guatemala",
+  cacao: "Peru · Ecuador · Brazil · Colombia",
+  corn: "Mexico · Argentina · Brazil",
+  banana: "Ecuador · Colombia · Honduras",
+  soy: "Brazil · Argentina · Paraguay",
+  palm_oil: "Colombia · Ecuador · Honduras · Guatemala",
+  rice: "Brazil · Colombia · Peru · Bolivia",
+  sugarcane: "Brazil · Mexico · Colombia · Argentina",
+  avocado: "Mexico · Peru · Colombia · Dom. Rep.",
+  orange: "Brazil · Mexico · Argentina · Colombia",
+  tomato: "Mexico · Brazil · Chile · Argentina",
+};
+
+function cropName(key) {
+  return lang === "es" ? NAMES_ES[key] || key : NAMES_EN[key] || key;
+}
+
+// ── PRICES ────────────────────────────────────────────────────────────────────
 async function loadPrices() {
   try {
     const res = await fetch(`${API}/api/prices`);
     const data = await res.json();
     const grid = document.getElementById("metrics-grid");
     const tbody = document.getElementById("market-tbody");
+    if (!grid) return;
 
     grid.innerHTML = Object.entries(data)
       .map(
         ([crop, d]) => `
       <div class="metric-card">
-        <div class="metric-crop">${ICONS[crop] || ""} ${lang === "es" ? NAMES_ES[crop] || crop : crop}</div>
+        <div class="metric-crop">${ICONS[crop] || ""} ${cropName(crop)}</div>
         <div class="metric-price">${d.price > 100 ? "$" + d.price.toLocaleString() : "$" + d.price.toFixed(2)}</div>
         <div class="metric-unit">${d.unit}</div>
         <div class="metric-change ${d.change > 0 ? "up" : "down"}">
           ${d.change > 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%
         </div>
         <div class="metric-exchange">${d.exchange}</div>
+        <div class="metric-region">${REGIONS[crop] || ""}</div>
       </div>`,
       )
       .join("");
 
+    if (!tbody) return;
     const buyTxt = lang === "es" ? "COMPRAR" : "BUY";
     const sellTxt = lang === "es" ? "VENDER" : "SELL";
     const holdTxt = lang === "es" ? "MANTENER" : "HOLD";
@@ -88,7 +138,7 @@ async function loadPrices() {
               ? `<span class="sig-sell">${sellTxt}</span>`
               : `<span class="sig-hold">${holdTxt}</span>`;
         return `<tr>
-        <td>${ICONS[crop] || ""} ${lang === "es" ? NAMES_ES[crop] || crop : crop}</td>
+        <td>${ICONS[crop] || ""} ${cropName(crop)}</td>
         <td class="price-val">${d.price > 100 ? "$" + d.price.toLocaleString() : "$" + d.price.toFixed(2)}</td>
         <td class="${d.change > 0 ? "up-text" : "down-text"}">${d.change > 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%</td>
         <td>${d.unit}</td>
@@ -98,8 +148,8 @@ async function loadPrices() {
       })
       .join("");
   } catch {
-    document.getElementById("metrics-grid").innerHTML =
-      `<div class="metric-skeleton"></div>`.repeat(5);
+    const g = document.getElementById("metrics-grid");
+    if (g) g.innerHTML = `<div class="metric-skeleton"></div>`.repeat(11);
   }
 }
 
@@ -126,15 +176,17 @@ async function loadAlerts() {
     const res = await fetch(`${API}/api/alerts`);
     const alerts = await res.json();
     const html = alerts.map(renderAlert).join("");
-    document.getElementById("alerts-list").innerHTML =
-      html ||
-      `<div class="loading-text">${lang === "es" ? "Sin alertas" : "No alerts"}</div>`;
-    document.getElementById("alerts-full").innerHTML =
-      `<div class="card">${html}</div>`;
+    const list = document.getElementById("alerts-list");
+    const full = document.getElementById("alerts-full");
+    if (list)
+      list.innerHTML =
+        html ||
+        `<div class="loading-text">${lang === "es" ? "Sin alertas" : "No alerts"}</div>`;
+    if (full) full.innerHTML = `<div class="card">${html}</div>`;
   } catch {
-    const msg = lang === "es" ? "Backend offline" : "Backend offline";
-    document.getElementById("alerts-list").innerHTML =
-      `<div class="loading-text">${msg}</div>`;
+    const list = document.getElementById("alerts-list");
+    if (list)
+      list.innerHTML = `<div class="loading-text">Backend offline</div>`;
   }
 }
 
@@ -159,17 +211,10 @@ async function sendChat() {
     msgs.innerHTML += `<div class="msg agent-msg">${data.response}</div>`;
   } catch {
     document.getElementById("typing")?.remove();
-    msgs.innerHTML += `<div class="msg agent-msg">${lang === "es" ? "Backend offline — inicia el servidor." : "Backend offline — start the server."}</div>`;
+    msgs.innerHTML += `<div class="msg agent-msg">${lang === "es" ? "Backend offline." : "Backend offline."}</div>`;
   }
   msgs.scrollTop = msgs.scrollHeight;
 }
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-setLang(lang);
-loadPrices();
-loadAlerts();
-setInterval(loadPrices, 60000);
-setInterval(loadAlerts, 90000);
 
 // ── SETTINGS ──────────────────────────────────────────────────────────────────
 function openSettings() {
@@ -182,7 +227,7 @@ function showChangePassword() {
   closeSettings();
   document.getElementById("pw-modal").classList.add("active");
 }
-async function changePassword() {
+function changePassword() {
   const np = document.getElementById("pw-new").value;
   const cp = document.getElementById("pw-confirm").value;
   const msg = document.getElementById("pw-msg");
@@ -210,7 +255,21 @@ async function changePassword() {
   msg.textContent =
     lang === "es" ? "✅ ¡Contraseña actualizada!" : "✅ Password updated!";
 }
-async function signOut() {
+function signOut() {
   closeSettings();
   window.location.href = "auth/login.html";
 }
+
+// ── METRICS GRID — responsive for 11 crops ────────────────────────────────────
+function fixGrid() {
+  const g = document.getElementById("metrics-grid");
+  if (g) g.style.gridTemplateColumns = "repeat(auto-fill, minmax(160px, 1fr))";
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+setLang(lang);
+fixGrid();
+loadPrices();
+loadAlerts();
+setInterval(loadPrices, 60000);
+setInterval(loadAlerts, 90000);

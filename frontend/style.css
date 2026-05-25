@@ -1205,3 +1205,13 @@ body {
     grid-column: span 1;
   }
 }
+
+/* ── METRIC REGION ──────────────────────────────────────────────────────── */
+.metric-region {
+  font-size: 9px;
+  color: #ccc;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
