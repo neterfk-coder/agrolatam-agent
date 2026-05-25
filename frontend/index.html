@@ -1047,5 +1047,175 @@
     </main>
 
     <script src="app.js"></script>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="footer-logo">🌱</div>
+          <div class="footer-brand-name">AgroLatam Agent</div>
+          <p
+            class="footer-tagline"
+            data-en="AI that doesn't just answer — it acts for Latin America's 60 million farmers."
+            data-es="IA que no solo responde — actúa por los 60 millones de agricultores de Latinoamérica."
+          >
+            AI that doesn't just answer — it acts for Latin America's 60 million
+            farmers.
+          </p>
+          <div class="footer-badges">
+            <span class="footer-badge">🏆 Google Cloud Hackathon 2026</span>
+            <span class="footer-badge">⚡ Fivetran MCP</span>
+          </div>
+          <p class="footer-copy">© 2026 AgroLatam Agent • v1.0.0</p>
+        </div>
+        <div class="footer-col">
+          <div
+            class="footer-col-title"
+            data-en="Quick Links"
+            data-es="Accesos Rápidos"
+          >
+            Quick Links
+          </div>
+          <a
+            class="footer-link"
+            onclick="
+              showSection('home', document.querySelectorAll('.nav-link')[0])
+            "
+            >🏠 <span data-en="Home" data-es="Inicio">Home</span></a
+          >
+          <a
+            class="footer-link"
+            onclick="
+              showSection(
+                'dashboard',
+                document.querySelectorAll('.nav-link')[1],
+              )
+            "
+            >📊 <span data-en="Dashboard" data-es="Panel">Dashboard</span></a
+          >
+          <a
+            class="footer-link"
+            onclick="
+              showSection('markets', document.querySelectorAll('.nav-link')[2])
+            "
+            >📈 <span data-en="Markets" data-es="Mercados">Markets</span></a
+          >
+          <a
+            class="footer-link"
+            onclick="
+              showSection('alerts', document.querySelectorAll('.nav-link')[3])
+            "
+            >🔔 <span data-en="Alerts" data-es="Alertas">Alerts</span></a
+          >
+          <a
+            class="footer-link"
+            onclick="
+              showSection('agent', document.querySelectorAll('.nav-link')[4])
+            "
+            >🤖 <span data-en="Agent" data-es="Agente">Agent</span></a
+          >
+          <a class="footer-link" href="auth/profile.html"
+            >👤
+            <span data-en="My Profile" data-es="Mi Perfil">My Profile</span></a
+          >
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title" data-en="Support" data-es="Soporte">
+            Support
+          </div>
+          <a class="footer-link" onclick="openSettings()"
+            >⚙️
+            <span data-en="Settings" data-es="Configuración">Settings</span></a
+          >
+          <a
+            class="footer-link"
+            href="https://github.com/neterfk-coder/agrolatam-agent"
+            target="_blank"
+            >📖
+            <span data-en="Documentation" data-es="Documentación"
+              >Documentation</span
+            ></a
+          >
+          <a
+            class="footer-link"
+            href="https://github.com/neterfk-coder/agrolatam-agent/issues"
+            target="_blank"
+            >🐛
+            <span data-en="Report a Bug" data-es="Reportar Error"
+              >Report a Bug</span
+            ></a
+          >
+          <a class="footer-link" href="auth/login.html"
+            >🔐
+            <span data-en="Sign In" data-es="Iniciar Sesión">Sign In</span></a
+          >
+          <a class="footer-link" href="auth/register.html"
+            >✨
+            <span data-en="Create Account" data-es="Crear Cuenta"
+              >Create Account</span
+            ></a
+          >
+          <a class="footer-link" href="auth/forgot.html"
+            >🔑
+            <span data-en="Reset Password" data-es="Restablecer Contraseña"
+              >Reset Password</span
+            ></a
+          >
+        </div>
+        <div class="footer-col">
+          <div
+            class="footer-col-title"
+            data-en="Built With"
+            data-es="Construido Con"
+          >
+            Built With
+          </div>
+          <a
+            class="footer-link"
+            href="https://deepmind.google/technologies/gemini/"
+            target="_blank"
+            >🤖 Gemini 2.0 Flash</a
+          >
+          <a class="footer-link" href="https://fivetran.com" target="_blank"
+            >⚡ Fivetran MCP</a
+          >
+          <a class="footer-link" href="https://cloud.google.com" target="_blank"
+            >☁️ Google Cloud</a
+          >
+          <a class="footer-link" href="https://supabase.com" target="_blank"
+            >🗄️ Supabase</a
+          >
+          <a
+            class="footer-link"
+            href="https://fastapi.tiangolo.com"
+            target="_blank"
+            >🚀 FastAPI</a
+          >
+          <a class="footer-link" href="https://vercel.com" target="_blank"
+            >▲ Vercel</a
+          >
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span
+          data-en="Built with ❤️ for Latin America's farmers"
+          data-es="Construido con ❤️ para los agricultores de Latinoamérica"
+          >Built with ❤️ for Latin America's farmers</span
+        >
+        <span class="footer-sep">•</span>
+        <span
+          data-en="Powered by Gemini + Fivetran MCP"
+          data-es="Impulsado por Gemini + Fivetran MCP"
+          >Powered by Gemini + Fivetran MCP</span
+        >
+        <span class="footer-sep">•</span>
+        <a
+          href="https://github.com/neterfk-coder/agrolatam-agent"
+          target="_blank"
+          style="color: rgba(255, 255, 255, 0.5); text-decoration: none"
+          >#AgroLatamAgent</a
+        >
+      </div>
+    </footer>
   </body>
 </html>
