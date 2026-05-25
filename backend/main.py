@@ -1,20 +1,25 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import httpx
 import os
 from dotenv import load_dotenv
-from supabase import create_client, Client
 from agent import AgroLatamAgent
 from datetime import datetime
 
 load_dotenv()
 
 # ── Supabase ──────────────────────────────────────────────────────────────────
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-sb: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+
+try:
+    from supabase import create_client
+    sb = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL else None
+except Exception as e:
+    print(f"Supabase warning: {e}")
+    sb = None
 
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(title="AgroLatam Agent API")
@@ -31,7 +36,6 @@ agent = AgroLatamAgent()
 # ── Models ────────────────────────────────────────────────────────────────────
 class ChatMessage(BaseModel):
     message: str
-    user_id: str | None = None
 
 class FarmerProfile(BaseModel):
     user_id: str
@@ -50,34 +54,27 @@ PRICES = {
 
 @app.get("/api/prices")
 async def get_prices():
-    # Guardar snapshot de precios en Supabase
-    try:
-        rows = [
-            {
-                "crop": crop,
-                "price": data["price"],
-                "change_pct": data["change"],
-                "exchange": data["exchange"],
-                "recorded_at": datetime.utcnow().isoformat(),
-            }
-            for crop, data in PRICES.items()
-        ]
-        sb.table("prices").insert(rows).execute()
-    except Exception:
-        pass  # No bloquear si Supabase falla
+    if sb:
+        try:
+            rows = [{"crop": c, "price": d["price"], "change_pct": d["change"],
+                     "exchange": d["exchange"], "recorded_at": datetime.utcnow().isoformat()}
+                    for c, d in PRICES.items()]
+            sb.table("prices").insert(rows).execute()
+        except Exception:
+            pass
     return PRICES
 
 # ── Weather ───────────────────────────────────────────────────────────────────
 @app.get("/api/weather")
 async def get_weather():
     countries = [
-        {"name": "Peru",     "lat": -9.19,   "lon": -75.015},
-        {"name": "Colombia", "lat":  4.570,  "lon": -74.297},
-        {"name": "Ecuador",  "lat": -1.831,  "lon": -78.183},
-        {"name": "Brazil",   "lat": -14.235, "lon": -51.925},
-        {"name": "Bolivia",  "lat": -16.290, "lon": -63.589},
-        {"name": "Argentina","lat": -38.416, "lon": -63.617},
-        {"name": "Mexico",   "lat":  23.634, "lon": -102.552},
+        {"name": "Peru",      "lat": -9.19,   "lon": -75.015},
+        {"name": "Colombia",  "lat":  4.570,  "lon": -74.297},
+        {"name": "Ecuador",   "lat": -1.831,  "lon": -78.183},
+        {"name": "Brazil",    "lat": -14.235, "lon": -51.925},
+        {"name": "Bolivia",   "lat": -16.290, "lon": -63.589},
+        {"name": "Argentina", "lat": -38.416, "lon": -63.617},
+        {"name": "Mexico",    "lat":  23.634, "lon": -102.552},
     ]
     results = []
     async with httpx.AsyncClient(timeout=10) as client:
@@ -85,13 +82,9 @@ async def get_weather():
             try:
                 r = await client.get(
                     "https://api.open-meteo.com/v1/forecast",
-                    params={
-                        "latitude":     c["lat"],
-                        "longitude":    c["lon"],
-                        "daily":        "precipitation_sum,temperature_2m_max",
-                        "forecast_days": 3,
-                        "timezone":     "America/Lima",
-                    },
+                    params={"latitude": c["lat"], "longitude": c["lon"],
+                            "daily": "precipitation_sum,temperature_2m_max",
+                            "forecast_days": 3, "timezone": "America/Lima"},
                 )
                 data = r.json()
                 results.append({
@@ -107,23 +100,16 @@ async def get_weather():
 @app.get("/api/alerts")
 async def get_alerts():
     alerts = await agent.generate_alerts()
-
-    # Guardar alertas en Supabase
-    try:
-        rows = [
-            {
-                "type":        a["type"],
-                "title":       a["title"],
-                "description": a["description"],
-                "countries":   a["countries"],
-                "action":      a["action"],
-                "created_at":  datetime.utcnow().isoformat(),
-            }
-            for a in alerts
-        ]
-        sb.table("alerts").insert(rows).execute()
-    except Exception:
-        pass
+    if sb:
+        try:
+            sb.table("alerts").insert([
+                {"type": a["type"], "title": a["title"],
+                 "description": a["description"], "countries": a["countries"],
+                 "action": a["action"], "created_at": datetime.utcnow().isoformat()}
+                for a in alerts
+            ]).execute()
+        except Exception:
+            pass
     return alerts
 
 # ── Chat ──────────────────────────────────────────────────────────────────────
@@ -132,29 +118,7 @@ async def chat(msg: ChatMessage):
     response = await agent.chat(msg.message)
     return {"response": response}
 
-# ── Farmer profile ────────────────────────────────────────────────────────────
-@app.post("/api/farmer")
-async def save_farmer(profile: FarmerProfile):
-    try:
-        sb.table("farmers").upsert({
-            "id":         profile.user_id,
-            "full_name":  profile.full_name,
-            "country":    profile.country,
-            "crop":       profile.crop,
-        }).execute()
-        return {"ok": True}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/api/farmer/{user_id}")
-async def get_farmer(user_id: str):
-    try:
-        res = sb.table("farmers").select("*").eq("id", user_id).single().execute()
-        return res.data
-    except Exception:
-        return {}
-
-# ── Health check ──────────────────────────────────────────────────────────────
+# ── Health ────────────────────────────────────────────────────────────────────
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "project": "AgroLatam Agent"}
