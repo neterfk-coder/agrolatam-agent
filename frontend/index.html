@@ -30,6 +30,13 @@
       <div class="nav-links">
         <a
           class="nav-link active"
+          onclick="showSection('home', this)"
+          data-en="Home"
+          data-es="Inicio"
+          >Home</a
+        >
+        <a
+          class="nav-link"
           onclick="showSection('dashboard', this)"
           data-en="Dashboard"
           data-es="Panel"
@@ -64,10 +71,19 @@
         </div>
         <div class="nav-status">
           <span class="status-dot"></span>
-          <span data-en="Agent running" data-es="Agente activo"
-            >Agent running</span
-          >
+          <span data-en="Live" data-es="En vivo">Live</span>
         </div>
+        <button class="nav-icon-btn" onclick="openSettings()" title="Settings">
+          ⚙️
+        </button>
+        <button
+          class="nav-icon-btn"
+          onclick="window.location.href = 'auth/profile.html'"
+          title="Profile"
+          id="profile-btn"
+        >
+          👤
+        </button>
         <a
           href="auth/login.html"
           class="nav-login"
@@ -78,9 +94,720 @@
       </div>
     </nav>
 
+    <!-- SETTINGS MODAL -->
+    <div class="modal-overlay" id="settings-modal" onclick="closeSettings()">
+      <div class="settings-panel" onclick="event.stopPropagation()">
+        <div class="settings-header">
+          <div
+            class="settings-title"
+            data-en="⚙️ Settings"
+            data-es="⚙️ Configuración"
+          >
+            ⚙️ Settings
+          </div>
+          <button class="modal-close" onclick="closeSettings()">✕</button>
+        </div>
+        <div class="settings-body">
+          <div class="settings-section">
+            <div
+              class="settings-section-title"
+              data-en="Account"
+              data-es="Cuenta"
+            >
+              Account
+            </div>
+            <button
+              class="settings-item"
+              onclick="window.location.href = 'auth/profile.html'"
+            >
+              <span class="si-icon">👤</span>
+              <div class="si-text">
+                <div class="si-title" data-en="My Profile" data-es="Mi Perfil">
+                  My Profile
+                </div>
+                <div
+                  class="si-sub"
+                  data-en="Edit your name, photo and preferences"
+                  data-es="Edita tu nombre, foto y preferencias"
+                >
+                  Edit your name, photo and preferences
+                </div>
+              </div>
+              <span class="si-arrow">›</span>
+            </button>
+            <button class="settings-item" onclick="showChangePassword()">
+              <span class="si-icon">🔑</span>
+              <div class="si-text">
+                <div
+                  class="si-title"
+                  data-en="Change Password"
+                  data-es="Cambiar Contraseña"
+                >
+                  Change Password
+                </div>
+                <div
+                  class="si-sub"
+                  data-en="Update your account password"
+                  data-es="Actualiza la contraseña de tu cuenta"
+                >
+                  Update your account password
+                </div>
+              </div>
+              <span class="si-arrow">›</span>
+            </button>
+          </div>
+
+          <div class="settings-section">
+            <div
+              class="settings-section-title"
+              data-en="Preferences"
+              data-es="Preferencias"
+            >
+              Preferences
+            </div>
+            <div class="settings-item">
+              <span class="si-icon">🌐</span>
+              <div class="si-text">
+                <div class="si-title" data-en="Language" data-es="Idioma">
+                  Language
+                </div>
+                <div
+                  class="si-sub"
+                  data-en="Choose your preferred language"
+                  data-es="Elige tu idioma preferido"
+                >
+                  Choose your preferred language
+                </div>
+              </div>
+              <div class="lang-switcher" style="margin-left: auto">
+                <button class="lang-opt active" onclick="setLang('en')">
+                  EN
+                </button>
+                <button class="lang-opt" onclick="setLang('es')">ES</button>
+              </div>
+            </div>
+            <div class="settings-item">
+              <span class="si-icon">🔔</span>
+              <div class="si-text">
+                <div
+                  class="si-title"
+                  data-en="Notifications"
+                  data-es="Notificaciones"
+                >
+                  Notifications
+                </div>
+                <div
+                  class="si-sub"
+                  data-en="Price alerts and market updates"
+                  data-es="Alertas de precios y actualizaciones"
+                >
+                  Price alerts and market updates
+                </div>
+              </div>
+              <label class="toggle"
+                ><input type="checkbox" checked /><span
+                  class="toggle-slider"
+                ></span
+              ></label>
+            </div>
+            <div class="settings-item">
+              <span class="si-icon">🌙</span>
+              <div class="si-text">
+                <div class="si-title" data-en="Dark Mode" data-es="Modo Oscuro">
+                  Dark Mode
+                </div>
+                <div
+                  class="si-sub"
+                  data-en="Coming soon"
+                  data-es="Próximamente"
+                >
+                  Coming soon
+                </div>
+              </div>
+              <label class="toggle"
+                ><input type="checkbox" disabled /><span
+                  class="toggle-slider"
+                ></span
+              ></label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div
+              class="settings-section-title"
+              data-en="Support"
+              data-es="Soporte"
+            >
+              Support
+            </div>
+            <button
+              class="settings-item"
+              onclick="
+                window.open(
+                  'https://github.com/neterfk-coder/agrolatam-agent/issues',
+                  '_blank',
+                )
+              "
+            >
+              <span class="si-icon">🐛</span>
+              <div class="si-text">
+                <div
+                  class="si-title"
+                  data-en="Report a Bug"
+                  data-es="Reportar un Error"
+                >
+                  Report a Bug
+                </div>
+                <div
+                  class="si-sub"
+                  data-en="Help us improve AgroLatam Agent"
+                  data-es="Ayúdanos a mejorar AgroLatam Agent"
+                >
+                  Help us improve AgroLatam Agent
+                </div>
+              </div>
+              <span class="si-arrow">›</span>
+            </button>
+            <button
+              class="settings-item"
+              onclick="
+                window.open(
+                  'https://github.com/neterfk-coder/agrolatam-agent',
+                  '_blank',
+                )
+              "
+            >
+              <span class="si-icon">📖</span>
+              <div class="si-text">
+                <div
+                  class="si-title"
+                  data-en="Documentation"
+                  data-es="Documentación"
+                >
+                  Documentation
+                </div>
+                <div
+                  class="si-sub"
+                  data-en="View full project documentation"
+                  data-es="Ver documentación completa del proyecto"
+                >
+                  View full project documentation
+                </div>
+              </div>
+              <span class="si-arrow">›</span>
+            </button>
+            <button class="settings-item">
+              <span class="si-icon">💬</span>
+              <div class="si-text">
+                <div
+                  class="si-title"
+                  data-en="Technical Support"
+                  data-es="Soporte Técnico"
+                >
+                  Technical Support
+                </div>
+                <div
+                  class="si-sub"
+                  data-en="Contact: support@agrolatam.ai"
+                  data-es="Contacto: support@agrolatam.ai"
+                >
+                  Contact: support@agrolatam.ai
+                </div>
+              </div>
+              <span class="si-arrow">›</span>
+            </button>
+          </div>
+
+          <div class="settings-section">
+            <div
+              class="settings-section-title"
+              data-en="About"
+              data-es="Acerca de"
+            >
+              About
+            </div>
+            <div class="settings-item">
+              <span class="si-icon">ℹ️</span>
+              <div class="si-text">
+                <div class="si-title">AgroLatam Agent v1.0.0</div>
+                <div
+                  class="si-sub"
+                  data-en="Built for Google Cloud Rapid Agent Hackathon 2026"
+                  data-es="Construido para Google Cloud Rapid Agent Hackathon 2026"
+                >
+                  Built for Google Cloud Rapid Agent Hackathon 2026
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="btn-signout"
+            onclick="signOut()"
+            data-en="Sign Out"
+            data-es="Cerrar Sesión"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANGE PASSWORD MODAL -->
+    <div
+      class="modal-overlay"
+      id="pw-modal"
+      onclick="document.getElementById('pw-modal').classList.remove('active')"
+    >
+      <div class="settings-panel small" onclick="event.stopPropagation()">
+        <div class="settings-header">
+          <div
+            class="settings-title"
+            data-en="🔑 Change Password"
+            data-es="🔑 Cambiar Contraseña"
+          >
+            🔑 Change Password
+          </div>
+          <button
+            class="modal-close"
+            onclick="
+              document.getElementById('pw-modal').classList.remove('active')
+            "
+          >
+            ✕
+          </button>
+        </div>
+        <div class="settings-body">
+          <div class="pw-msg" id="pw-msg"></div>
+          <div class="field">
+            <label data-en="New Password" data-es="Nueva Contraseña"
+              >New Password</label
+            ><input
+              type="password"
+              id="pw-new"
+              placeholder="Min. 6 characters"
+            />
+          </div>
+          <div class="field">
+            <label data-en="Confirm Password" data-es="Confirmar Contraseña"
+              >Confirm Password</label
+            ><input
+              type="password"
+              id="pw-confirm"
+              placeholder="Repeat password"
+            />
+          </div>
+          <button
+            class="btn-green"
+            onclick="changePassword()"
+            data-en="Update Password"
+            data-es="Actualizar Contraseña"
+          >
+            Update Password
+          </button>
+        </div>
+      </div>
+    </div>
+
     <main class="main">
+      <!-- HOME / LANDING -->
+      <section id="section-home" class="section active">
+        <!-- HERO -->
+        <div class="hero">
+          <div
+            class="hero-badge"
+            data-en="🏆 Google Cloud Rapid Agent Hackathon 2026"
+            data-es="🏆 Google Cloud Rapid Agent Hackathon 2026"
+          >
+            🏆 Google Cloud Rapid Agent Hackathon 2026
+          </div>
+          <h1
+            class="hero-title"
+            data-en="AI that acts for<br/><em>Latin America's farmers</em>"
+            data-es="IA que actúa por los<br/><em>agricultores de Latinoamérica</em>"
+          >
+            AI that acts for<br /><em>Latin America's farmers</em>
+          </h1>
+          <p
+            class="hero-sub"
+            data-en="AgroLatam Agent monitors 18 countries, 5 crops and global commodity markets in real time — then acts autonomously on your behalf."
+            data-es="AgroLatam Agent monitorea 18 países, 5 cultivos y mercados globales de materias primas en tiempo real — y actúa autónomamente en tu nombre."
+          >
+            AgroLatam Agent monitors 18 countries, 5 crops and global commodity
+            markets in real time — then acts autonomously on your behalf.
+          </p>
+          <div class="hero-btns">
+            <button
+              class="btn-hero-primary"
+              onclick="
+                showSection(
+                  'dashboard',
+                  document.querySelectorAll('.nav-link')[1],
+                )
+              "
+              data-en="Open Dashboard →"
+              data-es="Abrir Panel →"
+            >
+              Open Dashboard →
+            </button>
+            <button
+              class="btn-hero-secondary"
+              onclick="
+                showSection('agent', document.querySelectorAll('.nav-link')[4])
+              "
+              data-en="Talk to Agent"
+              data-es="Hablar con el Agente"
+            >
+              Talk to Agent
+            </button>
+          </div>
+          <div class="hero-stats">
+            <div class="hstat">
+              <div class="hstat-n">60M+</div>
+              <div class="hstat-l" data-en="Farmers" data-es="Agricultores">
+                Farmers
+              </div>
+            </div>
+            <div class="hstat-div"></div>
+            <div class="hstat">
+              <div class="hstat-n">18</div>
+              <div class="hstat-l" data-en="Countries" data-es="Países">
+                Countries
+              </div>
+            </div>
+            <div class="hstat-div"></div>
+            <div class="hstat">
+              <div class="hstat-n">5</div>
+              <div class="hstat-l" data-en="Major crops" data-es="Cultivos">
+                Major crops
+              </div>
+            </div>
+            <div class="hstat-div"></div>
+            <div class="hstat">
+              <div class="hstat-n">24/7</div>
+              <div class="hstat-l" data-en="Monitoring" data-es="Monitoreo">
+                Monitoring
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HOW IT WORKS -->
+        <div class="section-block">
+          <div
+            class="block-label"
+            data-en="HOW IT WORKS"
+            data-es="CÓMO FUNCIONA"
+          >
+            HOW IT WORKS
+          </div>
+          <h2
+            class="block-title"
+            data-en="Beyond chatbots — a true autonomous agent"
+            data-es="Más allá de los chatbots — un agente verdaderamente autónomo"
+          >
+            Beyond chatbots — a true autonomous agent
+          </h2>
+          <div class="steps-grid">
+            <div class="step-card">
+              <div class="step-num">01</div>
+              <div class="step-icon">⚡</div>
+              <div
+                class="step-title"
+                data-en="Fivetran syncs data"
+                data-es="Fivetran sincroniza datos"
+              >
+                Fivetran syncs data
+              </div>
+              <div
+                class="step-desc"
+                data-en="Continuous pipelines pull commodity prices, weather forecasts, and export statistics from global sources every 5 minutes."
+                data-es="Pipelines continuos extraen precios de materias primas, pronósticos del clima y estadísticas de exportación de fuentes globales cada 5 minutos."
+              >
+                Continuous pipelines pull commodity prices, weather forecasts,
+                and export statistics from global sources every 5 minutes.
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">02</div>
+              <div class="step-icon">🧠</div>
+              <div
+                class="step-title"
+                data-en="Gemini reasons & plans"
+                data-es="Gemini razona y planifica"
+              >
+                Gemini reasons & plans
+              </div>
+              <div
+                class="step-desc"
+                data-en="Google's Gemini AI analyzes cross-country patterns, detects opportunities and risks, and plans the best course of action."
+                data-es="La IA Gemini de Google analiza patrones entre países, detecta oportunidades y riesgos, y planifica el mejor curso de acción."
+              >
+                Google's Gemini AI analyzes cross-country patterns, detects
+                opportunities and risks, and plans the best course of action.
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">03</div>
+              <div class="step-icon">🎯</div>
+              <div
+                class="step-title"
+                data-en="Agent takes action"
+                data-es="El agente actúa"
+              >
+                Agent takes action
+              </div>
+              <div
+                class="step-desc"
+                data-en="The agent autonomously sends alerts, generates export documents, identifies buyers, and recommends when to harvest or sell."
+                data-es="El agente envía alertas automáticamente, genera documentos de exportación, identifica compradores y recomienda cuándo cosechar o vender."
+              >
+                The agent autonomously sends alerts, generates export documents,
+                identifies buyers, and recommends when to harvest or sell.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FEATURES GRID -->
+        <div class="section-block">
+          <div class="block-label" data-en="FEATURES" data-es="FUNCIONES">
+            FEATURES
+          </div>
+          <h2
+            class="block-title"
+            data-en="Everything a farmer needs, automated"
+            data-es="Todo lo que un agricultor necesita, automatizado"
+          >
+            Everything a farmer needs, automated
+          </h2>
+          <div class="features-grid">
+            <div class="feat-card feat-large">
+              <div class="feat-icon">📈</div>
+              <div
+                class="feat-title"
+                data-en="Real-time commodity prices"
+                data-es="Precios en tiempo real"
+              >
+                Real-time commodity prices
+              </div>
+              <div
+                class="feat-desc"
+                data-en="Live prices from ICE NY, ICE London, CME and FAO for coffee, cacao, corn, banana and soy across all of Latin America."
+                data-es="Precios en vivo de ICE NY, ICE Londres, CME y FAO para café, cacao, maíz, banano y soya en toda Latinoamérica."
+              >
+                Live prices from ICE NY, ICE London, CME and FAO for coffee,
+                cacao, corn, banana and soy across all of Latin America.
+              </div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon">🌦️</div>
+              <div
+                class="feat-title"
+                data-en="Weather intelligence"
+                data-es="Inteligencia climática"
+              >
+                Weather intelligence
+              </div>
+              <div
+                class="feat-desc"
+                data-en="72-hour forecasts across LATAM with harvest risk alerts."
+                data-es="Pronósticos de 72 horas con alertas de riesgo para la cosecha."
+              >
+                72-hour forecasts across LATAM with harvest risk alerts.
+              </div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon">🤖</div>
+              <div
+                class="feat-title"
+                data-en="AI-powered chat"
+                data-es="Chat con IA"
+              >
+                AI-powered chat
+              </div>
+              <div
+                class="feat-desc"
+                data-en="Ask the agent anything — it reasons with live market data."
+                data-es="Pregunta lo que quieras — razona con datos de mercado en vivo."
+              >
+                Ask the agent anything — it reasons with live market data.
+              </div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon">📄</div>
+              <div
+                class="feat-title"
+                data-en="Auto-generate docs"
+                data-es="Documentos automáticos"
+              >
+                Auto-generate docs
+              </div>
+              <div
+                class="feat-desc"
+                data-en="Credit applications and export documents generated instantly."
+                data-es="Solicitudes de crédito y documentos de exportación generados al instante."
+              >
+                Credit applications and export documents generated instantly.
+              </div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon">🔔</div>
+              <div
+                class="feat-title"
+                data-en="Smart alerts"
+                data-es="Alertas inteligentes"
+              >
+                Smart alerts
+              </div>
+              <div
+                class="feat-desc"
+                data-en="WhatsApp and SMS alerts when prices move significantly."
+                data-es="Alertas por WhatsApp y SMS cuando los precios cambian significativamente."
+              >
+                WhatsApp and SMS alerts when prices move significantly.
+              </div>
+            </div>
+            <div class="feat-card feat-large">
+              <div class="feat-icon">🗺️</div>
+              <div
+                class="feat-title"
+                data-en="18-country coverage"
+                data-es="Cobertura de 18 países"
+              >
+                18-country coverage
+              </div>
+              <div
+                class="feat-desc"
+                data-en="Peru, Brazil, Colombia, Mexico, Argentina, Chile, Bolivia, Ecuador, Paraguay, Uruguay, Honduras, Guatemala, Nicaragua, Costa Rica, Panama, Dominican Republic, Venezuela and El Salvador."
+                data-es="Perú, Brasil, Colombia, México, Argentina, Chile, Bolivia, Ecuador, Paraguay, Uruguay, Honduras, Guatemala, Nicaragua, Costa Rica, Panamá, República Dominicana, Venezuela y El Salvador."
+              >
+                Peru, Brazil, Colombia, Mexico, Argentina, Chile, Bolivia,
+                Ecuador, Paraguay, Uruguay, Honduras, Guatemala, Nicaragua,
+                Costa Rica, Panama, Dominican Republic, Venezuela and El
+                Salvador.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TECH STACK -->
+        <div class="section-block">
+          <div
+            class="block-label"
+            data-en="BUILT WITH"
+            data-es="CONSTRUIDO CON"
+          >
+            BUILT WITH
+          </div>
+          <h2
+            class="block-title"
+            data-en="Enterprise-grade technology stack"
+            data-es="Stack tecnológico de nivel empresarial"
+          >
+            Enterprise-grade technology stack
+          </h2>
+          <div class="tech-grid">
+            <div class="tech-card">
+              <div class="tech-logo">🤖</div>
+              <div class="tech-name">Gemini 2.0</div>
+              <div
+                class="tech-desc"
+                data-en="AI reasoning"
+                data-es="Razonamiento IA"
+              >
+                AI reasoning
+              </div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-logo">⚡</div>
+              <div class="tech-name">Fivetran MCP</div>
+              <div
+                class="tech-desc"
+                data-en="Data pipelines"
+                data-es="Pipelines de datos"
+              >
+                Data pipelines
+              </div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-logo">☁️</div>
+              <div class="tech-name">Google Cloud</div>
+              <div
+                class="tech-desc"
+                data-en="Infrastructure"
+                data-es="Infraestructura"
+              >
+                Infrastructure
+              </div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-logo">🗄️</div>
+              <div class="tech-name">Supabase</div>
+              <div class="tech-desc" data-en="Database" data-es="Base de datos">
+                Database
+              </div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-logo">🚀</div>
+              <div class="tech-name">FastAPI</div>
+              <div class="tech-desc" data-en="Backend" data-es="Backend">
+                Backend
+              </div>
+            </div>
+            <div class="tech-card">
+              <div class="tech-logo">▲</div>
+              <div class="tech-name">Vercel</div>
+              <div
+                class="tech-desc"
+                data-en="Frontend hosting"
+                data-es="Hosting frontend"
+              >
+                Frontend hosting
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-block">
+          <h2 data-en="Ready to get started?" data-es="¿Listo para comenzar?">
+            Ready to get started?
+          </h2>
+          <p
+            data-en="Join thousands of farmers already using AgroLatam Agent to make smarter decisions."
+            data-es="Únete a miles de agricultores que ya usan AgroLatam Agent para tomar mejores decisiones."
+          >
+            Join thousands of farmers already using AgroLatam Agent to make
+            smarter decisions.
+          </p>
+          <div class="cta-btns">
+            <a
+              href="auth/register.html"
+              class="btn-cta-primary"
+              data-en="Create Free Account"
+              data-es="Crear Cuenta Gratis"
+              >Create Free Account</a
+            >
+            <button
+              class="btn-cta-secondary"
+              onclick="
+                showSection(
+                  'dashboard',
+                  document.querySelectorAll('.nav-link')[1],
+                )
+              "
+              data-en="View Dashboard"
+              data-es="Ver Panel"
+            >
+              View Dashboard
+            </button>
+          </div>
+        </div>
+      </section>
+
       <!-- DASHBOARD -->
-      <section id="section-dashboard" class="section active">
+      <section id="section-dashboard" class="section">
         <div class="page-header">
           <h1
             data-en="Agricultural Intelligence Dashboard"
@@ -110,8 +837,7 @@
                 <span data-en="Active Alerts" data-es="Alertas Activas"
                   >Active Alerts</span
                 ></span
-              >
-              <span class="badge-live">LIVE</span>
+              ><span class="badge-live">LIVE</span>
             </div>
             <div id="alerts-list">
               <div
@@ -130,8 +856,7 @@
                 <span data-en="Fivetran Pipelines" data-es="Pipelines Fivetran"
                   >Fivetran Pipelines</span
                 ></span
-              >
-              <span
+              ><span
                 class="badge-ok"
                 data-en="All synced"
                 data-es="Todo sincronizado"
@@ -206,14 +931,14 @@
             <div class="chips">
               <span class="chip">🇵🇪 Peru</span
               ><span class="chip">🇧🇷 Brazil</span
-              ><span class="chip">🇨🇴 Colombia</span>
-              <span class="chip">🇲🇽 Mexico</span
+              ><span class="chip">🇨🇴 Colombia</span
+              ><span class="chip">🇲🇽 Mexico</span
               ><span class="chip">🇦🇷 Argentina</span
-              ><span class="chip">🇪🇨 Ecuador</span>
-              <span class="chip">🇧🇴 Bolivia</span
+              ><span class="chip">🇪🇨 Ecuador</span
+              ><span class="chip">🇧🇴 Bolivia</span
               ><span class="chip">🇨🇱 Chile</span
-              ><span class="chip">🇬🇹 Guatemala</span>
-              <span class="chip">🇭🇳 Honduras</span
+              ><span class="chip">🇬🇹 Guatemala</span
+              ><span class="chip">🇭🇳 Honduras</span
               ><span class="chip"
                 >+ 8 <span data-en="more" data-es="más">more</span></span
               >
@@ -252,8 +977,6 @@
                 <td
                   colspan="6"
                   style="text-align: center; padding: 20px; color: #aaa"
-                  data-en="Loading..."
-                  data-es="Cargando..."
                 >
                   Loading...
                 </td>
@@ -277,15 +1000,7 @@
           </p>
         </div>
         <div id="alerts-full">
-          <div class="card">
-            <div
-              class="loading-text"
-              data-en="Loading..."
-              data-es="Cargando..."
-            >
-              Loading...
-            </div>
-          </div>
+          <div class="card"><div class="loading-text">Loading...</div></div>
         </div>
       </section>
 
