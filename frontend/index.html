@@ -10,6 +10,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <!-- NAVBAR -->
@@ -96,10 +97,29 @@
         <a
           href="auth/login.html"
           class="nav-login"
+          id="btn-signin"
           data-en="Sign In"
           data-es="Iniciar sesión"
           >Sign In</a
         >
+        <button
+          onclick="signOutUser()"
+          class="nav-login"
+          id="btn-signout"
+          style="
+            display: none;
+            background: rgba(176, 58, 46, 0.2);
+            border: 1px solid rgba(176, 58, 46, 0.4);
+            color: #fff;
+            cursor: pointer;
+            font-family: Sora, sans-serif;
+            font-size: 13px;
+          "
+          data-en="Sign Out"
+          data-es="Cerrar sesión"
+        >
+          Sign Out
+        </button>
       </div>
     </nav>
 
@@ -432,10 +452,11 @@
           </div>
           <h1
             class="hero-title"
-            data-en="AI that acts for<br/><em>Latin America's farmers</em>"
-            data-es="IA que actúa por los<br/><em>agricultores de Latinoamérica</em>"
+            data-html="true"
+            data-en="AI that acts for <em>Latin America's farmers</em>"
+            data-es="IA que actúa por los <em>agricultores de Latinoamérica</em>"
           >
-            AI that acts for<br /><em>Latin America's farmers</em>
+            AI that acts for <em>Latin America's farmers</em>
           </h1>
           <p
             class="hero-sub"

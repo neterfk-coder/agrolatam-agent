@@ -1,11 +1,58 @@
 const API = "https://netricd-agrolatam-agent.hf.space";
 
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
+let sb = null;
+try {
+  const { createClient } = supabase;
+  sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch (e) {}
+
+// ── AUTH STATE ────────────────────────────────────────────────────────────────
+async function checkAuth() {
+  if (!sb) return;
+  try {
+    const {
+      data: { session },
+    } = await sb.auth.getSession();
+    updateAuthUI(!!session, session?.user);
+  } catch {}
+}
+
+function updateAuthUI(loggedIn, user) {
+  const btnIn = document.getElementById("btn-signin");
+  const btnOut = document.getElementById("btn-signout");
+  const profileBtn = document.getElementById("profile-btn");
+
+  if (loggedIn) {
+    if (btnIn) btnIn.style.display = "none";
+    if (btnOut) btnOut.style.display = "flex";
+    if (profileBtn) profileBtn.title = user?.email || "Profile";
+  } else {
+    if (btnIn) btnIn.style.display = "flex";
+    if (btnOut) btnOut.style.display = "none";
+  }
+}
+
+async function signOutUser() {
+  if (sb) {
+    try {
+      await sb.auth.signOut();
+    } catch {}
+  }
+  updateAuthUI(false);
+  window.location.href = "auth/login.html";
+}
+
 // ── LANGUAGE ──────────────────────────────────────────────────────────────────
 let lang = localStorage.getItem("lang") || "en";
 
 function setLang(l) {
   lang = l;
   localStorage.setItem("lang", l);
+
   document
     .querySelectorAll(".lang-opt")
     .forEach((b, i) =>
@@ -14,14 +61,25 @@ function setLang(l) {
         (l === "en" && i === 0) || (l === "es" && i === 1),
       ),
     );
-  document.querySelectorAll("[data-en]").forEach((el) => {
+
+  // Normal text elements
+  document.querySelectorAll("[data-en]:not([data-html])").forEach((el) => {
     el.textContent = el.dataset[l];
   });
+
+  // HTML elements (hero title, etc.)
+  document.querySelectorAll("[data-html='true']").forEach((el) => {
+    el.innerHTML = el.dataset[l];
+  });
+
+  // Placeholders
   document.querySelectorAll("[data-en-placeholder]").forEach((el) => {
     el.placeholder = el.dataset[l + "Placeholder"];
   });
+
+  // Initial agent message
   const initMsg = document.querySelector(".agent-msg");
-  if (initMsg) initMsg.textContent = initMsg.dataset[l];
+  if (initMsg && initMsg.dataset[l]) initMsg.textContent = initMsg.dataset[l];
 }
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
@@ -51,7 +109,6 @@ const ICONS = {
   orange: "🍊",
   tomato: "🍅",
 };
-
 const NAMES_EN = {
   coffee: "Coffee",
   cacao: "Cacao",
@@ -65,7 +122,6 @@ const NAMES_EN = {
   orange: "Orange",
   tomato: "Tomato",
 };
-
 const NAMES_ES = {
   coffee: "Café",
   cacao: "Cacao",
@@ -79,21 +135,19 @@ const NAMES_ES = {
   orange: "Naranja",
   tomato: "Tomate",
 };
-
 const REGIONS = {
-  coffee: "Peru · Colombia · Honduras · Guatemala",
-  cacao: "Peru · Ecuador · Brazil · Colombia",
+  coffee: "Peru · Colombia · Honduras",
+  cacao: "Peru · Ecuador · Brazil",
   corn: "Mexico · Argentina · Brazil",
   banana: "Ecuador · Colombia · Honduras",
   soy: "Brazil · Argentina · Paraguay",
-  palm_oil: "Colombia · Ecuador · Honduras · Guatemala",
-  rice: "Brazil · Colombia · Peru · Bolivia",
-  sugarcane: "Brazil · Mexico · Colombia · Argentina",
-  avocado: "Mexico · Peru · Colombia · Dom. Rep.",
-  orange: "Brazil · Mexico · Argentina · Colombia",
-  tomato: "Mexico · Brazil · Chile · Argentina",
+  palm_oil: "Colombia · Ecuador · Honduras",
+  rice: "Brazil · Colombia · Peru",
+  sugarcane: "Brazil · Mexico · Colombia",
+  avocado: "Mexico · Peru · Colombia",
+  orange: "Brazil · Mexico · Argentina",
+  tomato: "Mexico · Brazil · Chile",
 };
-
 function cropName(key) {
   return lang === "es" ? NAMES_ES[key] || key : NAMES_EN[key] || key;
 }
@@ -107,6 +161,7 @@ async function loadPrices() {
     const tbody = document.getElementById("market-tbody");
     if (!grid) return;
 
+    grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(160px, 1fr))";
     grid.innerHTML = Object.entries(data)
       .map(
         ([crop, d]) => `
@@ -141,28 +196,29 @@ async function loadPrices() {
         <td>${ICONS[crop] || ""} ${cropName(crop)}</td>
         <td class="price-val">${d.price > 100 ? "$" + d.price.toLocaleString() : "$" + d.price.toFixed(2)}</td>
         <td class="${d.change > 0 ? "up-text" : "down-text"}">${d.change > 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%</td>
-        <td>${d.unit}</td>
-        <td>${d.exchange}</td>
-        <td>${sig}</td>
+        <td>${d.unit}</td><td>${d.exchange}</td><td>${sig}</td>
       </tr>`;
       })
       .join("");
   } catch {
     const g = document.getElementById("metrics-grid");
-    if (g) g.innerHTML = `<div class="metric-skeleton"></div>`.repeat(11);
+    if (g) {
+      g.style.gridTemplateColumns = "repeat(auto-fill,minmax(160px,1fr))";
+      g.innerHTML = `<div class="metric-skeleton"></div>`.repeat(11);
+    }
   }
 }
 
 // ── ALERTS ────────────────────────────────────────────────────────────────────
 function renderAlert(a) {
-  const dotClass =
+  const dc =
     a.type === "critical"
       ? "dot-critical"
       : a.type === "warning"
         ? "dot-warning"
         : "dot-opportunity";
   return `<div class="alert-item">
-    <span class="alert-dot ${dotClass}"></span>
+    <span class="alert-dot ${dc}"></span>
     <div>
       <div class="alert-title">${a.title}</div>
       <div class="alert-desc">${a.description}</div>
@@ -173,8 +229,7 @@ function renderAlert(a) {
 
 async function loadAlerts() {
   try {
-    const res = await fetch(`${API}/api/alerts`);
-    const alerts = await res.json();
+    const alerts = await (await fetch(`${API}/api/alerts`)).json();
     const html = alerts.map(renderAlert).join("");
     const list = document.getElementById("alerts-list");
     const full = document.getElementById("alerts-full");
@@ -201,12 +256,13 @@ async function sendChat() {
   msgs.innerHTML += `<div class="msg typing" id="typing">${lang === "es" ? "El agente está pensando..." : "Agent is thinking..."}</div>`;
   msgs.scrollTop = msgs.scrollHeight;
   try {
-    const res = await fetch(`${API}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text }),
-    });
-    const data = await res.json();
+    const data = await (
+      await fetch(`${API}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      })
+    ).json();
     document.getElementById("typing")?.remove();
     msgs.innerHTML += `<div class="msg agent-msg">${data.response}</div>`;
   } catch {
@@ -255,20 +311,10 @@ function changePassword() {
   msg.textContent =
     lang === "es" ? "✅ ¡Contraseña actualizada!" : "✅ Password updated!";
 }
-function signOut() {
-  closeSettings();
-  window.location.href = "auth/login.html";
-}
-
-// ── METRICS GRID — responsive for 11 crops ────────────────────────────────────
-function fixGrid() {
-  const g = document.getElementById("metrics-grid");
-  if (g) g.style.gridTemplateColumns = "repeat(auto-fill, minmax(160px, 1fr))";
-}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 setLang(lang);
-fixGrid();
+checkAuth();
 loadPrices();
 loadAlerts();
 setInterval(loadPrices, 60000);
