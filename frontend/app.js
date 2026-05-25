@@ -170,3 +170,47 @@ loadPrices();
 loadAlerts();
 setInterval(loadPrices, 60000);
 setInterval(loadAlerts, 90000);
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById("settings-modal").classList.add("active");
+}
+function closeSettings() {
+  document.getElementById("settings-modal").classList.remove("active");
+}
+function showChangePassword() {
+  closeSettings();
+  document.getElementById("pw-modal").classList.add("active");
+}
+async function changePassword() {
+  const np = document.getElementById("pw-new").value;
+  const cp = document.getElementById("pw-confirm").value;
+  const msg = document.getElementById("pw-msg");
+  if (!np || !cp) {
+    msg.className = "pw-msg error";
+    msg.textContent =
+      lang === "es" ? "Completa todos los campos." : "Fill in all fields.";
+    return;
+  }
+  if (np !== cp) {
+    msg.className = "pw-msg error";
+    msg.textContent =
+      lang === "es"
+        ? "Las contraseñas no coinciden."
+        : "Passwords do not match.";
+    return;
+  }
+  if (np.length < 6) {
+    msg.className = "pw-msg error";
+    msg.textContent =
+      lang === "es" ? "Mínimo 6 caracteres." : "Minimum 6 characters.";
+    return;
+  }
+  msg.className = "pw-msg success";
+  msg.textContent =
+    lang === "es" ? "✅ ¡Contraseña actualizada!" : "✅ Password updated!";
+}
+async function signOut() {
+  closeSettings();
+  window.location.href = "auth/login.html";
+}

@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam Agent — My Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        min-height: 100vh;
+      }
+
+      /* NAV */
+      .navbar {
+        background: var(--forest);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .nav-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+      .nav-back {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s;
+      }
+      .nav-back:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+
+      /* LAYOUT */
+      .page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 36px 24px;
+      }
+      .page-title {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+      }
+      .page-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 32px;
+      }
+
+      .profile-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 20px;
+      }
+      @media (max-width: 700px) {
+        .profile-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* AVATAR CARD */
+      .avatar-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 28px;
+        text-align: center;
+      }
+      .avatar-wrap {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 16px;
+      }
+      .avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--forest);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        color: #fff;
+        margin: 0 auto;
+        border: 4px solid var(--cream);
+      }
+      .avatar-edit {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        width: 28px;
+        height: 28px;
+        background: var(--forest);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        cursor: pointer;
+        border: 2px solid #fff;
+      }
+      .avatar-name {
+        font-family: "Fraunces", serif;
+        font-size: 20px;
+        color: var(--ink);
+        margin-bottom: 4px;
+      }
+      .avatar-role {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 20px;
+      }
+      .avatar-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .astat {
+        background: var(--cream);
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+      }
+      .astat-n {
+        font-family: "Fraunces", serif;
+        font-size: 20px;
+        color: var(--ink);
+      }
+      .astat-l {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .badge-verified {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #eaf5ef;
+        color: var(--forest);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+      }
+
+      /* FORM CARD */
+      .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 28px;
+      }
+      .card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .field {
+        margin-bottom: 16px;
+      }
+      .field label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--ink);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 7px;
+      }
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 13px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--cream);
+        outline: none;
+        transition: all 0.2s;
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        border-color: var(--forest);
+        background: var(--white);
+        box-shadow: 0 0 0 3px rgba(10, 74, 53, 0.1);
+      }
+      .field textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      .btn-save {
+        padding: 12px 24px;
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-save:hover {
+        background: var(--forest2);
+      }
+      .btn-save:disabled {
+        background: #bbb;
+        cursor: not-allowed;
+      }
+      .save-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 8px;
+      }
+      .save-msg {
+        font-size: 13px;
+        color: var(--forest);
+        display: none;
+      }
+      .save-msg.show {
+        display: block;
+      }
+
+      /* PREFERENCES */
+      .pref-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .pref-item:last-child {
+        border-bottom: none;
+      }
+      .pref-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .pref-icon {
+        font-size: 20px;
+      }
+      .pref-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .pref-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .toggle {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 22px;
+      }
+      .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle-slider {
+        position: absolute;
+        inset: 0;
+        background: #ccc;
+        border-radius: 22px;
+        transition: 0.3s;
+        cursor: pointer;
+      }
+      .toggle-slider::before {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        left: 3px;
+        bottom: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.3s;
+      }
+      .toggle input:checked + .toggle-slider {
+        background: var(--forest);
+      }
+      .toggle input:checked + .toggle-slider::before {
+        transform: translateX(18px);
+      }
+      .color-opts {
+        display: flex;
+        gap: 8px;
+      }
+      .color-opt {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+      }
+      .color-opt.active {
+        border-color: var(--ink);
+        transform: scale(1.2);
+      }
+
+      /* DANGER */
+      .danger-card {
+        background: #fdf0ee;
+        border: 1px solid #f5c6c0;
+        border-radius: 20px;
+        padding: 24px;
+        margin-top: 20px;
+      }
+      .danger-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #b03a2e;
+        margin-bottom: 8px;
+      }
+      .danger-desc {
+        font-size: 13px;
+        color: #9b4b40;
+        margin-bottom: 16px;
+        line-height: 1.6;
+      }
+      .btn-danger {
+        padding: 10px 20px;
+        background: transparent;
+        color: #b03a2e;
+        border: 1.5px solid #b03a2e;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-danger:hover {
+        background: #b03a2e;
+        color: #fff;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="../index.html" class="nav-brand">
+        <div class="nav-logo">🌱</div>
+        <span class="nav-title">AgroLatam Agent</span>
+      </a>
+      <a href="../index.html" class="nav-back"
+        >←
+        <span data-en="Back to Dashboard" data-es="Volver al Panel"
+          >Back to Dashboard</span
+        ></a
+      >
+    </nav>
+
+    <div class="page">
+      <div class="page-title" data-en="My Profile" data-es="Mi Perfil">
+        My Profile
+      </div>
+      <div
+        class="page-sub"
+        data-en="Manage your account information and preferences"
+        data-es="Gestiona tu información de cuenta y preferencias"
+      >
+        Manage your account information and preferences
+      </div>
+
+      <div class="profile-grid">
+        <!-- LEFT: AVATAR -->
+        <div>
+          <div class="avatar-card">
+            <div class="avatar-wrap">
+              <div class="avatar" id="avatar-display">👤</div>
+              <div
+                class="avatar-edit"
+                onclick="document.getElementById('photo-input').click()"
+                title="Change photo"
+              >
+                ✏️
+              </div>
+              <input
+                type="file"
+                id="photo-input"
+                accept="image/*"
+                onchange="previewPhoto(event)"
+              />
+            </div>
+            <div class="badge-verified">
+              ✅
+              <span data-en="Verified account" data-es="Cuenta verificada"
+                >Verified account</span
+              >
+            </div>
+            <div class="avatar-name" id="display-name">Your Name</div>
+            <div
+              class="avatar-role"
+              id="display-role"
+              data-en="AgroLatam Farmer"
+              data-es="Agricultor AgroLatam"
+            >
+              AgroLatam Farmer
+            </div>
+            <div class="avatar-stats">
+              <div class="astat">
+                <div class="astat-n">18</div>
+                <div class="astat-l" data-en="Countries" data-es="Países">
+                  Countries
+                </div>
+              </div>
+              <div class="astat">
+                <div class="astat-n">5</div>
+                <div class="astat-l" data-en="Crops" data-es="Cultivos">
+                  Crops
+                </div>
+              </div>
+              <div class="astat">
+                <div class="astat-n">24/7</div>
+                <div class="astat-l" data-en="Monitoring" data-es="Monitoreo">
+                  Monitoring
+                </div>
+              </div>
+              <div class="astat">
+                <div class="astat-n">Free</div>
+                <div class="astat-l" data-en="Plan" data-es="Plan">Plan</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: FORMS -->
+        <div>
+          <!-- PERSONAL INFO -->
+          <div class="form-card" style="margin-bottom: 16px">
+            <div
+              class="card-title"
+              data-en="Personal Information"
+              data-es="Información Personal"
+            >
+              Personal Information
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label data-en="First Name" data-es="Nombre">First Name</label
+                ><input type="text" id="fname" placeholder="Arnold" />
+              </div>
+              <div class="field">
+                <label data-en="Last Name" data-es="Apellido">Last Name</label
+                ><input type="text" id="lname" placeholder="Smith" />
+              </div>
+            </div>
+            <div class="field">
+              <label data-en="Email" data-es="Correo">Email</label
+              ><input type="email" id="email" placeholder="you@example.com" />
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label data-en="Country" data-es="País">Country</label>
+                <select id="country">
+                  <option value="PE">🇵🇪 Peru</option>
+                  <option value="BR">🇧🇷 Brazil</option>
+                  <option value="CO">🇨🇴 Colombia</option>
+                  <option value="MX">🇲🇽 Mexico</option>
+                  <option value="AR">🇦🇷 Argentina</option>
+                  <option value="EC">🇪🇨 Ecuador</option>
+                  <option value="BO">🇧🇴 Bolivia</option>
+                  <option value="CL">🇨🇱 Chile</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label data-en="Main Crop" data-es="Cultivo Principal"
+                  >Main Crop</label
+                >
+                <select id="crop">
+                  <option value="coffee">☕ Coffee</option>
+                  <option value="cacao">🍫 Cacao</option>
+                  <option value="corn">🌽 Corn</option>
+                  <option value="banana">🍌 Banana</option>
+                  <option value="soy">🌱 Soy</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label data-en="Bio" data-es="Biografía">Bio</label
+              ><textarea
+                id="bio"
+                placeholder="Tell us about your farm..."
+              ></textarea>
+            </div>
+            <div class="save-row">
+              <button
+                class="btn-save"
+                onclick="saveProfile()"
+                data-en="Save Changes"
+                data-es="Guardar Cambios"
+              >
+                Save Changes
+              </button>
+              <span
+                class="save-msg"
+                id="save-msg"
+                data-en="✅ Saved successfully!"
+                data-es="✅ ¡Guardado con éxito!"
+                >✅ Saved successfully!</span
+              >
+            </div>
+          </div>
+
+          <!-- PREFERENCES -->
+          <div class="form-card" style="margin-bottom: 16px">
+            <div
+              class="card-title"
+              data-en="Preferences"
+              data-es="Preferencias"
+            >
+              Preferences
+            </div>
+
+            <div class="pref-item">
+              <div class="pref-left">
+                <span class="pref-icon">🔔</span>
+                <div>
+                  <div
+                    class="pref-title"
+                    data-en="Price Alerts"
+                    data-es="Alertas de Precios"
+                  >
+                    Price Alerts
+                  </div>
+                  <div
+                    class="pref-sub"
+                    data-en="Get notified when prices change >2%"
+                    data-es="Notificaciones cuando los precios cambian >2%"
+                  >
+                    Get notified when prices change >2%
+                  </div>
+                </div>
+              </div>
+              <label class="toggle"
+                ><input type="checkbox" checked /><span
+                  class="toggle-slider"
+                ></span
+              ></label>
+            </div>
+
+            <div class="pref-item">
+              <div class="pref-left">
+                <span class="pref-icon">🌦️</span>
+                <div>
+                  <div
+                    class="pref-title"
+                    data-en="Weather Alerts"
+                    data-es="Alertas Climáticas"
+                  >
+                    Weather Alerts
+                  </div>
+                  <div
+                    class="pref-sub"
+                    data-en="Harvest risk warnings for your region"
+                    data-es="Advertencias de riesgo para tu región"
+                  >
+                    Harvest risk warnings for your region
+                  </div>
+                </div>
+              </div>
+              <label class="toggle"
+                ><input type="checkbox" checked /><span
+                  class="toggle-slider"
+                ></span
+              ></label>
+            </div>
+
+            <div class="pref-item">
+              <div class="pref-left">
+                <span class="pref-icon">📱</span>
+                <div>
+                  <div
+                    class="pref-title"
+                    data-en="WhatsApp Notifications"
+                    data-es="Notificaciones WhatsApp"
+                  >
+                    WhatsApp Notifications
+                  </div>
+                  <div
+                    class="pref-sub"
+                    data-en="Receive alerts on WhatsApp"
+                    data-es="Recibe alertas en WhatsApp"
+                  >
+                    Receive alerts on WhatsApp
+                  </div>
+                </div>
+              </div>
+              <label class="toggle"
+                ><input type="checkbox" /><span class="toggle-slider"></span
+              ></label>
+            </div>
+
+            <div class="pref-item">
+              <div class="pref-left">
+                <span class="pref-icon">🎨</span>
+                <div>
+                  <div
+                    class="pref-title"
+                    data-en="Accent Color"
+                    data-es="Color de Acento"
+                  >
+                    Accent Color
+                  </div>
+                  <div
+                    class="pref-sub"
+                    data-en="Personalize your interface"
+                    data-es="Personaliza tu interfaz"
+                  >
+                    Personalize your interface
+                  </div>
+                </div>
+              </div>
+              <div class="color-opts">
+                <div
+                  class="color-opt active"
+                  style="background: #0a4a35"
+                  onclick="setAccent('#0A4A35', this)"
+                ></div>
+                <div
+                  class="color-opt"
+                  style="background: #1a5276"
+                  onclick="setAccent('#1A5276', this)"
+                ></div>
+                <div
+                  class="color-opt"
+                  style="background: #6c3483"
+                  onclick="setAccent('#6C3483', this)"
+                ></div>
+                <div
+                  class="color-opt"
+                  style="background: #c8902a"
+                  onclick="setAccent('#C8902A', this)"
+                ></div>
+                <div
+                  class="color-opt"
+                  style="background: #b03a2e"
+                  onclick="setAccent('#B03A2E', this)"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DANGER ZONE -->
+          <div class="danger-card">
+            <div
+              class="danger-title"
+              data-en="⚠️ Danger Zone"
+              data-es="⚠️ Zona de Peligro"
+            >
+              ⚠️ Danger Zone
+            </div>
+            <div
+              class="danger-desc"
+              data-en="Deleting your account is permanent and cannot be undone. All your data, preferences and history will be lost."
+              data-es="Eliminar tu cuenta es permanente e irreversible. Todos tus datos, preferencias e historial se perderán."
+            >
+              Deleting your account is permanent and cannot be undone. All your
+              data, preferences and history will be lost.
+            </div>
+            <button
+              class="btn-danger"
+              onclick="confirmDelete()"
+              data-en="Delete Account"
+              data-es="Eliminar Cuenta"
+            >
+              Delete Account
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const SUPABASE_URL = "TU_SUPABASE_URL";
+      const SUPABASE_KEY = "TU_SUPABASE_KEY";
+      const { createClient } = supabase;
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      let lang = localStorage.getItem("lang") || "en";
+      document.querySelectorAll("[data-en]").forEach((el) => {
+        el.textContent = el.dataset[lang];
+      });
+
+      function previewPhoto(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const av = document.getElementById("avatar-display");
+          av.style.backgroundImage = `url(${ev.target.result})`;
+          av.style.backgroundSize = "cover";
+          av.textContent = "";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function saveProfile() {
+        const name =
+          document.getElementById("fname").value +
+          " " +
+          document.getElementById("lname").value;
+        document.getElementById("display-name").textContent =
+          name.trim() || "Your Name";
+        const msg = document.getElementById("save-msg");
+        msg.classList.add("show");
+        setTimeout(() => msg.classList.remove("show"), 3000);
+        localStorage.setItem(
+          "profile",
+          JSON.stringify({
+            fname: document.getElementById("fname").value,
+            lname: document.getElementById("lname").value,
+            email: document.getElementById("email").value,
+            country: document.getElementById("country").value,
+            crop: document.getElementById("crop").value,
+            bio: document.getElementById("bio").value,
+          }),
+        );
+      }
+
+      function setAccent(color, el) {
+        document
+          .querySelectorAll(".color-opt")
+          .forEach((c) => c.classList.remove("active"));
+        el.classList.add("active");
+        document.documentElement.style.setProperty("--forest", color);
+        localStorage.setItem("accent", color);
+      }
+
+      function confirmDelete() {
+        const msg =
+          lang === "es"
+            ? "¿Estás seguro? Esta acción no se puede deshacer."
+            : "Are you sure? This action cannot be undone.";
+        if (confirm(msg)) {
+          alert(
+            lang === "es" ? "Función en desarrollo." : "Feature coming soon.",
+          );
+        }
+      }
+
+      // Load saved profile
+      const saved = JSON.parse(localStorage.getItem("profile") || "{}");
+      if (saved.fname) {
+        document.getElementById("fname").value = saved.fname;
+        document.getElementById("lname").value = saved.lname;
+        document.getElementById("display-name").textContent = (
+          saved.fname +
+          " " +
+          saved.lname
+        ).trim();
+      }
+      if (saved.email) document.getElementById("email").value = saved.email;
+      if (saved.country)
+        document.getElementById("country").value = saved.country;
+      if (saved.crop) document.getElementById("crop").value = saved.crop;
+      if (saved.bio) document.getElementById("bio").value = saved.bio;
+      const accent = localStorage.getItem("accent");
+      if (accent)
+        document.documentElement.style.setProperty("--forest", accent);
+    </script>
+  </body>
+</html>
