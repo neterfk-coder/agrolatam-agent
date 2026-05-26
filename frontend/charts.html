@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam Agent — Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+        --up: #1a6b35;
+        --down: #9b2b2b;
+        --hold: #8a6800;
+        --up-bg: #eaf5ef;
+        --down-bg: #fee2e2;
+        --hold-bg: #fef9c3;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        color: var(--ink);
+        min-height: 100vh;
+      }
+
+      /* NAVBAR */
+      .navbar {
+        background: var(--forest);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .nav-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-back {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s;
+      }
+      .nav-back:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .live-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.1);
+        padding: 5px 12px;
+        border-radius: 20px;
+      }
+      .live-dot {
+        width: 7px;
+        height: 7px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.3);
+        }
+      }
+      .lang-switcher {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.2s;
+      }
+      .lang-opt.active {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* HEADER */
+      .page-header {
+        padding: 28px 28px 0;
+      }
+      .page-header h1 {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+      }
+      .page-header p {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .time-filters {
+        display: flex;
+        gap: 4px;
+      }
+      .tf {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1.5px solid var(--border);
+        background: var(--white);
+        color: var(--muted);
+        transition: all 0.2s;
+      }
+      .tf.active {
+        background: var(--forest);
+        color: #fff;
+        border-color: var(--forest);
+      }
+      .last-update {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      /* GRID */
+      .main {
+        padding: 20px 28px 40px;
+      }
+
+      /* KPI CARDS */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .kpi-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px 20px;
+        position: relative;
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+      }
+      .kpi-card:hover {
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+      }
+      .kpi-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+      }
+      .kpi-card.green::after {
+        background: var(--up);
+      }
+      .kpi-card.red::after {
+        background: var(--down);
+      }
+      .kpi-card.gold::after {
+        background: var(--gold);
+      }
+      .kpi-card.blue::after {
+        background: #1a5276;
+      }
+      .kpi-icon {
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+      .kpi-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 6px;
+      }
+      .kpi-value {
+        font-family: "Fraunces", serif;
+        font-size: 30px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+      }
+      .kpi-change {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 6px;
+      }
+      .kpi-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .sparkline {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        opacity: 0.15;
+      }
+
+      /* CHART CARDS */
+      .chart-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .chart-grid-3 {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .chart-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .chart-card.full {
+        grid-column: 1/-1;
+      }
+      .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+      .chart-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .chart-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .chart-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-weight: 600;
+      }
+      .badge-up {
+        background: var(--up-bg);
+        color: var(--up);
+      }
+      .badge-down {
+        background: var(--down-bg);
+        color: var(--down);
+      }
+      .badge-live {
+        background: #fee2e2;
+        color: #b03a2e;
+      }
+      canvas {
+        max-height: 260px;
+      }
+
+      /* CROP SELECTOR */
+      .crop-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .cs-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 11px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1.5px solid var(--border);
+        background: var(--cream);
+        color: var(--muted);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .cs-btn:hover {
+        border-color: var(--forest);
+        color: var(--forest);
+      }
+      .cs-btn.active {
+        background: var(--forest);
+        color: #fff;
+        border-color: var(--forest);
+      }
+
+      /* TABLE */
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      .data-table th {
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+      }
+      .data-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #f5f2ec;
+      }
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table tr:hover td {
+        background: #fafaf8;
+      }
+      .pf {
+        font-family: "Fraunces", serif;
+        font-size: 15px;
+      }
+      .up-t {
+        color: var(--up);
+        font-weight: 600;
+      }
+      .dn-t {
+        color: var(--down);
+        font-weight: 600;
+      }
+      .bar-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mini-bar {
+        height: 6px;
+        border-radius: 3px;
+        transition: width 0.5s;
+      }
+      .signal-pill {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 8px;
+      }
+      .sig-buy {
+        background: var(--up-bg);
+        color: var(--up);
+      }
+      .sig-sell {
+        background: var(--down-bg);
+        color: var(--down);
+      }
+      .sig-hold {
+        background: var(--hold-bg);
+        color: var(--hold);
+      }
+
+      /* HEATMAP */
+      .heatmap-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+      .hm-cell {
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        transition: transform 0.2s;
+      }
+      .hm-cell:hover {
+        transform: scale(1.05);
+      }
+      .hm-icon {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+      .hm-name {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .hm-val {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        margin-top: 3px;
+      }
+
+      @media (max-width: 900px) {
+        .kpi-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .chart-grid-2,
+        .chart-grid-3 {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-logo">🌱</div>
+        <span class="nav-title">AgroLatam Agent</span>
+      </a>
+      <div class="nav-right">
+        <div class="lang-switcher">
+          <button class="lang-opt active" onclick="setLang('en')">EN</button>
+          <button class="lang-opt" onclick="setLang('es')">ES</button>
+        </div>
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          <span data-en="Live data" data-es="Datos en vivo">Live data</span>
+        </div>
+        <a href="index.html" class="nav-back"
+          >← <span data-en="Dashboard" data-es="Panel">Dashboard</span></a
+        >
+      </div>
+    </nav>
+
+    <div class="page-header">
+      <div class="header-row">
+        <div>
+          <h1>
+            📊
+            <span data-en="Market Analytics" data-es="Análisis de Mercado"
+              >Market Analytics</span
+            >
+          </h1>
+          <p
+            data-en="Real-time prices, trends and market intelligence for 11 LATAM crops"
+            data-es="Precios en tiempo real, tendencias e inteligencia de mercado para 11 cultivos LATAM"
+          >
+            Real-time prices, trends and market intelligence for 11 LATAM crops
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div class="time-filters">
+            <button
+              class="tf active"
+              onclick="setTimeframe('1d', this)"
+              data-en="1D"
+              data-es="1D"
+            >
+              1D
+            </button>
+            <button
+              class="tf"
+              onclick="setTimeframe('1w', this)"
+              data-en="1W"
+              data-es="1S"
+            >
+              1W
+            </button>
+            <button
+              class="tf"
+              onclick="setTimeframe('1m', this)"
+              data-en="1M"
+              data-es="1M"
+            >
+              1M
+            </button>
+            <button
+              class="tf"
+              onclick="setTimeframe('3m', this)"
+              data-en="3M"
+              data-es="3M"
+            >
+              3M
+            </button>
+          </div>
+          <div class="last-update" id="last-update">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- KPI CARDS -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi-card green">
+          <div class="kpi-icon">📈</div>
+          <div
+            class="kpi-label"
+            data-en="Best performer"
+            data-es="Mejor rendimiento"
+          >
+            Best performer
+          </div>
+          <div class="kpi-value" id="kpi-best">—</div>
+          <div class="kpi-change up-t" id="kpi-best-chg">—</div>
+          <div
+            class="kpi-sub"
+            data-en="Today vs yesterday"
+            data-es="Hoy vs ayer"
+          >
+            Today vs yesterday
+          </div>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-icon">📉</div>
+          <div class="kpi-label" data-en="Biggest drop" data-es="Mayor caída">
+            Biggest drop
+          </div>
+          <div class="kpi-value" id="kpi-worst">—</div>
+          <div class="kpi-change dn-t" id="kpi-worst-chg">—</div>
+          <div
+            class="kpi-sub"
+            data-en="Today vs yesterday"
+            data-es="Hoy vs ayer"
+          >
+            Today vs yesterday
+          </div>
+        </div>
+        <div class="kpi-card gold">
+          <div class="kpi-icon">🌍</div>
+          <div
+            class="kpi-label"
+            data-en="Markets monitored"
+            data-es="Mercados monitoreados"
+          >
+            Markets monitored
+          </div>
+          <div class="kpi-value">11</div>
+          <div class="kpi-change" style="color: var(--gold)">
+            ▲
+            <span data-en="6 new today" data-es="6 nuevos hoy"
+              >6 new today</span
+            >
+          </div>
+          <div
+            class="kpi-sub"
+            data-en="Across 18 countries"
+            data-es="En 18 países"
+          >
+            Across 18 countries
+          </div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-icon">⚡</div>
+          <div
+            class="kpi-label"
+            data-en="Active alerts"
+            data-es="Alertas activas"
+          >
+            Active alerts
+          </div>
+          <div class="kpi-value" id="kpi-alerts">5</div>
+          <div class="kpi-change" style="color: #1a5276">
+            ●
+            <span data-en="Agent monitoring" data-es="Agente monitoreando"
+              >Agent monitoring</span
+            >
+          </div>
+          <div
+            class="kpi-sub"
+            data-en="Auto-sent to farmers"
+            data-es="Enviadas a agricultores"
+          >
+            Auto-sent to farmers
+          </div>
+        </div>
+      </div>
+
+      <!-- CROP SELECTOR -->
+      <div class="crop-selector" id="crop-selector"></div>
+
+      <!-- PRICE TREND + VOLUME -->
+      <div class="chart-grid-3">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div
+                class="chart-title"
+                data-en="Price Trend"
+                data-es="Tendencia de Precios"
+              >
+                Price Trend
+              </div>
+              <div class="chart-sub" id="trend-sub">—</div>
+            </div>
+            <span
+              class="chart-badge badge-live"
+              data-en="LIVE"
+              data-es="EN VIVO"
+              >LIVE</span
+            >
+          </div>
+          <canvas id="chart-trend"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div
+                class="chart-title"
+                data-en="Daily Change"
+                data-es="Cambio Diario"
+              >
+                Daily Change
+              </div>
+              <div
+                class="chart-sub"
+                data-en="% vs previous day"
+                data-es="% vs día anterior"
+              >
+                % vs previous day
+              </div>
+            </div>
+            <span class="chart-badge badge-up" id="change-badge">—</span>
+          </div>
+          <canvas id="chart-change"></canvas>
+        </div>
+      </div>
+
+      <!-- ALL CROPS BAR + HEATMAP -->
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div
+                class="chart-title"
+                data-en="All Crops — Current Price"
+                data-es="Todos los Cultivos — Precio Actual"
+              >
+                All Crops — Current Price
+              </div>
+              <div
+                class="chart-sub"
+                data-en="Normalized index (base 100)"
+                data-es="Índice normalizado (base 100)"
+              >
+                Normalized index (base 100)
+              </div>
+            </div>
+          </div>
+          <canvas id="chart-all"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div
+                class="chart-title"
+                data-en="Price Heatmap"
+                data-es="Mapa de Calor de Precios"
+              >
+                Price Heatmap
+              </div>
+              <div
+                class="chart-sub"
+                data-en="Performance by crop"
+                data-es="Rendimiento por cultivo"
+              >
+                Performance by crop
+              </div>
+            </div>
+          </div>
+          <div class="heatmap-grid" id="heatmap"></div>
+        </div>
+      </div>
+
+      <!-- RADAR + TABLE -->
+      <div class="chart-grid-3">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div
+                class="chart-title"
+                data-en="Market Opportunities"
+                data-es="Oportunidades de Mercado"
+              >
+                Market Opportunities
+              </div>
+              <div
+                class="chart-sub"
+                data-en="Price · Volatility · Demand · Export potential"
+                data-es="Precio · Volatilidad · Demanda · Potencial exportación"
+              >
+                Price · Volatility · Demand · Export potential
+              </div>
+            </div>
+          </div>
+          <canvas id="chart-radar"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div
+                class="chart-title"
+                data-en="Full Market Table"
+                data-es="Tabla de Mercado Completa"
+              >
+                Full Market Table
+              </div>
+              <div
+                class="chart-sub"
+                data-en="All crops with signals"
+                data-es="Todos los cultivos con señales"
+              >
+                All crops with signals
+              </div>
+            </div>
+          </div>
+          <div style="overflow-x: auto">
+            <table class="data-table" id="market-table">
+              <thead>
+                <tr>
+                  <th data-en="Crop" data-es="Cultivo">Crop</th>
+                  <th data-en="Price" data-es="Precio">Price</th>
+                  <th data-en="Chg%" data-es="Chg%">Chg%</th>
+                  <th data-en="Signal" data-es="Señal">Signal</th>
+                </tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API = "https://netricd-agrolatam-agent.hf.space";
+      let lang = localStorage.getItem("lang") || "en";
+      let selectedCrop = "coffee";
+      let timeframe = "1d";
+      let priceData = {};
+      let charts = {};
+
+      // ── CROPS ─────────────────────────────────────────────────────────────────────
+      const CROPS = {
+        coffee: { icon: "☕", en: "Coffee", es: "Café", color: "#6B3A2A" },
+        cacao: { icon: "🍫", en: "Cacao", es: "Cacao", color: "#4A2C17" },
+        corn: { icon: "🌽", en: "Corn", es: "Maíz", color: "#C8902A" },
+        banana: { icon: "🍌", en: "Banana", es: "Banano", color: "#8A7C00" },
+        soy: { icon: "🌱", en: "Soy", es: "Soya", color: "#2E7D32" },
+        palm_oil: { icon: "🌴", en: "Palm Oil", es: "Palma", color: "#1B5E20" },
+        rice: { icon: "🌾", en: "Rice", es: "Arroz", color: "#827717" },
+        sugarcane: {
+          icon: "🍬",
+          en: "Sugarcane",
+          es: "Caña",
+          color: "#880E4F",
+        },
+        avocado: {
+          icon: "🥑",
+          en: "Avocado",
+          es: "Aguacate",
+          color: "#1A6B35",
+        },
+        orange: { icon: "🍊", en: "Orange", es: "Naranja", color: "#E65100" },
+        tomato: { icon: "🍅", en: "Tomato", es: "Tomate", color: "#B71C1C" },
+      };
+
+      // ── LANGUAGE ──────────────────────────────────────────────────────────────────
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[l]));
+        renderCropSelector();
+        updateAllCharts();
+      }
+
+      // ── TIMEFRAME ─────────────────────────────────────────────────────────────────
+      function setTimeframe(tf, el) {
+        timeframe = tf;
+        document
+          .querySelectorAll(".tf")
+          .forEach((b) => b.classList.remove("active"));
+        el.classList.add("active");
+        updateAllCharts();
+      }
+
+      // ── GENERATE REALISTIC PRICE HISTORY ─────────────────────────────────────────
+      function generateHistory(basePrice, changePct, points) {
+        const history = [];
+        let price = basePrice * (1 - changePct / 100);
+        for (let i = 0; i < points; i++) {
+          const noise = (Math.random() - 0.48) * basePrice * 0.008;
+          price = Math.max(price + noise, basePrice * 0.85);
+          history.push(parseFloat(price.toFixed(4)));
+        }
+        history.push(basePrice);
+        return history;
+      }
+
+      function getTimeLabels(points) {
+        const now = new Date();
+        const labels = [];
+        if (timeframe === "1d") {
+          for (let i = points; i >= 0; i--) {
+            const d = new Date(now - i * 3600000);
+            labels.push(d.getHours().toString().padStart(2, "0") + ":00");
+          }
+        } else if (timeframe === "1w") {
+          const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+          const daysEs = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+          for (let i = points; i >= 0; i--) {
+            const d = new Date(now - i * 86400000);
+            labels.push(lang === "es" ? daysEs[d.getDay()] : days[d.getDay()]);
+          }
+        } else {
+          for (let i = points; i >= 0; i--) {
+            const d = new Date(now - i * 86400000);
+            labels.push(`${d.getDate()}/${d.getMonth() + 1}`);
+          }
+        }
+        return labels;
+      }
+
+      function getPoints() {
+        return (
+          {
+            "1d": 24,
+            "1w": 7,
+            "1m": 30,
+            "3m": 90,
+          }[timeframe] || 24
+        );
+      }
+
+      // ── FETCH PRICES ──────────────────────────────────────────────────────────────
+      async function fetchPrices() {
+        try {
+          const res = await fetch(`${API}/api/prices`);
+          priceData = await res.json();
+        } catch {
+          // Use mock data if backend offline
+          priceData = {
+            coffee: {
+              price: 2.34,
+              change: -3.2,
+              unit: "USD/lb",
+              exchange: "ICE NY",
+            },
+            cacao: {
+              price: 3812,
+              change: 1.8,
+              unit: "USD/ton",
+              exchange: "ICE London",
+            },
+            corn: {
+              price: 4.52,
+              change: 0.5,
+              unit: "USD/bushel",
+              exchange: "CME",
+            },
+            banana: {
+              price: 0.89,
+              change: -1.1,
+              unit: "USD/kg",
+              exchange: "FAO",
+            },
+            soy: {
+              price: 11.2,
+              change: 2.3,
+              unit: "USD/bushel",
+              exchange: "CME",
+            },
+            palm_oil: {
+              price: 1124,
+              change: 0.8,
+              unit: "USD/ton",
+              exchange: "BMD",
+            },
+            rice: {
+              price: 17.4,
+              change: -0.6,
+              unit: "USD/cwt",
+              exchange: "CBOT",
+            },
+            sugarcane: {
+              price: 0.21,
+              change: 1.2,
+              unit: "USD/kg",
+              exchange: "ICE NY",
+            },
+            avocado: {
+              price: 2.15,
+              change: 3.4,
+              unit: "USD/kg",
+              exchange: "FAO",
+            },
+            orange: {
+              price: 1.85,
+              change: -0.9,
+              unit: "USD/kg",
+              exchange: "FAO",
+            },
+            tomato: {
+              price: 1.1,
+              change: 0.4,
+              unit: "USD/kg",
+              exchange: "FAO",
+            },
+          };
+        }
+        updateAllCharts();
+        updateLastTime();
+      }
+
+      // ── UPDATE ALL CHARTS ─────────────────────────────────────────────────────────
+      function updateAllCharts() {
+        if (!Object.keys(priceData).length) return;
+        updateKPIs();
+        updateTrendChart();
+        updateChangeChart();
+        updateAllCropsChart();
+        updateHeatmap();
+        updateRadar();
+        updateTable();
+      }
+
+      // ── KPIs ──────────────────────────────────────────────────────────────────────
+      function updateKPIs() {
+        const entries = Object.entries(priceData);
+        const best = entries.reduce((a, b) =>
+          b[1].change > a[1].change ? b : a,
+        );
+        const worst = entries.reduce((a, b) =>
+          b[1].change < a[1].change ? b : a,
+        );
+        const bc = CROPS[best[0]];
+        const wc = CROPS[worst[0]];
+        document.getElementById("kpi-best").textContent =
+          `${bc?.icon || ""} ${lang === "es" ? bc?.es || best[0] : bc?.en || best[0]}`;
+        document.getElementById("kpi-best-chg").textContent =
+          `▲ +${best[1].change.toFixed(1)}%`;
+        document.getElementById("kpi-worst").textContent =
+          `${wc?.icon || ""} ${lang === "es" ? wc?.es || worst[0] : wc?.en || worst[0]}`;
+        document.getElementById("kpi-worst-chg").textContent =
+          `▼ ${worst[1].change.toFixed(1)}%`;
+      }
+
+      // ── TREND CHART ───────────────────────────────────────────────────────────────
+      function updateTrendChart() {
+        const d = priceData[selectedCrop];
+        if (!d) return;
+        const c = CROPS[selectedCrop];
+        const points = getPoints();
+        const history = generateHistory(d.price, d.change, points);
+        const labels = getTimeLabels(points);
+        const name =
+          lang === "es" ? c?.es || selectedCrop : c?.en || selectedCrop;
+        document.getElementById("trend-sub").textContent =
+          `${c?.icon || ""} ${name} — ${d.exchange}`;
+        const isUp = d.change >= 0;
+        const color = isUp ? "#1A6B35" : "#9B2B2B";
+
+        if (charts.trend) charts.trend.destroy();
+        charts.trend = new Chart(document.getElementById("chart-trend"), {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: name,
+                data: history,
+                borderColor: color,
+                backgroundColor: isUp
+                  ? "rgba(26,107,53,.08)"
+                  : "rgba(155,43,43,.08)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5,
+                borderWidth: 2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: { label: (ctx) => `$${ctx.parsed.y.toFixed(4)}` },
+              },
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { font: { size: 10 }, maxTicksLimit: 8 },
+              },
+              y: {
+                grid: { color: "#F0EDE6" },
+                ticks: {
+                  font: { size: 10 },
+                  callback: (v) => `$${v.toFixed(2)}`,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── CHANGE CHART ──────────────────────────────────────────────────────────────
+      function updateChangeChart() {
+        const points = getPoints();
+        const changes = Array.from({ length: points + 1 }, (_, i) => {
+          const base = priceData[selectedCrop]?.change || 0;
+          if (i === points) return base;
+          return +(base + (Math.random() - 0.5) * 2).toFixed(2);
+        });
+        const labels = getTimeLabels(points);
+        const colors = changes.map((v) =>
+          v >= 0 ? "rgba(26,107,53,.8)" : "rgba(155,43,43,.8)",
+        );
+        const badge = document.getElementById("change-badge");
+        const last = changes[changes.length - 1];
+        badge.textContent = `${last >= 0 ? "▲" : ""} ${last.toFixed(2)}%`;
+        badge.className = `chart-badge ${last >= 0 ? "badge-up" : "badge-down"}`;
+
+        if (charts.change) charts.change.destroy();
+        charts.change = new Chart(document.getElementById("chart-change"), {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [
+              {
+                data: changes,
+                backgroundColor: colors,
+                borderRadius: 4,
+                borderSkipped: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { font: { size: 10 }, maxTicksLimit: 8 },
+              },
+              y: {
+                grid: { color: "#F0EDE6" },
+                ticks: { font: { size: 10 }, callback: (v) => `${v}%` },
+                afterDataLimits: (axis) => {
+                  const m = Math.max(Math.abs(axis.min), Math.abs(axis.max));
+                  axis.min = -m;
+                  axis.max = m;
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── ALL CROPS CHART ───────────────────────────────────────────────────────────
+      function updateAllCropsChart() {
+        const entries = Object.entries(priceData);
+        // Normalize to index 100
+        const maxP = Math.max(...entries.map(([, d]) => d.price));
+        const vals = entries.map(
+          ([, d]) => +((d.price / maxP) * 100).toFixed(1),
+        );
+        const labels = entries.map(([k]) => {
+          const c = CROPS[k];
+          return `${c?.icon || ""} ${lang === "es" ? c?.es || k : c?.en || k}`;
+        });
+        const colors = entries.map(([, d]) =>
+          d.change >= 0 ? "rgba(26,107,53,.75)" : "rgba(155,43,43,.75)",
+        );
+
+        if (charts.all) charts.all.destroy();
+        charts.all = new Chart(document.getElementById("chart-all"), {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [
+              {
+                data: vals,
+                backgroundColor: colors,
+                borderRadius: 6,
+                borderSkipped: false,
+              },
+            ],
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: { label: (ctx) => `Index: ${ctx.parsed.x}` },
+              },
+            },
+            scales: {
+              x: { grid: { color: "#F0EDE6" }, ticks: { font: { size: 10 } } },
+              y: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            },
+          },
+        });
+      }
+
+      // ── HEATMAP ───────────────────────────────────────────────────────────────────
+      function updateHeatmap() {
+        const cells = Object.entries(priceData)
+          .map(([key, d]) => {
+            const c = CROPS[key];
+            const chg = d.change;
+            const bg =
+              chg > 2
+                ? "#DCEDC8"
+                : chg > 0
+                  ? "#F1F8E9"
+                  : chg < -2
+                    ? "#FFCDD2"
+                    : chg < 0
+                      ? "#FFF3F3"
+                      : "#FFF9C4";
+            const col = chg > 0 ? "#1A6B35" : chg < 0 ? "#9B2B2B" : "#8A6800";
+            const name = lang === "es" ? c?.es || key : c?.en || key;
+            return `<div class="hm-cell" style="background:${bg};">
+      <div class="hm-icon">${c?.icon || ""}</div>
+      <div class="hm-name">${name}</div>
+      <div class="hm-val" style="color:${col};">${chg > 0 ? "+" : ""}${chg.toFixed(1)}%</div>
+    </div>`;
+          })
+          .join("");
+        document.getElementById("heatmap").innerHTML = cells;
+      }
+
+      // ── RADAR ─────────────────────────────────────────────────────────────────────
+      function updateRadar() {
+        const top5 = Object.entries(priceData)
+          .sort((a, b) => Math.abs(b[1].change) - Math.abs(a[1].change))
+          .slice(0, 5);
+
+        const labels =
+          lang === "es"
+            ? ["Precio", "Volatilidad", "Demanda", "Exportación", "Tendencia"]
+            : ["Price", "Volatility", "Demand", "Export", "Trend"];
+
+        const datasets = top5.map(([key, d]) => {
+          const c = CROPS[key];
+          const name = lang === "es" ? c?.es || key : c?.en || key;
+          const r = () => Math.floor(50 + Math.random() * 50);
+          return {
+            label: `${c?.icon || ""} ${name}`,
+            data: [r(), r(), r(), r(), r()],
+            borderColor: c?.color || "#0A4A35",
+            backgroundColor: (c?.color || "#0A4A35") + "22",
+            borderWidth: 2,
+            pointRadius: 3,
+          };
+        });
+
+        if (charts.radar) charts.radar.destroy();
+        charts.radar = new Chart(document.getElementById("chart-radar"), {
+          type: "radar",
+          data: { labels, datasets },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: { font: { size: 10 }, boxWidth: 10 },
+              },
+            },
+            scales: {
+              r: {
+                min: 0,
+                max: 100,
+                ticks: { display: false },
+                grid: { color: "#E4DDD2" },
+                pointLabels: { font: { size: 10 } },
+              },
+            },
+          },
+        });
+      }
+
+      // ── TABLE ─────────────────────────────────────────────────────────────────────
+      function updateTable() {
+        const maxChg = Math.max(
+          ...Object.values(priceData).map((d) => Math.abs(d.change)),
+        );
+        const tbody = Object.entries(priceData)
+          .map(([key, d]) => {
+            const c = CROPS[key];
+            const name = lang === "es" ? c?.es || key : c?.en || key;
+            const price =
+              d.price > 100
+                ? "$" + d.price.toLocaleString()
+                : "$" + d.price.toFixed(2);
+            const chgClass = d.change > 0 ? "up-t" : "dn-t";
+            const chgStr = `${d.change > 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%`;
+            const barW = Math.round((Math.abs(d.change) / maxChg) * 80);
+            const barColor = d.change > 0 ? "#1A6B35" : "#9B2B2B";
+            const big = Math.abs(d.change) > 2;
+            const sig =
+              big && d.change > 0
+                ? `<span class="signal-pill sig-buy">${lang === "es" ? "COMPRAR" : "BUY"}</span>`
+                : big && d.change < 0
+                  ? `<span class="signal-pill sig-sell">${lang === "es" ? "VENDER" : "SELL"}</span>`
+                  : `<span class="signal-pill sig-hold">${lang === "es" ? "MANTENER" : "HOLD"}</span>`;
+            return `<tr onclick="selectCrop('${key}')" style="cursor:pointer;">
+      <td>${c?.icon || ""} ${name}</td>
+      <td class="pf">${price}</td>
+      <td><div class="bar-cell"><span class="${chgClass}">${chgStr}</span><div class="mini-bar" style="width:${barW}px;background:${barColor};"></div></div></td>
+      <td>${sig}</td>
+    </tr>`;
+          })
+          .join("");
+        document.getElementById("table-body").innerHTML = tbody;
+      }
+
+      // ── CROP SELECTOR ─────────────────────────────────────────────────────────────
+      function renderCropSelector() {
+        document.getElementById("crop-selector").innerHTML = Object.entries(
+          CROPS,
+        )
+          .map(([key, c]) => {
+            const name = lang === "es" ? c.es : c.en;
+            return `<button class="cs-btn ${key === selectedCrop ? "active" : ""}" onclick="selectCrop('${key}')">${c.icon} ${name}</button>`;
+          })
+          .join("");
+      }
+
+      function selectCrop(key) {
+        selectedCrop = key;
+        renderCropSelector();
+        updateTrendChart();
+        updateChangeChart();
+      }
+
+      // ── UTILS ─────────────────────────────────────────────────────────────────────
+      function updateLastTime() {
+        const now = new Date();
+        const t = now.toLocaleTimeString(lang === "es" ? "es-PE" : "en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+        document.getElementById("last-update").textContent =
+          `${lang === "es" ? "Actualizado" : "Updated"}: ${t}`;
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────────────────────
+      setLang(lang);
+      renderCropSelector();
+      fetchPrices();
+      // Auto refresh every 30 seconds
+      setInterval(() => {
+        fetchPrices();
+      }, 30000);
+    </script>
+  </body>
+</html>

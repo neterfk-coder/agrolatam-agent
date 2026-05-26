@@ -319,3 +319,6 @@ loadPrices();
 loadAlerts();
 setInterval(loadPrices, 60000);
 setInterval(loadAlerts, 90000);
+
+// Wake up backend on page load
+fetch(`${API}/api/health`).catch(() => {});
