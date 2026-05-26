@@ -1,0 +1,1330 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam — Agricultural Calendar</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+        --plant: #1a6b35;
+        --plant-bg: #eaf5ef;
+        --care: #1a5276;
+        --care-bg: #eaf0fb;
+        --harvest: #c8902a;
+        --harvest-bg: #fef9ee;
+        --sell: #6c3483;
+        --sell-bg: #f5eef8;
+        --warn: #b03a2e;
+        --warn-bg: #fdf0ee;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        color: var(--ink);
+        min-height: 100vh;
+      }
+      .navbar {
+        background: var(--forest);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .nav-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-back {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s;
+      }
+      .nav-back:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .lang-switcher {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .lang-opt.active {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 24px;
+      }
+      .page-header {
+        margin-bottom: 24px;
+      }
+      .page-title {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+      }
+      .page-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      /* CROP + COUNTRY SELECTOR */
+      .selectors {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+        align-items: center;
+      }
+      .sel-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .sel-crops {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .sel-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1.5px solid var(--border);
+        background: var(--cream);
+        color: var(--muted);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .sel-btn:hover {
+        border-color: var(--forest);
+        color: var(--forest);
+      }
+      .sel-btn.active {
+        background: var(--forest);
+        color: #fff;
+        border-color: var(--forest);
+      }
+      select.country-sel {
+        padding: 8px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 13px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--cream);
+        outline: none;
+        cursor: pointer;
+      }
+      select.country-sel:focus {
+        border-color: var(--forest);
+      }
+
+      /* LEGEND */
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .leg-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .leg-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+
+      /* CALENDAR NAV */
+      .cal-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .cal-month {
+        font-family: "Fraunces", serif;
+        font-size: 22px;
+        color: var(--ink);
+      }
+      .cal-nav-btns {
+        display: flex;
+        gap: 8px;
+      }
+      .nav-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1.5px solid var(--border);
+        background: var(--white);
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .nav-btn:hover {
+        border-color: var(--forest);
+        color: var(--forest);
+      }
+
+      /* CALENDAR GRID */
+      .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+      }
+      .cal-dow {
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding-bottom: 8px;
+      }
+      .cal-day {
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 10px;
+        min-height: 110px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+      }
+      .cal-day:hover {
+        border-color: var(--forest);
+        box-shadow: 0 3px 12px rgba(10, 74, 53, 0.1);
+      }
+      .cal-day.today {
+        border-color: var(--forest);
+        border-width: 2px;
+      }
+      .cal-day.other-month {
+        opacity: 0.4;
+      }
+      .cal-day.selected {
+        border-color: var(--gold);
+        border-width: 2px;
+        box-shadow: 0 4px 16px rgba(200, 144, 42, 0.2);
+      }
+      .day-num {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+      .cal-day.today .day-num {
+        background: var(--forest);
+        color: #fff;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+      }
+      .day-events {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .day-event {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .ev-plant {
+        background: var(--plant-bg);
+        color: var(--plant);
+      }
+      .ev-care {
+        background: var(--care-bg);
+        color: var(--care);
+      }
+      .ev-harvest {
+        background: var(--harvest-bg);
+        color: var(--harvest);
+      }
+      .ev-sell {
+        background: var(--sell-bg);
+        color: var(--sell);
+      }
+      .ev-warn {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+
+      /* SIDE PANEL */
+      .main-layout {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 20px;
+      }
+      .side-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .panel-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+      }
+      .panel-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 14px;
+      }
+
+      /* SELECTED DAY DETAIL */
+      .detail-empty {
+        text-align: center;
+        padding: 20px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .detail-event {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f2ec;
+      }
+      .detail-event:last-child {
+        border-bottom: none;
+      }
+      .detail-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      .detail-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .detail-desc {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 3px;
+        line-height: 1.5;
+      }
+
+      /* MONTHLY TIMELINE */
+      .timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .tl-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .tl-crop {
+        font-size: 12px;
+        min-width: 80px;
+        color: var(--muted);
+      }
+      .tl-bar-wrap {
+        flex: 1;
+        height: 8px;
+        background: var(--cream);
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+      }
+      .tl-seg {
+        height: 100%;
+      }
+
+      /* WEATHER ALERT */
+      .weather-alert {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+      }
+      .wa-icon {
+        font-size: 20px;
+      }
+      .wa-text {
+        font-size: 12px;
+        color: var(--ink);
+        line-height: 1.5;
+      }
+      .wa-title {
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+
+      @media (max-width: 900px) {
+        .main-layout {
+          grid-template-columns: 1fr;
+        }
+        .cal-grid {
+          gap: 4px;
+        }
+        .cal-day {
+          min-height: 80px;
+          padding: 6px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-logo">🌱</div>
+        <span class="nav-title">AgroLatam Agent</span>
+      </a>
+      <div class="nav-right">
+        <div class="lang-switcher">
+          <button class="lang-opt active" onclick="setLang('en')">EN</button>
+          <button class="lang-opt" onclick="setLang('es')">ES</button>
+        </div>
+        <a href="index.html" class="nav-back"
+          >← <span data-en="Dashboard" data-es="Panel">Dashboard</span></a
+        >
+      </div>
+    </nav>
+
+    <div class="page">
+      <div class="page-header">
+        <div class="page-title">
+          🗓️
+          <span data-en="Agricultural Calendar" data-es="Calendario Agrícola"
+            >Agricultural Calendar</span
+          >
+        </div>
+        <div
+          class="page-sub"
+          data-en="Smart planting, care and harvest schedule powered by Gemini + real-time market data"
+          data-es="Calendario inteligente de siembra, cuidado y cosecha impulsado por Gemini + datos de mercado en tiempo real"
+        >
+          Smart planting, care and harvest schedule powered by Gemini +
+          real-time market data
+        </div>
+      </div>
+
+      <!-- SELECTORS -->
+      <div class="selectors">
+        <span class="sel-label" data-en="Crop:" data-es="Cultivo:">Crop:</span>
+        <div class="sel-crops" id="crop-btns"></div>
+        <span
+          class="sel-label"
+          style="margin-left: 12px"
+          data-en="Country:"
+          data-es="País:"
+          >Country:</span
+        >
+        <select
+          class="country-sel"
+          id="country-sel"
+          onchange="updateCalendar()"
+        >
+          <option value="PE">🇵🇪 Peru</option>
+          <option value="CO">🇨🇴 Colombia</option>
+          <option value="BR">🇧🇷 Brazil</option>
+          <option value="MX">🇲🇽 Mexico</option>
+          <option value="EC">🇪🇨 Ecuador</option>
+          <option value="BO">🇧🇴 Bolivia</option>
+          <option value="AR">🇦🇷 Argentina</option>
+          <option value="HN">🇭🇳 Honduras</option>
+        </select>
+      </div>
+
+      <!-- LEGEND -->
+      <div class="legend">
+        <div class="leg-item">
+          <div
+            class="leg-dot"
+            style="
+              background: var(--plant-bg);
+              border: 1.5px solid var(--plant);
+            "
+          ></div>
+          <span data-en="🌱 Plant" data-es="🌱 Siembra">🌱 Plant</span>
+        </div>
+        <div class="leg-item">
+          <div
+            class="leg-dot"
+            style="background: var(--care-bg); border: 1.5px solid var(--care)"
+          ></div>
+          <span data-en="💧 Care / Fertilize" data-es="💧 Cuidado / Fertilizar"
+            >💧 Care / Fertilize</span
+          >
+        </div>
+        <div class="leg-item">
+          <div
+            class="leg-dot"
+            style="
+              background: var(--harvest-bg);
+              border: 1.5px solid var(--harvest);
+            "
+          ></div>
+          <span data-en="🌾 Harvest" data-es="🌾 Cosecha">🌾 Harvest</span>
+        </div>
+        <div class="leg-item">
+          <div
+            class="leg-dot"
+            style="background: var(--sell-bg); border: 1.5px solid var(--sell)"
+          ></div>
+          <span
+            data-en="💰 Best sell window"
+            data-es="💰 Ventana de venta óptima"
+            >💰 Best sell window</span
+          >
+        </div>
+        <div class="leg-item">
+          <div
+            class="leg-dot"
+            style="background: var(--warn-bg); border: 1.5px solid var(--warn)"
+          ></div>
+          <span data-en="⚠️ Weather risk" data-es="⚠️ Riesgo climático"
+            >⚠️ Weather risk</span
+          >
+        </div>
+      </div>
+
+      <div class="main-layout">
+        <!-- CALENDAR -->
+        <div>
+          <div class="cal-nav">
+            <div class="cal-month" id="cal-month">—</div>
+            <div class="cal-nav-btns">
+              <button class="nav-btn" onclick="prevMonth()">‹</button>
+              <button
+                class="nav-btn"
+                onclick="goToday()"
+                style="
+                  font-size: 11px;
+                  font-weight: 600;
+                  width: auto;
+                  padding: 0 10px;
+                "
+                data-en="Today"
+                data-es="Hoy"
+              >
+                Today
+              </button>
+              <button class="nav-btn" onclick="nextMonth()">›</button>
+            </div>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+
+        <!-- SIDE PANEL -->
+        <div class="side-panel">
+          <!-- SELECTED DAY -->
+          <div class="panel-card">
+            <div
+              class="panel-title"
+              id="detail-title"
+              data-en="Select a day"
+              data-es="Selecciona un día"
+            >
+              Select a day
+            </div>
+            <div id="detail-body">
+              <div
+                class="detail-empty"
+                data-en="Click any day to see recommendations from the AI agent."
+                data-es="Haz clic en cualquier día para ver recomendaciones del agente IA."
+              >
+                Click any day to see recommendations from the AI agent.
+              </div>
+            </div>
+          </div>
+
+          <!-- WEATHER ALERTS -->
+          <div class="panel-card">
+            <div
+              class="panel-title"
+              data-en="⚠️ Weather Alerts"
+              data-es="⚠️ Alertas Climáticas"
+            >
+              ⚠️ Weather Alerts
+            </div>
+            <div id="weather-alerts">
+              <div class="weather-alert" style="background: var(--warn-bg)">
+                <div class="wa-icon">🌧️</div>
+                <div class="wa-text">
+                  <div
+                    class="wa-title"
+                    data-en="Heavy rain expected"
+                    data-es="Lluvia intensa esperada"
+                  >
+                    Heavy rain expected
+                  </div>
+                  <span
+                    data-en="Next 72h — delay harvest if possible"
+                    data-es="Próximas 72h — retrasa la cosecha si es posible"
+                    >Next 72h — delay harvest if possible</span
+                  >
+                </div>
+              </div>
+              <div class="weather-alert" style="background: var(--plant-bg)">
+                <div class="wa-icon">☀️</div>
+                <div class="wa-text">
+                  <div
+                    class="wa-title"
+                    data-en="Optimal planting window"
+                    data-es="Ventana óptima de siembra"
+                  >
+                    Optimal planting window
+                  </div>
+                  <span
+                    data-en="Days 8-14 — ideal temperature and humidity"
+                    data-es="Días 8-14 — temperatura y humedad ideales"
+                    >Days 8-14 — ideal temperature and humidity</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MONTHLY OVERVIEW -->
+          <div class="panel-card">
+            <div
+              class="panel-title"
+              data-en="Monthly Timeline"
+              data-es="Cronograma Mensual"
+            >
+              Monthly Timeline
+            </div>
+            <div class="timeline" id="timeline"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let lang = localStorage.getItem("lang") || "en";
+      let selectedCrop = "coffee";
+      let currentDate = new Date();
+      let selectedDay = null;
+
+      // ── CROP DATA ─────────────────────────────────────────────────────────────────
+      const CROPS = {
+        coffee: { icon: "☕", en: "Coffee", es: "Café" },
+        cacao: { icon: "🍫", en: "Cacao", es: "Cacao" },
+        corn: { icon: "🌽", en: "Corn", es: "Maíz" },
+        banana: { icon: "🍌", en: "Banana", es: "Banano" },
+        soy: { icon: "🌱", en: "Soy", es: "Soya" },
+        palm_oil: { icon: "🌴", en: "Palm Oil", es: "Palma" },
+        rice: { icon: "🌾", en: "Rice", es: "Arroz" },
+        sugarcane: { icon: "🍬", en: "Sugarcane", es: "Caña" },
+        avocado: { icon: "🥑", en: "Avocado", es: "Aguacate" },
+        orange: { icon: "🍊", en: "Orange", es: "Naranja" },
+        tomato: { icon: "🍅", en: "Tomato", es: "Tomate" },
+      };
+
+      // ── AGRICULTURAL CALENDAR DATA ────────────────────────────────────────────────
+      // Month arrays (1=Jan, 12=Dec), activities per crop per country
+      const AGRO_DATA = {
+        coffee: {
+          PE: {
+            plant: [3, 4, 9, 10],
+            care: [1, 2, 5, 6, 7, 8],
+            harvest: [6, 7, 8, 9],
+            sell: [7, 8, 9],
+          },
+          CO: {
+            plant: [9, 10, 3, 4],
+            care: [1, 2, 5, 6, 11, 12],
+            harvest: [10, 11, 12, 1],
+            sell: [11, 12, 1],
+          },
+          BR: {
+            plant: [10, 11],
+            care: [12, 1, 2, 3, 4, 5, 6, 7],
+            harvest: [6, 7, 8, 9],
+            sell: [8, 9, 10],
+          },
+          HN: {
+            plant: [5, 6],
+            care: [7, 8, 9, 10],
+            harvest: [11, 12, 1],
+            sell: [12, 1, 2],
+          },
+          default: {
+            plant: [3, 4],
+            care: [5, 6, 7, 8],
+            harvest: [9, 10, 11],
+            sell: [10, 11],
+          },
+        },
+        cacao: {
+          PE: {
+            plant: [9, 10, 11],
+            care: [12, 1, 2, 3, 4, 5],
+            harvest: [5, 6, 7, 8, 11, 12],
+            sell: [6, 7, 12, 1],
+          },
+          EC: {
+            plant: [4, 5, 9, 10],
+            care: [1, 2, 3, 6, 7, 8],
+            harvest: [5, 6, 10, 11],
+            sell: [6, 11, 12],
+          },
+          BR: {
+            plant: [9, 10],
+            care: [11, 12, 1, 2, 3, 4, 5, 6],
+            harvest: [4, 5, 6, 10, 11],
+            sell: [5, 6, 11],
+          },
+          default: {
+            plant: [4, 5],
+            care: [6, 7, 8, 9, 10],
+            harvest: [10, 11, 12],
+            sell: [11, 12],
+          },
+        },
+        corn: {
+          MX: {
+            plant: [3, 4, 5],
+            care: [6, 7],
+            harvest: [8, 9, 10],
+            sell: [9, 10],
+          },
+          AR: {
+            plant: [9, 10, 11],
+            care: [12, 1, 2],
+            harvest: [3, 4, 5],
+            sell: [4, 5],
+          },
+          BR: {
+            plant: [9, 10, 11],
+            care: [12, 1, 2, 3],
+            harvest: [3, 4, 5],
+            sell: [4, 5, 6],
+          },
+          default: {
+            plant: [3, 4],
+            care: [5, 6, 7],
+            harvest: [8, 9],
+            sell: [9, 10],
+          },
+        },
+        avocado: {
+          MX: {
+            plant: [6, 7, 8],
+            care: [9, 10, 11, 12, 1, 2],
+            harvest: [11, 12, 1, 2, 3],
+            sell: [12, 1, 2, 3],
+          },
+          PE: {
+            plant: [9, 10],
+            care: [11, 12, 1, 2, 3],
+            harvest: [3, 4, 5, 6],
+            sell: [4, 5, 6],
+          },
+          default: {
+            plant: [8, 9],
+            care: [10, 11, 12, 1, 2],
+            harvest: [3, 4, 5],
+            sell: [4, 5],
+          },
+        },
+        rice: {
+          BR: {
+            plant: [10, 11, 12],
+            care: [1, 2, 3],
+            harvest: [3, 4, 5],
+            sell: [4, 5, 6],
+          },
+          CO: {
+            plant: [3, 4, 9, 10],
+            care: [5, 6, 11, 12],
+            harvest: [7, 8, 1, 2],
+            sell: [8, 9, 2, 3],
+          },
+          PE: {
+            plant: [10, 11, 12],
+            care: [1, 2],
+            harvest: [3, 4, 5],
+            sell: [4, 5],
+          },
+          default: {
+            plant: [4, 5],
+            care: [6, 7, 8],
+            harvest: [9, 10],
+            sell: [10, 11],
+          },
+        },
+        palm_oil: {
+          CO: {
+            plant: [3, 4, 5, 9, 10],
+            care: [1, 2, 6, 7, 8, 11, 12],
+            harvest: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            sell: [3, 4, 9, 10],
+          },
+          EC: {
+            plant: [4, 5, 10, 11],
+            care: [1, 2, 3, 6, 7, 8],
+            harvest: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            sell: [3, 4, 9, 10],
+          },
+          HN: {
+            plant: [5, 6, 11, 12],
+            care: [1, 2, 3, 7, 8, 9],
+            harvest: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            sell: [4, 5, 10, 11],
+          },
+          default: {
+            plant: [4, 5],
+            care: [6, 7, 8, 9, 10, 11],
+            harvest: [3, 4, 5, 6, 9, 10, 11, 12],
+            sell: [4, 5, 10],
+          },
+        },
+        banana: {
+          EC: {
+            plant: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            care: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            harvest: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            sell: [3, 4, 9, 10],
+          },
+          CO: {
+            plant: [1, 3, 7, 9],
+            care: [2, 4, 5, 6, 8, 10, 11, 12],
+            harvest: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            sell: [3, 4, 9, 10],
+          },
+          default: {
+            plant: [3, 4, 9],
+            care: [5, 6, 7, 8, 10, 11],
+            harvest: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            sell: [4, 5, 10],
+          },
+        },
+        sugarcane: {
+          BR: {
+            plant: [9, 10, 11],
+            care: [12, 1, 2, 3, 4, 5, 6, 7, 8],
+            harvest: [5, 6, 7, 8, 9, 10, 11],
+            sell: [6, 7, 8],
+          },
+          MX: {
+            plant: [10, 11, 12],
+            care: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            harvest: [12, 1, 2, 3, 4, 5],
+            sell: [1, 2, 3],
+          },
+          default: {
+            plant: [10, 11],
+            care: [12, 1, 2, 3, 4, 5, 6, 7],
+            harvest: [12, 1, 2, 3, 4, 5],
+            sell: [1, 2],
+          },
+        },
+        soy: {
+          BR: {
+            plant: [9, 10, 11, 12],
+            care: [1, 2, 3],
+            harvest: [3, 4, 5, 6],
+            sell: [4, 5, 6, 7],
+          },
+          AR: {
+            plant: [10, 11, 12],
+            care: [1, 2, 3],
+            harvest: [4, 5, 6],
+            sell: [5, 6, 7],
+          },
+          default: {
+            plant: [10, 11],
+            care: [12, 1, 2, 3],
+            harvest: [4, 5],
+            sell: [5, 6],
+          },
+        },
+        orange: {
+          BR: {
+            plant: [7, 8, 9],
+            care: [10, 11, 12, 1, 2, 3, 4, 5, 6],
+            harvest: [6, 7, 8, 9, 10, 11],
+            sell: [7, 8, 9, 10],
+          },
+          MX: {
+            plant: [6, 7, 8],
+            care: [9, 10, 11, 12, 1, 2, 3, 4, 5],
+            harvest: [11, 12, 1, 2, 3, 4],
+            sell: [12, 1, 2, 3],
+          },
+          default: {
+            plant: [7, 8],
+            care: [9, 10, 11, 12, 1, 2, 3, 4, 5, 6],
+            harvest: [11, 12, 1, 2, 3],
+            sell: [12, 1, 2],
+          },
+        },
+        tomato: {
+          MX: {
+            plant: [1, 2, 7, 8],
+            care: [3, 4, 5, 9, 10],
+            harvest: [4, 5, 6, 10, 11, 12],
+            sell: [5, 6, 11, 12],
+          },
+          BR: {
+            plant: [7, 8, 9],
+            care: [10, 11, 12],
+            harvest: [12, 1, 2, 3],
+            sell: [1, 2, 3],
+          },
+          default: {
+            plant: [2, 3, 8, 9],
+            care: [4, 5, 6, 10, 11],
+            harvest: [5, 6, 7, 11, 12],
+            sell: [6, 7, 12],
+          },
+        },
+      };
+
+      function getAgroData(crop, country) {
+        const cd = AGRO_DATA[crop] || {};
+        return (
+          cd[country] ||
+          cd.default || { plant: [], care: [], harvest: [], sell: [] }
+        );
+      }
+
+      // ── EVENTS FOR DAY ────────────────────────────────────────────────────────────
+      function getEventsForDay(year, month, day) {
+        const country = document.getElementById("country-sel")?.value || "PE";
+        const d = getAgroData(selectedCrop, country);
+        const m = month + 1;
+        const events = [];
+        const c = CROPS[selectedCrop];
+        const name =
+          lang === "es" ? c?.es || selectedCrop : c?.en || selectedCrop;
+
+        if (d.plant.includes(m)) {
+          events.push({
+            type: "plant",
+            title: lang === "es" ? `🌱 Siembra de ${name}` : `🌱 Plant ${name}`,
+            desc:
+              lang === "es"
+                ? `Condiciones óptimas para sembrar ${name} este mes.`
+                : `Optimal conditions to plant ${name} this month.`,
+          });
+        }
+        if (d.care.includes(m)) {
+          const careActs =
+            lang === "es"
+              ? [
+                  "Fertilización recomendada",
+                  "Control de plagas",
+                  "Riego programado",
+                  "Poda y mantenimiento",
+                ]
+              : [
+                  "Fertilization recommended",
+                  "Pest control",
+                  "Scheduled irrigation",
+                  "Pruning and maintenance",
+                ];
+          events.push({
+            type: "care",
+            title: lang === "es" ? `💧 Cuidado de ${name}` : `💧 ${name} Care`,
+            desc: careActs[day % careActs.length],
+          });
+        }
+        if (d.harvest.includes(m)) {
+          events.push({
+            type: "harvest",
+            title:
+              lang === "es" ? `🌾 Cosecha de ${name}` : `🌾 Harvest ${name}`,
+            desc:
+              lang === "es"
+                ? `Período de cosecha activo. Revisa madurez y humedad.`
+                : `Active harvest period. Check ripeness and moisture.`,
+          });
+        }
+        if (d.sell.includes(m)) {
+          events.push({
+            type: "sell",
+            title: lang === "es" ? `💰 Venta óptima` : `💰 Optimal sell`,
+            desc:
+              lang === "es"
+                ? `Precios históricamente altos este mes. Vende tu producción.`
+                : `Prices historically high this month. Sell your production.`,
+          });
+        }
+        // Weather risk on some days
+        if (day === 7 || day === 14 || day === 21) {
+          events.push({
+            type: "warn",
+            title:
+              lang === "es" ? "⚠️ Monitorea el clima" : "⚠️ Monitor weather",
+            desc:
+              lang === "es"
+                ? "Revisa pronóstico antes de actividades de campo."
+                : "Check forecast before field activities.",
+          });
+        }
+        return events;
+      }
+
+      // ── RENDER CALENDAR ───────────────────────────────────────────────────────────
+      function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const today = new Date();
+
+        const months = {
+          en: [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ],
+          es: [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre",
+          ],
+        };
+        document.getElementById("cal-month").textContent =
+          `${months[lang][month]} ${year}`;
+
+        const dows = {
+          en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+          es: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+        };
+
+        const first = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrev = new Date(year, month, 0).getDate();
+
+        let html = dows[lang]
+          .map((d) => `<div class="cal-dow">${d}</div>`)
+          .join("");
+
+        // Prev month days
+        for (let i = first - 1; i >= 0; i--) {
+          html += `<div class="cal-day other-month"><div class="day-num">${daysInPrev - i}</div></div>`;
+        }
+
+        // Current month
+        for (let d = 1; d <= daysInMonth; d++) {
+          const isToday =
+            d === today.getDate() &&
+            month === today.getMonth() &&
+            year === today.getFullYear();
+          const isSel =
+            selectedDay &&
+            selectedDay.d === d &&
+            selectedDay.m === month &&
+            selectedDay.y === year;
+          const events = getEventsForDay(year, month, d);
+          const evHtml = events
+            .slice(0, 3)
+            .map(
+              (e) =>
+                `<div class="day-event ev-${e.type}">${e.title.split(" ").slice(0, 3).join(" ")}</div>`,
+            )
+            .join("");
+          html += `<div class="cal-day${isToday ? " today" : ""}${isSel ? " selected" : ""}" onclick="selectDay(${d},${month},${year})">
+      <div class="day-num">${d}</div>
+      <div class="day-events">${evHtml}</div>
+    </div>`;
+        }
+
+        // Next month
+        const total = first + daysInMonth;
+        const rem = total % 7 === 0 ? 0 : 7 - (total % 7);
+        for (let i = 1; i <= rem; i++) {
+          html += `<div class="cal-day other-month"><div class="day-num">${i}</div></div>`;
+        }
+
+        document.getElementById("cal-grid").innerHTML = html;
+        renderTimeline(year, month);
+      }
+
+      // ── SELECT DAY ────────────────────────────────────────────────────────────────
+      function selectDay(d, m, y) {
+        selectedDay = { d, m, y };
+        renderCalendar();
+
+        const events = getEventsForDay(y, m, d);
+        const months = {
+          en: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ],
+          es: [
+            "Ene",
+            "Feb",
+            "Mar",
+            "Abr",
+            "May",
+            "Jun",
+            "Jul",
+            "Ago",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dic",
+          ],
+        };
+        document.getElementById("detail-title").textContent =
+          `${d} ${months[lang][m]} ${y}`;
+
+        if (!events.length) {
+          document.getElementById("detail-body").innerHTML =
+            `<div class="detail-empty">${lang === "es" ? "Sin actividades este día." : "No activities this day."}</div>`;
+          return;
+        }
+
+        const icons = {
+          plant: "🌱",
+          care: "💧",
+          harvest: "🌾",
+          sell: "💰",
+          warn: "⚠️",
+        };
+        const colors = {
+          plant: "var(--plant-bg)",
+          care: "var(--care-bg)",
+          harvest: "var(--harvest-bg)",
+          sell: "var(--sell-bg)",
+          warn: "var(--warn-bg)",
+        };
+        document.getElementById("detail-body").innerHTML = events
+          .map(
+            (e) => `
+    <div class="detail-event">
+      <div class="detail-icon" style="background:${colors[e.type]};">${icons[e.type]}</div>
+      <div>
+        <div class="detail-title">${e.title}</div>
+        <div class="detail-desc">${e.desc}</div>
+      </div>
+    </div>`,
+          )
+          .join("");
+      }
+
+      // ── TIMELINE ─────────────────────────────────────────────────────────────────
+      function renderTimeline(year, month) {
+        const country = document.getElementById("country-sel")?.value || "PE";
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const topCrops = ["coffee", "cacao", "corn", "avocado", "rice"];
+        const typeColors = {
+          plant: "#1A6B35",
+          care: "#1A5276",
+          harvest: "#C8902A",
+          sell: "#6C3483",
+        };
+
+        const html = topCrops
+          .map((crop) => {
+            const d = getAgroData(crop, country);
+            const m = month + 1;
+            const c = CROPS[crop];
+            const name = lang === "es" ? c?.es || crop : c?.en || crop;
+
+            const segs = Array.from({ length: daysInMonth }, (_, i) => {
+              const dayOfWeek = new Date(year, month, i + 1).getDay();
+              if (d.sell.includes(m))
+                return `<div class="tl-seg" style="flex:1;background:${typeColors.sell};opacity:.7;"></div>`;
+              if (d.harvest.includes(m))
+                return `<div class="tl-seg" style="flex:1;background:${typeColors.harvest};opacity:.7;"></div>`;
+              if (d.plant.includes(m))
+                return `<div class="tl-seg" style="flex:1;background:${typeColors.plant};opacity:.7;"></div>`;
+              if (d.care.includes(m))
+                return `<div class="tl-seg" style="flex:1;background:${typeColors.care};opacity:.5;"></div>`;
+              return `<div class="tl-seg" style="flex:1;background:var(--border);"></div>`;
+            }).join("");
+
+            return `<div class="tl-row">
+      <div class="tl-crop">${c?.icon || ""} ${name}</div>
+      <div class="tl-bar-wrap">${segs}</div>
+    </div>`;
+          })
+          .join("");
+
+        document.getElementById("timeline").innerHTML = html;
+      }
+
+      // ── CROP SELECTOR ─────────────────────────────────────────────────────────────
+      function renderCropBtns() {
+        document.getElementById("crop-btns").innerHTML = Object.entries(CROPS)
+          .map(([key, c]) => {
+            const name = lang === "es" ? c.es : c.en;
+            return `<button class="sel-btn ${key === selectedCrop ? "active" : ""}" onclick="setCrop('${key}')">${c.icon} ${name}</button>`;
+          })
+          .join("");
+      }
+
+      function setCrop(key) {
+        selectedCrop = key;
+        renderCropBtns();
+        renderCalendar();
+      }
+
+      function updateCalendar() {
+        renderCalendar();
+      }
+      function prevMonth() {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+      }
+      function nextMonth() {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+      }
+      function goToday() {
+        currentDate = new Date();
+        renderCalendar();
+      }
+
+      // ── LANGUAGE ──────────────────────────────────────────────────────────────────
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[l]));
+        renderCropBtns();
+        renderCalendar();
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────────────────────
+      setLang(lang);
+      renderCropBtns();
+      renderCalendar();
+    </script>
+  </body>
+</html>

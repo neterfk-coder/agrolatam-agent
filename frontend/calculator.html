@@ -1,0 +1,1224 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam — Profitability Calculator</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+        --up: #1a6b35;
+        --down: #9b2b2b;
+        --up-bg: #eaf5ef;
+        --down-bg: #fee2e2;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        color: var(--ink);
+      }
+      .navbar {
+        background: var(--forest);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .nav-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-back {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s;
+      }
+      .nav-back:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .lang-switcher {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .lang-opt.active {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 60px;
+      }
+      .page-title {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+      }
+      .page-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 28px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+
+      /* FORM CARD */
+      .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 24px;
+        position: sticky;
+        top: 80px;
+      }
+      .form-title {
+        font-family: "Fraunces", serif;
+        font-size: 18px;
+        color: var(--ink);
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .field {
+        margin-bottom: 16px;
+      }
+      .field label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--ink);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 7px;
+      }
+      .field input,
+      .field select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--cream);
+        outline: none;
+        transition: all 0.2s;
+      }
+      .field input:focus,
+      .field select:focus {
+        border-color: var(--forest);
+        background: var(--white);
+        box-shadow: 0 0 0 3px rgba(10, 74, 53, 0.1);
+      }
+      .input-prefix {
+        position: relative;
+      }
+      .input-prefix span {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .input-prefix input {
+        padding-left: 26px;
+      }
+      .row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .btn-calc {
+        width: 100%;
+        padding: 14px;
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 8px;
+      }
+      .btn-calc:hover {
+        background: var(--forest2);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(10, 74, 53, 0.25);
+      }
+      .btn-reset {
+        width: 100%;
+        padding: 10px;
+        background: transparent;
+        color: var(--muted);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 13px;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 8px;
+      }
+      .btn-reset:hover {
+        border-color: var(--down);
+        color: var(--down);
+      }
+      .crop-icons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 12px;
+      }
+      .ci {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        border: 1.5px solid var(--border);
+        background: var(--cream);
+        color: var(--muted);
+        transition: all 0.2s;
+      }
+      .ci.active {
+        background: var(--forest);
+        color: #fff;
+        border-color: var(--forest);
+      }
+      .current-price {
+        background: var(--up-bg);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 12px;
+        color: var(--up);
+        margin-top: 8px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      /* RESULTS */
+      .results {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* KPI ROW */
+      .kpi-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .kpi {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .kpi.highlight {
+        border-color: var(--forest);
+        border-width: 2px;
+      }
+      .kpi::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+      }
+      .kpi.green::before {
+        background: var(--up);
+      }
+      .kpi.red::before {
+        background: var(--down);
+      }
+      .kpi.gold::before {
+        background: var(--gold);
+      }
+      .kpi-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 8px;
+      }
+      .kpi-val {
+        font-family: "Fraunces", serif;
+        font-size: 32px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+      }
+      .kpi-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .kpi-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 8px;
+        margin-top: 6px;
+      }
+      .badge-profit {
+        background: var(--up-bg);
+        color: var(--up);
+      }
+      .badge-loss {
+        background: var(--down-bg);
+        color: var(--down);
+      }
+
+      /* BREAKDOWN CARD */
+      .breakdown-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .bc-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 16px;
+      }
+      .bc-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f2ec;
+        font-size: 13px;
+      }
+      .bc-row:last-child {
+        border-bottom: none;
+      }
+      .bc-row.total {
+        font-weight: 700;
+        font-size: 15px;
+        padding-top: 14px;
+        margin-top: 4px;
+        border-top: 2px solid var(--border);
+        border-bottom: none;
+      }
+      .bc-label {
+        color: var(--muted);
+      }
+      .bc-val {
+        font-family: "Fraunces", serif;
+        font-size: 15px;
+        color: var(--ink);
+      }
+      .bc-val.up {
+        color: var(--up);
+      }
+      .bc-val.down {
+        color: var(--down);
+      }
+
+      /* CHART CARD */
+      .chart-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .chart-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 16px;
+      }
+      canvas {
+        max-height: 220px;
+      }
+
+      /* COMPARE TABLE */
+      .compare-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .compare-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 16px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th {
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f5f2ec;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: #fafaf8;
+      }
+      .best-row td {
+        background: var(--up-bg) !important;
+        font-weight: 600;
+      }
+      .pf {
+        font-family: "Fraunces", serif;
+      }
+
+      /* ADVICE */
+      .advice-card {
+        background: linear-gradient(135deg, var(--forest), var(--forest2));
+        border-radius: 16px;
+        padding: 20px 24px;
+      }
+      .advice-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 10px;
+      }
+      .advice-item {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .advice-item:last-child {
+        border-bottom: none;
+      }
+      .advice-icon {
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      .advice-text {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.85);
+        line-height: 1.5;
+      }
+
+      .empty-results {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted);
+      }
+      .empty-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+      }
+      .empty-title {
+        font-family: "Fraunces", serif;
+        font-size: 20px;
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .kpi-row {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-logo">🌱</div>
+        <span class="nav-title">AgroLatam Agent</span>
+      </a>
+      <div class="nav-right">
+        <div class="lang-switcher">
+          <button class="lang-opt active" onclick="setLang('en')">EN</button>
+          <button class="lang-opt" onclick="setLang('es')">ES</button>
+        </div>
+        <a href="index.html" class="nav-back"
+          >← <span data-en="Dashboard" data-es="Panel">Dashboard</span></a
+        >
+      </div>
+    </nav>
+
+    <div class="page">
+      <div class="page-title">
+        💰
+        <span
+          data-en="Profitability Calculator"
+          data-es="Calculadora de Rentabilidad"
+          >Profitability Calculator</span
+        >
+      </div>
+      <div
+        class="page-sub"
+        data-en="Calculate your estimated profit using real-time market prices for any crop in Latin America"
+        data-es="Calcula tu ganancia estimada usando precios de mercado en tiempo real para cualquier cultivo en Latinoamérica"
+      >
+        Calculate your estimated profit using real-time market prices for any
+        crop in Latin America
+      </div>
+
+      <div class="layout">
+        <!-- FORM -->
+        <div class="form-card">
+          <div
+            class="form-title"
+            data-en="📋 Enter your farm data"
+            data-es="📋 Ingresa los datos de tu finca"
+          >
+            📋 Enter your farm data
+          </div>
+
+          <!-- CROP SELECT -->
+          <div class="field">
+            <label data-en="Select Crop" data-es="Selecciona el Cultivo"
+              >Select Crop</label
+            >
+            <div class="crop-icons" id="crop-icons"></div>
+            <select id="crop-sel" onchange="onCropChange()">
+              <option value="coffee">☕ Coffee</option>
+              <option value="cacao">🍫 Cacao</option>
+              <option value="corn">🌽 Corn</option>
+              <option value="banana">🍌 Banana</option>
+              <option value="soy">🌱 Soy</option>
+              <option value="palm_oil">🌴 Palm Oil</option>
+              <option value="rice">🌾 Rice</option>
+              <option value="sugarcane">🍬 Sugarcane</option>
+              <option value="avocado">🥑 Avocado</option>
+              <option value="orange">🍊 Orange</option>
+              <option value="tomato">🍅 Tomato</option>
+            </select>
+            <div class="current-price" id="current-price-display">
+              <span
+                data-en="Current market price:"
+                data-es="Precio actual de mercado:"
+                >Current market price:</span
+              >
+              <strong id="price-display">—</strong>
+            </div>
+          </div>
+
+          <div class="row-2">
+            <div class="field">
+              <label data-en="Hectares" data-es="Hectáreas">Hectares</label>
+              <input
+                type="number"
+                id="hectares"
+                placeholder="e.g. 5"
+                min="0.1"
+                step="0.1"
+                value="5"
+                oninput="calculate()"
+              />
+            </div>
+            <div class="field">
+              <label data-en="Yield (kg/ha)" data-es="Rendimiento (kg/ha)"
+                >Yield (kg/ha)</label
+              >
+              <input
+                type="number"
+                id="yield"
+                placeholder="e.g. 1200"
+                min="1"
+                value="1200"
+                oninput="calculate()"
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <label
+              data-en="Production Cost (USD/ha)"
+              data-es="Costo Producción (USD/ha)"
+              >Production Cost (USD/ha)</label
+            >
+            <div class="input-prefix">
+              <span>$</span>
+              <input
+                type="number"
+                id="cost-ha"
+                placeholder="e.g. 800"
+                min="0"
+                value="800"
+                oninput="calculate()"
+              />
+            </div>
+          </div>
+
+          <div class="row-2">
+            <div class="field">
+              <label data-en="Transport (USD/ha)" data-es="Transporte (USD/ha)"
+                >Transport (USD/ha)</label
+              >
+              <div class="input-prefix">
+                <span>$</span>
+                <input
+                  type="number"
+                  id="transport"
+                  placeholder="e.g. 80"
+                  min="0"
+                  value="80"
+                  oninput="calculate()"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label
+                data-en="Other costs (USD/ha)"
+                data-es="Otros costos (USD/ha)"
+                >Other costs (USD/ha)</label
+              >
+              <div class="input-prefix">
+                <span>$</span>
+                <input
+                  type="number"
+                  id="other-costs"
+                  placeholder="e.g. 50"
+                  min="0"
+                  value="50"
+                  oninput="calculate()"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label data-en="Price adjustment (%)" data-es="Ajuste de precio (%)"
+              >Price adjustment (%)</label
+            >
+            <input
+              type="range"
+              id="price-adj"
+              min="-30"
+              max="30"
+              value="0"
+              step="1"
+              oninput="onAdjChange(this.value)"
+            />
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                font-size: 11px;
+                color: var(--muted);
+                margin-top: 4px;
+              "
+            >
+              <span>-30%</span
+              ><span id="adj-val" style="font-weight: 600; color: var(--ink)"
+                >0%</span
+              ><span>+30%</span>
+            </div>
+          </div>
+
+          <button class="btn-calc" onclick="calculate()">
+            🧮
+            <span
+              data-en="Calculate Profitability"
+              data-es="Calcular Rentabilidad"
+              >Calculate Profitability</span
+            >
+          </button>
+          <button
+            class="btn-reset"
+            onclick="resetForm()"
+            data-en="Reset"
+            data-es="Limpiar"
+          >
+            Reset
+          </button>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results" id="results">
+          <div class="empty-results">
+            <div class="empty-icon">🌱</div>
+            <div
+              class="empty-title"
+              data-en="Ready to calculate"
+              data-es="Listo para calcular"
+            >
+              Ready to calculate
+            </div>
+            <div
+              style="font-size: 13px"
+              data-en="Fill in your farm data and press Calculate."
+              data-es="Llena los datos de tu finca y presiona Calcular."
+            >
+              Fill in your farm data and press Calculate.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API = "https://netricd-agrolatam-agent.hf.space";
+      let lang = localStorage.getItem("lang") || "en";
+      let priceData = {};
+      let profitChart = null;
+      let compareChart = null;
+
+      const CROPS = {
+        coffee: {
+          icon: "☕",
+          en: "Coffee",
+          es: "Café",
+          unit: "lb",
+          kgToUnit: 2.20462,
+          yields: { min: 500, max: 2500, def: 1000 },
+        },
+        cacao: {
+          icon: "🍫",
+          en: "Cacao",
+          es: "Cacao",
+          unit: "ton",
+          kgToUnit: 0.001,
+          yields: { min: 300, max: 1500, def: 800 },
+        },
+        corn: {
+          icon: "🌽",
+          en: "Corn",
+          es: "Maíz",
+          unit: "bushel",
+          kgToUnit: 0.0394,
+          yields: { min: 2000, max: 8000, def: 4000 },
+        },
+        banana: {
+          icon: "🍌",
+          en: "Banana",
+          es: "Banano",
+          unit: "kg",
+          kgToUnit: 1,
+          yields: { min: 15000, max: 50000, def: 25000 },
+        },
+        soy: {
+          icon: "🌱",
+          en: "Soy",
+          es: "Soya",
+          unit: "bushel",
+          kgToUnit: 0.0367,
+          yields: { min: 1500, max: 4000, def: 2500 },
+        },
+        palm_oil: {
+          icon: "🌴",
+          en: "Palm Oil",
+          es: "Palma Aceitera",
+          unit: "ton",
+          kgToUnit: 0.001,
+          yields: { min: 10000, max: 25000, def: 18000 },
+        },
+        rice: {
+          icon: "🌾",
+          en: "Rice",
+          es: "Arroz",
+          unit: "cwt",
+          kgToUnit: 0.022,
+          yields: { min: 2000, max: 7000, def: 4000 },
+        },
+        sugarcane: {
+          icon: "🍬",
+          en: "Sugarcane",
+          es: "Caña de Azúcar",
+          unit: "kg",
+          kgToUnit: 1,
+          yields: { min: 50000, max: 120000, def: 80000 },
+        },
+        avocado: {
+          icon: "🥑",
+          en: "Avocado",
+          es: "Aguacate",
+          unit: "kg",
+          kgToUnit: 1,
+          yields: { min: 5000, max: 20000, def: 10000 },
+        },
+        orange: {
+          icon: "🍊",
+          en: "Orange",
+          es: "Naranja",
+          unit: "kg",
+          kgToUnit: 1,
+          yields: { min: 15000, max: 40000, def: 25000 },
+        },
+        tomato: {
+          icon: "🍅",
+          en: "Tomato",
+          es: "Tomate",
+          unit: "kg",
+          kgToUnit: 1,
+          yields: { min: 20000, max: 80000, def: 40000 },
+        },
+      };
+
+      // ── FETCH PRICES ──────────────────────────────────────────────────────────────
+      async function loadPrices() {
+        try {
+          const res = await fetch(`${API}/api/prices`);
+          priceData = await res.json();
+        } catch {
+          priceData = {
+            coffee: { price: 2.34, change: -3.2, unit: "USD/lb" },
+            cacao: { price: 3812, change: 1.8, unit: "USD/ton" },
+            corn: { price: 4.52, change: 0.5, unit: "USD/bushel" },
+            banana: { price: 0.89, change: -1.1, unit: "USD/kg" },
+            soy: { price: 11.2, change: 2.3, unit: "USD/bushel" },
+            palm_oil: { price: 1124, change: 0.8, unit: "USD/ton" },
+            rice: { price: 17.4, change: -0.6, unit: "USD/cwt" },
+            sugarcane: { price: 0.21, change: 1.2, unit: "USD/kg" },
+            avocado: { price: 2.15, change: 3.4, unit: "USD/kg" },
+            orange: { price: 1.85, change: -0.9, unit: "USD/kg" },
+            tomato: { price: 1.1, change: 0.4, unit: "USD/kg" },
+          };
+        }
+        updatePriceDisplay();
+      }
+
+      function updatePriceDisplay() {
+        const crop = document.getElementById("crop-sel").value;
+        const d = priceData[crop];
+        if (!d) return;
+        document.getElementById("price-display").textContent =
+          `$${d.price} / ${d.unit}`;
+        const c = CROPS[crop];
+        if (c) {
+          document.getElementById("yield").value = c.yields.def;
+        }
+        calculate();
+      }
+
+      function onCropChange() {
+        renderCropIcons();
+        updatePriceDisplay();
+      }
+
+      function onAdjChange(val) {
+        document.getElementById("adj-val").textContent =
+          `${val > 0 ? "+" : ""}${val}%`;
+        calculate();
+      }
+
+      // ── CALCULATE ─────────────────────────────────────────────────────────────────
+      function calculate() {
+        const crop = document.getElementById("crop-sel").value;
+        const hectares =
+          parseFloat(document.getElementById("hectares").value) || 0;
+        const yieldKg = parseFloat(document.getElementById("yield").value) || 0;
+        const costHa =
+          parseFloat(document.getElementById("cost-ha").value) || 0;
+        const transport =
+          parseFloat(document.getElementById("transport").value) || 0;
+        const otherC =
+          parseFloat(document.getElementById("other-costs").value) || 0;
+        const adj = parseFloat(document.getElementById("price-adj").value) || 0;
+
+        if (!hectares || !yieldKg) return;
+
+        const d = priceData[crop];
+        if (!d) return;
+
+        const c = CROPS[crop];
+        const adjPrice = d.price * (1 + adj / 100);
+        const unitsPerKg = c?.kgToUnit || 1;
+        const totalKg = hectares * yieldKg;
+        const totalUnits = totalKg * unitsPerKg;
+        const revenue = totalUnits * adjPrice;
+
+        const totalCostHa = costHa + transport + otherC;
+        const totalCost = totalCostHa * hectares;
+        const profit = revenue - totalCost;
+        const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+        const roi = totalCost > 0 ? (profit / totalCost) * 100 : 0;
+        const breakEven =
+          totalCostHa > 0 ? totalCostHa / (adjPrice * yieldKg * unitsPerKg) : 0;
+
+        renderResults({
+          crop,
+          hectares,
+          yieldKg,
+          adjPrice,
+          revenue,
+          totalCost,
+          profit,
+          margin,
+          roi,
+          breakEven,
+          totalKg,
+          d,
+          c,
+          adj,
+        });
+      }
+
+      function renderResults({
+        crop,
+        hectares,
+        yieldKg,
+        adjPrice,
+        revenue,
+        totalCost,
+        profit,
+        margin,
+        roi,
+        breakEven,
+        totalKg,
+        d,
+        c,
+        adj,
+      }) {
+        const fmt = (n) =>
+          n >= 1000
+            ? "$" + n.toLocaleString("en", { maximumFractionDigits: 0 })
+            : "$" + n.toFixed(2);
+        const fmtP = (n) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
+        const isProfit = profit >= 0;
+        const cropName = lang === "es" ? c?.es || crop : c?.en || crop;
+
+        const kpiHtml = `
+    <div class="kpi-row">
+      <div class="kpi green">
+        <div class="kpi-label" data-en="Total Revenue" data-es="Ingresos Totales">${lang === "es" ? "Ingresos Totales" : "Total Revenue"}</div>
+        <div class="kpi-val">${fmt(revenue)}</div>
+        <div class="kpi-sub">${totalKg.toLocaleString()} kg × $${adjPrice.toFixed(4)}/${d.unit}</div>
+        ${adj !== 0 ? `<span class="kpi-badge badge-profit">${adj > 0 ? "+" : ""}${adj}% ${lang === "es" ? "ajuste" : "adj"}</span>` : ""}
+      </div>
+      <div class="kpi ${isProfit ? "green" : "red"} highlight">
+        <div class="kpi-label" data-en="Net Profit" data-es="Ganancia Neta">${lang === "es" ? "Ganancia Neta" : "Net Profit"}</div>
+        <div class="kpi-val" style="color:${isProfit ? "var(--up)" : "var(--down)"};">${fmt(profit)}</div>
+        <div class="kpi-sub">${fmtP(margin)} ${lang === "es" ? "margen" : "margin"}</div>
+        <span class="kpi-badge ${isProfit ? "badge-profit" : "badge-loss"}">${isProfit ? (lang === "es" ? "✅ Rentable" : "✅ Profitable") : lang === "es" ? "❌ Pérdida" : "❌ Loss"}</span>
+      </div>
+      <div class="kpi gold">
+        <div class="kpi-label">ROI</div>
+        <div class="kpi-val">${fmtP(roi)}</div>
+        <div class="kpi-sub">${lang === "es" ? "Retorno sobre inversión" : "Return on investment"}</div>
+        <span class="kpi-badge ${roi >= 0 ? "badge-profit" : "badge-loss"}">${roi >= 20 ? (lang === "es" ? "🌟 Excelente" : "🌟 Excellent") : roi >= 0 ? (lang === "es" ? "👍 Bueno" : "👍 Good") : lang === "es" ? "⚠️ Revisar" : "⚠️ Review"}</span>
+      </div>
+    </div>`;
+
+        const breakdownHtml = `
+    <div class="breakdown-card">
+      <div class="bc-title" data-en="💼 Cost & Revenue Breakdown" data-es="💼 Desglose de Costos e Ingresos">${lang === "es" ? "💼 Desglose de Costos e Ingresos" : "💼 Cost & Revenue Breakdown"}</div>
+      <div class="bc-row"><span class="bc-label">${lang === "es" ? "Precio mercado actual" : "Current market price"}</span><span class="bc-val">$${d.price} / ${d.unit}</span></div>
+      <div class="bc-row"><span class="bc-label">${lang === "es" ? "Precio ajustado" : "Adjusted price"}</span><span class="bc-val">$${adjPrice.toFixed(4)} / ${d.unit}</span></div>
+      <div class="bc-row"><span class="bc-label">${lang === "es" ? "Producción total" : "Total production"}</span><span class="bc-val">${totalKg.toLocaleString()} kg</span></div>
+      <div class="bc-row"><span class="bc-label">${lang === "es" ? "Costo producción" : "Production cost"}</span><span class="bc-val down">-${fmt(parseFloat(document.getElementById("cost-ha").value || 0) * hectares)}</span></div>
+      <div class="bc-row"><span class="bc-label">${lang === "es" ? "Transporte" : "Transport"}</span><span class="bc-val down">-${fmt(parseFloat(document.getElementById("transport").value || 0) * hectares)}</span></div>
+      <div class="bc-row"><span class="bc-label">${lang === "es" ? "Otros costos" : "Other costs"}</span><span class="bc-val down">-${fmt(parseFloat(document.getElementById("other-costs").value || 0) * hectares)}</span></div>
+      <div class="bc-row total"><span>${lang === "es" ? "GANANCIA NETA" : "NET PROFIT"}</span><span class="bc-val ${isProfit ? "up" : "down"}">${fmt(profit)}</span></div>
+    </div>`;
+
+        // Donut chart
+        const chartHtml = `
+    <div class="chart-card">
+      <div class="chart-title">${lang === "es" ? "📊 Distribución de ingresos" : "📊 Revenue distribution"}</div>
+      <canvas id="profit-chart"></canvas>
+    </div>`;
+
+        // Compare all crops
+        const compareRows = Object.entries(priceData)
+          .map(([key, pd]) => {
+            const cc = CROPS[key];
+            if (!cc) return "";
+            const units = hectares * yieldKg * cc.kgToUnit;
+            const rev = units * pd.price;
+            const prof = rev - totalCost;
+            const roi2 = totalCost > 0 ? (prof / totalCost) * 100 : 0;
+            const isBest = key === crop;
+            return { key, rev, prof, roi2, isBest, cc, pd };
+          })
+          .filter(Boolean)
+          .sort((a, b) => b.prof - a.prof);
+
+        const compareHtml = `
+    <div class="compare-card">
+      <div class="compare-title">${lang === "es" ? "🔄 Comparativa de cultivos (con tus datos)" : "🔄 Crop comparison (with your data)"}</div>
+      <table>
+        <thead><tr>
+          <th>${lang === "es" ? "Cultivo" : "Crop"}</th>
+          <th>${lang === "es" ? "Precio" : "Price"}</th>
+          <th>${lang === "es" ? "Ingresos" : "Revenue"}</th>
+          <th>${lang === "es" ? "Ganancia" : "Profit"}</th>
+          <th>ROI</th>
+        </tr></thead>
+        <tbody>${compareRows
+          .map(
+            ({ key, rev, prof, roi2, isBest, cc, pd }) => `
+          <tr class="${isBest ? "best-row" : ""}">
+            <td>${cc.icon} ${lang === "es" ? cc.es : cc.en} ${isBest ? "⭐" : ""}</td>
+            <td>$${pd.price} /${pd.unit}</td>
+            <td class="pf">${fmt(rev)}</td>
+            <td class="pf ${prof >= 0 ? "" : "down"}">${fmt(prof)}</td>
+            <td class="${roi2 >= 0 ? "" : "down"}">${roi2.toFixed(1)}%</td>
+          </tr>`,
+          )
+          .join("")}
+        </tbody>
+      </table>
+    </div>`;
+
+        // Agent advice
+        const adviceItems = isProfit
+          ? [
+              {
+                icon: "✅",
+                text:
+                  lang === "es"
+                    ? `Con ${hectares} ha de ${cropName} obtienes $${Math.round(profit).toLocaleString()} de ganancia neta.`
+                    : `With ${hectares} ha of ${cropName} you get $${Math.round(profit).toLocaleString()} net profit.`,
+              },
+              {
+                icon: "📈",
+                text:
+                  lang === "es"
+                    ? `Tu ROI de ${roi.toFixed(1)}% es ${roi >= 20 ? "excelente" : "positivo"}. ${roi >= 20 ? "Considera expandir." : "Busca reducir costos para mejorar."}`
+                    : `Your ROI of ${roi.toFixed(1)}% is ${roi >= 20 ? "excellent" : "positive"}. ${roi >= 20 ? "Consider expanding." : "Look to reduce costs."}`,
+              },
+              {
+                icon: "💡",
+                text:
+                  lang === "es"
+                    ? `El cultivo más rentable con tus datos es ${lang === "es" ? CROPS[compareRows[0]?.key]?.es : CROPS[compareRows[0]?.key]?.en || "—"}.`
+                    : `Most profitable crop with your data: ${CROPS[compareRows[0]?.key]?.en || "—"}.`,
+              },
+            ]
+          : [
+              {
+                icon: "⚠️",
+                text:
+                  lang === "es"
+                    ? `Pérdida de ${fmt(Math.abs(profit))}. Revisa tus costos de producción.`
+                    : `Loss of ${fmt(Math.abs(profit))}. Review your production costs.`,
+              },
+              {
+                icon: "🔄",
+                text:
+                  lang === "es"
+                    ? `Considera ${CROPS[compareRows[0]?.key]?.es || "otro cultivo"} que genera mejor rentabilidad con las mismas hectáreas.`
+                    : `Consider ${CROPS[compareRows[0]?.key]?.en || "another crop"} which generates better returns with the same land.`,
+              },
+              {
+                icon: "📉",
+                text:
+                  lang === "es"
+                    ? "Espera un mejor precio de mercado antes de vender."
+                    : "Wait for a better market price before selling.",
+              },
+            ];
+
+        const adviceHtml = `
+    <div class="advice-card">
+      <div class="advice-title">🤖 ${lang === "es" ? "Recomendaciones del Agente IA" : "AI Agent Recommendations"}</div>
+      ${adviceItems.map((a) => `<div class="advice-item"><span class="advice-icon">${a.icon}</span><div class="advice-text">${a.text}</div></div>`).join("")}
+    </div>`;
+
+        document.getElementById("results").innerHTML =
+          kpiHtml + breakdownHtml + chartHtml + compareHtml + adviceHtml;
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[lang]));
+
+        // Draw donut chart
+        const ctx = document.getElementById("profit-chart")?.getContext("2d");
+        if (ctx) {
+          if (profitChart) profitChart.destroy();
+          profitChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: [
+                lang === "es" ? "Costo Producción" : "Production Cost",
+                lang === "es" ? "Transporte" : "Transport",
+                lang === "es" ? "Otros" : "Others",
+                lang === "es" ? "Ganancia Neta" : "Net Profit",
+              ],
+              datasets: [
+                {
+                  data: [
+                    Math.max(
+                      0,
+                      parseFloat(
+                        document.getElementById("cost-ha").value || 0,
+                      ) * hectares,
+                    ),
+                    Math.max(
+                      0,
+                      parseFloat(
+                        document.getElementById("transport").value || 0,
+                      ) * hectares,
+                    ),
+                    Math.max(
+                      0,
+                      parseFloat(
+                        document.getElementById("other-costs").value || 0,
+                      ) * hectares,
+                    ),
+                    Math.max(0, profit),
+                  ],
+                  backgroundColor: [
+                    "#F4A261",
+                    "#E76F51",
+                    "#E9C46A",
+                    isProfit ? "#2A9D8F" : "#E63946",
+                  ],
+                  borderWidth: 0,
+                  hoverOffset: 8,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: { font: { size: 11 }, boxWidth: 12 },
+                },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => `${ctx.label}: ${fmt(ctx.parsed)}`,
+                  },
+                },
+              },
+            },
+          });
+        }
+      }
+
+      // ── CROP ICONS ────────────────────────────────────────────────────────────────
+      function renderCropIcons() {
+        const cur = document.getElementById("crop-sel").value;
+        document.getElementById("crop-icons").innerHTML = Object.entries(CROPS)
+          .map(
+            ([key, c]) =>
+              `<div class="ci ${key === cur ? "active" : ""}" onclick="document.getElementById('crop-sel').value='${key}';onCropChange()">${c.icon}</div>`,
+          )
+          .join("");
+      }
+
+      function resetForm() {
+        document.getElementById("hectares").value = 5;
+        document.getElementById("yield").value = 1200;
+        document.getElementById("cost-ha").value = 800;
+        document.getElementById("transport").value = 80;
+        document.getElementById("other-costs").value = 50;
+        document.getElementById("price-adj").value = 0;
+        document.getElementById("adj-val").textContent = "0%";
+        document.getElementById("results").innerHTML =
+          `<div class="empty-results"><div class="empty-icon">🌱</div><div class="empty-title">${lang === "es" ? "Listo para calcular" : "Ready to calculate"}</div><div style="font-size:13px;">${lang === "es" ? "Llena los datos y presiona Calcular." : "Fill in your data and press Calculate."}</div></div>`;
+      }
+
+      // ── LANGUAGE ──────────────────────────────────────────────────────────────────
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[l]));
+        renderCropIcons();
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────────────────────
+      setLang(lang);
+      renderCropIcons();
+      loadPrices();
+    </script>
+  </body>
+</html>
