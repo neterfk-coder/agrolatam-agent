@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam — Weather</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        color: var(--ink);
+      }
+      .navbar {
+        background: var(--forest);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .nav-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-back {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .lang-switcher {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .lang-opt.active {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 60px;
+      }
+      .page-title {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+      }
+      .page-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 24px;
+      }
+
+      /* SEARCH */
+      .search-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+      .loc-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--white);
+        outline: none;
+        transition: all 0.2s;
+      }
+      .loc-input:focus {
+        border-color: var(--forest);
+        box-shadow: 0 0 0 3px rgba(10, 74, 53, 0.1);
+      }
+      .btn-search {
+        padding: 12px 20px;
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .btn-search:hover {
+        background: var(--forest2);
+      }
+      .btn-locate {
+        padding: 12px 16px;
+        background: var(--cream);
+        color: var(--forest);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .btn-locate:hover {
+        border-color: var(--forest);
+      }
+
+      /* QUICK CITIES */
+      .quick-cities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 24px;
+      }
+      .city-btn {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        border: 1.5px solid var(--border);
+        background: var(--white);
+        color: var(--muted);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .city-btn:hover {
+        border-color: var(--forest);
+        color: var(--forest);
+      }
+
+      /* CURRENT WEATHER */
+      .current-card {
+        background: linear-gradient(135deg, var(--forest), #1a5276);
+        border-radius: 20px;
+        padding: 28px;
+        margin-bottom: 20px;
+        color: #fff;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 20px;
+        align-items: center;
+      }
+      .curr-location {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 4px;
+      }
+      .curr-city {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        color: #fff;
+        letter-spacing: -0.5px;
+        margin-bottom: 8px;
+      }
+      .curr-temp {
+        font-family: "Fraunces", serif;
+        font-size: 64px;
+        color: #fff;
+        line-height: 1;
+        letter-spacing: -2px;
+      }
+      .curr-desc {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-top: 6px;
+      }
+      .curr-stats {
+        display: flex;
+        gap: 16px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+      .cstat {
+        text-align: center;
+      }
+      .cstat-val {
+        font-family: "Fraunces", serif;
+        font-size: 18px;
+        color: #fff;
+      }
+      .cstat-lbl {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-top: 2px;
+      }
+      .curr-icon {
+        font-size: 72px;
+        opacity: 0.9;
+      }
+      .curr-agro {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 14px;
+        margin-top: 16px;
+      }
+      .agro-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 10px;
+      }
+      .agro-items {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .agro-item {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 8px;
+        text-align: center;
+      }
+      .agro-val {
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+      }
+      .agro-lbl {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 2px;
+      }
+
+      /* 7-DAY FORECAST */
+      .forecast-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .fday {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 8px;
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .fday:hover,
+      .fday.active {
+        border-color: var(--forest);
+        box-shadow: 0 3px 12px rgba(10, 74, 53, 0.1);
+      }
+      .fday-name {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+      }
+      .fday-icon {
+        font-size: 24px;
+        margin-bottom: 6px;
+      }
+      .fday-hi {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+      }
+      .fday-lo {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .fday-rain {
+        font-size: 10px;
+        color: #4a90d9;
+        margin-top: 4px;
+      }
+
+      /* HOURLY CHART */
+      .chart-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .chart-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 16px;
+      }
+      canvas {
+        max-height: 200px;
+      }
+
+      /* GRID 2 */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .info-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .info-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 14px;
+      }
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 0;
+        border-bottom: 1px solid #f5f2ec;
+        font-size: 13px;
+      }
+      .info-row:last-child {
+        border-bottom: none;
+      }
+      .info-label {
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .info-val {
+        font-family: "Fraunces", serif;
+        font-size: 14px;
+        color: var(--ink);
+      }
+
+      /* AGRO ALERTS */
+      .alert-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .alert-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 14px;
+      }
+      .agro-alert {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+      }
+      .aa-icon {
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      .aa-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 3px;
+      }
+      .aa-desc {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .aa-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 6px;
+        margin-top: 6px;
+      }
+
+      /* LATAM TABLE */
+      .latam-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .latam-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 14px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th {
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f5f2ec;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* LOADING */
+      .loading {
+        text-align: center;
+        padding: 60px;
+        color: var(--muted);
+      }
+      .spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid var(--border);
+        border-top-color: var(--forest);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 12px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .forecast-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+        .agro-items {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .current-card {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-logo">🌱</div>
+        <span class="nav-title">AgroLatam Agent</span>
+      </a>
+      <div class="nav-right">
+        <div class="lang-switcher">
+          <button class="lang-opt active" onclick="setLang('en')">EN</button>
+          <button class="lang-opt" onclick="setLang('es')">ES</button>
+        </div>
+        <a href="index.html" class="nav-back"
+          >← <span data-en="Dashboard" data-es="Panel">Dashboard</span></a
+        >
+      </div>
+    </nav>
+
+    <div class="page">
+      <div class="page-title">
+        🌦️
+        <span data-en="Agricultural Weather" data-es="Clima Agrícola"
+          >Agricultural Weather</span
+        >
+      </div>
+      <div
+        class="page-sub"
+        data-en="Real-time weather data and agricultural forecasts for Latin America — powered by Open-Meteo"
+        data-es="Datos meteorológicos en tiempo real y pronósticos agrícolas para Latinoamérica — impulsado por Open-Meteo"
+      >
+        Real-time weather data and agricultural forecasts for Latin America —
+        powered by Open-Meteo
+      </div>
+
+      <div class="search-row">
+        <input
+          class="loc-input"
+          id="loc-input"
+          type="text"
+          data-en-placeholder="Search city... (e.g. Lima, Bogotá, São Paulo)"
+          data-es-placeholder="Buscar ciudad... (ej. Lima, Bogotá, São Paulo)"
+          placeholder="Search city..."
+          onkeydown="if (event.key === 'Enter') searchCity();"
+        />
+        <button class="btn-search" onclick="searchCity()">
+          🔍 <span data-en="Search" data-es="Buscar">Search</span>
+        </button>
+        <button class="btn-locate" onclick="locateMe()">
+          📍
+          <span data-en="My Location" data-es="Mi Ubicación">My Location</span>
+        </button>
+      </div>
+
+      <!-- QUICK CITIES -->
+      <div class="quick-cities">
+        <span
+          style="
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            padding: 5px 0;
+          "
+          data-en="Quick access:"
+          data-es="Acceso rápido:"
+          >Quick access:</span
+        >
+        <button
+          class="city-btn"
+          onclick="loadCity(-12.046, -77.043, 'Lima, Peru')"
+        >
+          🇵🇪 Lima
+        </button>
+        <button
+          class="city-btn"
+          onclick="loadCity(4.711, -74.072, 'Bogotá, Colombia')"
+        >
+          🇨🇴 Bogotá
+        </button>
+        <button
+          class="city-btn"
+          onclick="loadCity(-9.298, -75.997, 'Tingo María, Peru')"
+        >
+          🇵🇪 Tingo María
+        </button>
+        <button
+          class="city-btn"
+          onclick="loadCity(-23.55, -46.633, 'São Paulo, Brazil')"
+        >
+          🇧🇷 São Paulo
+        </button>
+        <button
+          class="city-btn"
+          onclick="loadCity(19.432, -99.133, 'Ciudad de México')"
+        >
+          🇲🇽 CDMX
+        </button>
+        <button
+          class="city-btn"
+          onclick="loadCity(6.221, -75.574, 'Medellín, Colombia')"
+        >
+          🇨🇴 Medellín
+        </button>
+        <button
+          class="city-btn"
+          onclick="loadCity(-2.181, -79.882, 'Guayaquil, Ecuador')"
+        >
+          🇪🇨 Guayaquil
+        </button>
+        <button
+          class="city-btn"
+          onclick="loadCity(-34.603, -58.381, 'Buenos Aires')"
+        >
+          🇦🇷 Buenos Aires
+        </button>
+        <button
+          class="city-btn"
+          onclick="loadCity(20.522, -103.317, 'Guadalajara, México')"
+        >
+          🇲🇽 Guadalajara
+        </button>
+      </div>
+
+      <div id="weather-content">
+        <div class="loading">
+          <div class="spinner"></div>
+          <div
+            data-en="Search a city to see weather data"
+            data-es="Busca una ciudad para ver datos del clima"
+          >
+            Search a city to see weather data
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let lang = localStorage.getItem("lang") || "en";
+      let tempChart = null;
+      let rainChart = null;
+      let currentLat = null;
+      let currentLon = null;
+
+      const WI = (code) => {
+        if (code === 0) return "☀️";
+        if (code <= 3) return "⛅";
+        if (code <= 48) return "🌫️";
+        if (code <= 67) return "🌧️";
+        if (code <= 77) return "❄️";
+        if (code <= 82) return "🌦️";
+        return "⛈️";
+      };
+      const WD = (code, l) => {
+        const d = {
+          en: {
+            0: "Clear",
+            1: "Mostly clear",
+            2: "Partly cloudy",
+            3: "Overcast",
+            45: "Foggy",
+            51: "Light drizzle",
+            61: "Light rain",
+            71: "Light snow",
+            80: "Rain showers",
+            95: "Thunderstorm",
+          },
+          es: {
+            0: "Despejado",
+            1: "Mayormente despejado",
+            2: "Parcialmente nublado",
+            3: "Nublado",
+            45: "Niebla",
+            51: "Llovizna ligera",
+            61: "Lluvia ligera",
+            71: "Nieve ligera",
+            80: "Chubascos",
+            95: "Tormenta",
+          },
+        };
+        const map = l === "es" ? d.es : d.en;
+        if (code === 0) return map[0];
+        if (code <= 3) return map[code] || map[3];
+        if (code <= 48) return map[45];
+        if (code <= 67) return code <= 55 ? map[51] : map[61];
+        if (code <= 77) return map[71];
+        if (code <= 82) return map[80];
+        return map[95];
+      };
+
+      async function locateMe() {
+        if (!navigator.geolocation) {
+          alert("Geolocation not supported");
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const { latitude: lat, longitude: lon } = pos.coords;
+            const r = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=${lang}`,
+            );
+            const d = await r.json();
+            const name =
+              d.address?.city ||
+              d.address?.town ||
+              d.address?.village ||
+              `${lat.toFixed(2)},${lon.toFixed(2)}`;
+            loadCity(lat, lon, name);
+          },
+          () => alert("Could not get location"),
+        );
+      }
+
+      async function searchCity() {
+        const q = document.getElementById("loc-input").value.trim();
+        if (!q) return;
+        try {
+          const r = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&accept-language=${lang}`,
+          );
+          const d = await r.json();
+          if (!d.length) {
+            alert(lang === "es" ? "Ciudad no encontrada" : "City not found");
+            return;
+          }
+          loadCity(
+            parseFloat(d[0].lat),
+            parseFloat(d[0].lon),
+            d[0].display_name.split(",").slice(0, 2).join(","),
+          );
+        } catch (e) {
+          alert("Search error");
+        }
+      }
+
+      async function loadCity(lat, lon, name) {
+        currentLat = lat;
+        currentLon = lon;
+        document.getElementById("weather-content").innerHTML =
+          `<div class="loading"><div class="spinner"></div><div>${lang === "es" ? "Cargando datos del clima..." : "Loading weather data..."}</div></div>`;
+        try {
+          const r = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,uv_index,surface_pressure&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m,soil_temperature_0cm,soil_moisture_0_to_1cm&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,uv_index_max,wind_speed_10m_max,sunrise,sunset,et0_fao_evapotranspiration&forecast_days=7&timezone=auto`,
+          );
+          const d = await r.json();
+          renderWeather(d, name);
+        } catch (e) {
+          document.getElementById("weather-content").innerHTML =
+            `<div class="loading"><div>${lang === "es" ? "Error al cargar el clima." : "Error loading weather."}</div></div>`;
+        }
+      }
+
+      function renderWeather(d, cityName) {
+        const cur = d.current;
+        const daily = d.daily;
+        const hourly = d.hourly;
+        const now = new Date();
+
+        // Current weather
+        const windDir = (deg) => {
+          const dirs =
+            lang === "es"
+              ? ["N", "NE", "E", "SE", "S", "SO", "O", "NO"]
+              : ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+          return dirs[Math.round(deg / 45) % 8];
+        };
+
+        // Agro risk analysis
+        const rain72 = daily.precipitation_sum
+          .slice(0, 3)
+          .reduce((a, b) => a + b, 0);
+        const maxTemp = Math.max(...daily.temperature_2m_max.slice(0, 3));
+        const minTemp = Math.min(...daily.temperature_2m_min.slice(0, 3));
+        const uv = daily.uv_index_max[0];
+
+        const getRisk = () => {
+          if (rain72 > 50)
+            return {
+              level: "high",
+              en: "High risk — heavy rain expected",
+              es: "Riesgo alto — lluvia intensa esperada",
+              color: "#FDF0EE",
+              border: "#B03A2E",
+            };
+          if (maxTemp > 38)
+            return {
+              level: "medium",
+              en: "Heat stress risk for crops",
+              es: "Riesgo de estrés calórico en cultivos",
+              color: "#FEF9EE",
+              border: "#C8902A",
+            };
+          if (rain72 < 2 && uv > 7)
+            return {
+              level: "medium",
+              en: "Drought risk — consider irrigation",
+              es: "Riesgo de sequía — considera irrigación",
+              color: "#FEF9EE",
+              border: "#C8902A",
+            };
+          return {
+            level: "low",
+            en: "Favorable conditions for field work",
+            es: "Condiciones favorables para trabajo de campo",
+            color: "#EAF5EF",
+            border: "#1A6B35",
+          };
+        };
+        const risk = getRisk();
+
+        // Agro alerts
+        const alerts = [];
+        if (rain72 > 30)
+          alerts.push({
+            icon: "🌧️",
+            bg: "#FDF0EE",
+            badge: "#B03A2E",
+            title_en: "Harvest delay recommended",
+            title_es: "Retraso de cosecha recomendado",
+            desc_en: `${rain72.toFixed(0)}mm expected in 72h. Delay harvest to avoid crop damage and quality loss.`,
+            desc_es: `${rain72.toFixed(0)}mm esperados en 72h. Retrasa la cosecha para evitar daños y pérdida de calidad.`,
+            badge_en: "⚠️ High Risk",
+            badge_es: "⚠️ Riesgo Alto",
+          });
+        if (maxTemp > 35)
+          alerts.push({
+            icon: "🔥",
+            bg: "#FEF9EE",
+            badge: "#C8902A",
+            title_en: "Heat stress alert",
+            title_es: "Alerta de estrés calórico",
+            desc_en: `Max temp ${maxTemp.toFixed(0)}°C. Increase irrigation frequency and avoid mid-day field activities.`,
+            desc_es: `Temp máx ${maxTemp.toFixed(0)}°C. Aumenta frecuencia de riego y evita actividades de campo al mediodía.`,
+            badge_en: "🌡️ Heat",
+            badge_es: "🌡️ Calor",
+          });
+        if (rain72 < 3 && now.getMonth() >= 3 && now.getMonth() <= 9)
+          alerts.push({
+            icon: "☀️",
+            bg: "#EAF5EF",
+            badge: "#1A6B35",
+            title_en: "Optimal planting window",
+            title_es: "Ventana óptima de siembra",
+            desc_en:
+              "Low rainfall and moderate temperatures create ideal planting conditions this week.",
+            desc_es:
+              "Lluvias bajas y temperaturas moderadas crean condiciones ideales de siembra esta semana.",
+            badge_en: "✅ Plant Now",
+            badge_es: "✅ Sembrar Ahora",
+          });
+        if (!alerts.length)
+          alerts.push({
+            icon: "✅",
+            bg: "#EAF5EF",
+            badge: "#1A6B35",
+            title_en: "Favorable agricultural conditions",
+            title_es: "Condiciones agrícolas favorables",
+            desc_en:
+              "Weather is suitable for most field activities. No significant risks detected.",
+            desc_es:
+              "El clima es adecuado para la mayoría de actividades de campo. Sin riesgos significativos detectados.",
+            badge_en: "✅ All Good",
+            badge_es: "✅ Todo Bien",
+          });
+
+        // Days of week
+        const daysEn = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const daysEs = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+        const sunriseTime = new Date(daily.sunrise[0]).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const sunsetTime = new Date(daily.sunset[0]).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const dayLen = (
+          (new Date(daily.sunset[0]) - new Date(daily.sunrise[0])) /
+          3600000
+        ).toFixed(1);
+
+        document.getElementById("weather-content").innerHTML = `
+
+    <!-- CURRENT -->
+    <div class="current-card">
+      <div>
+        <div class="curr-location">📍 ${lang === "es" ? "Tu ubicación" : "Your location"}</div>
+        <div class="curr-city">${cityName}</div>
+        <div style="display:flex;align-items:flex-end;gap:12px;">
+          <div class="curr-temp">${Math.round(cur.temperature_2m)}°</div>
+          <div>
+            <div class="curr-desc">${WD(cur.weather_code, lang)}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:4px;">${lang === "es" ? "Sensación térmica" : "Feels like"} ${Math.round(cur.apparent_temperature)}°C</div>
+          </div>
+        </div>
+        <div class="curr-stats">
+          <div class="cstat"><div class="cstat-val">💧 ${cur.relative_humidity_2m}%</div><div class="cstat-lbl">${lang === "es" ? "Humedad" : "Humidity"}</div></div>
+          <div class="cstat"><div class="cstat-val">💨 ${cur.wind_speed_10m} km/h</div><div class="cstat-lbl">${windDir(cur.wind_direction_10m)}</div></div>
+          <div class="cstat"><div class="cstat-val">☔ ${cur.precipitation} mm</div><div class="cstat-lbl">${lang === "es" ? "Lluvia" : "Rain"}</div></div>
+          <div class="cstat"><div class="cstat-val">☀️ UV ${cur.uv_index}</div><div class="cstat-lbl">UV Index</div></div>
+        </div>
+        <div class="curr-agro">
+          <div class="agro-title">${lang === "es" ? "INDICADORES AGRÍCOLAS" : "AGRICULTURAL INDICATORS"}</div>
+          <div class="agro-items">
+            <div class="agro-item"><div class="agro-val">🌱 ${(hourly.soil_moisture_0_to_1cm?.[0] || 0).toFixed(2)}</div><div class="agro-lbl">${lang === "es" ? "Humedad suelo" : "Soil moisture"}</div></div>
+            <div class="agro-item"><div class="agro-val">🌡️ ${(hourly.soil_temperature_0cm?.[0] || cur.temperature_2m).toFixed(0)}°C</div><div class="agro-lbl">${lang === "es" ? "Temp. suelo" : "Soil temp"}</div></div>
+            <div class="agro-item"><div class="agro-val">💦 ${(daily.et0_fao_evapotranspiration?.[0] || 0).toFixed(1)} mm</div><div class="agro-lbl">${lang === "es" ? "Evapotransp." : "Evapotransp."}</div></div>
+            <div class="agro-item"><div class="agro-val">🌅 ${sunriseTime}</div><div class="agro-lbl">${lang === "es" ? "Amanecer" : "Sunrise"}</div></div>
+            <div class="agro-item"><div class="agro-val">🌇 ${sunsetTime}</div><div class="agro-lbl">${lang === "es" ? "Atardecer" : "Sunset"}</div></div>
+            <div class="agro-item"><div class="agro-val">⏱️ ${dayLen}h</div><div class="agro-lbl">${lang === "es" ? "Duración día" : "Day length"}</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="curr-icon">${WI(cur.weather_code)}</div>
+    </div>
+
+    <!-- 7-DAY FORECAST -->
+    <div class="forecast-grid" id="forecast-grid">
+      ${daily.time
+        .map((t, i) => {
+          const date = new Date(t);
+          const isToday = i === 0;
+          const dayName = isToday
+            ? lang === "es"
+              ? "Hoy"
+              : "Today"
+            : lang === "es"
+              ? daysEs[date.getDay()]
+              : daysEn[date.getDay()];
+          return `<div class="fday ${isToday ? "active" : ""}" onclick="showDay(${i})">
+          <div class="fday-name">${dayName}</div>
+          <div class="fday-icon">${WI(daily.weather_code[i])}</div>
+          <div class="fday-hi">${Math.round(daily.temperature_2m_max[i])}°</div>
+          <div class="fday-lo">${Math.round(daily.temperature_2m_min[i])}°</div>
+          <div class="fday-rain">💧${daily.precipitation_sum[i].toFixed(1)}mm</div>
+        </div>`;
+        })
+        .join("")}
+    </div>
+
+    <!-- HOURLY CHARTS -->
+    <div class="chart-card">
+      <div class="chart-title">${lang === "es" ? "🌡️ Temperatura por hora (24h)" : "🌡️ Hourly temperature (24h)"}</div>
+      <canvas id="temp-chart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">${lang === "es" ? "🌧️ Probabilidad de lluvia (24h)" : "🌧️ Rain probability (24h)"}</div>
+      <canvas id="rain-chart"></canvas>
+    </div>
+
+    <!-- DETAILS + WIND -->
+    <div class="grid-2">
+      <div class="info-card">
+        <div class="info-title">${lang === "es" ? "📋 Detalles del día" : "📋 Day details"}</div>
+        <div class="info-row"><span class="info-label">🌡️ ${lang === "es" ? "Temp. máxima" : "Max temp"}</span><span class="info-val">${Math.round(daily.temperature_2m_max[0])}°C</span></div>
+        <div class="info-row"><span class="info-label">🌡️ ${lang === "es" ? "Temp. mínima" : "Min temp"}</span><span class="info-val">${Math.round(daily.temperature_2m_min[0])}°C</span></div>
+        <div class="info-row"><span class="info-label">💧 ${lang === "es" ? "Lluvia total" : "Total rain"}</span><span class="info-val">${daily.precipitation_sum[0].toFixed(1)} mm</span></div>
+        <div class="info-row"><span class="info-label">☔ ${lang === "es" ? "Prob. lluvia" : "Rain prob."}</span><span class="info-val">${daily.precipitation_probability_max[0]}%</span></div>
+        <div class="info-row"><span class="info-label">💨 ${lang === "es" ? "Viento máx." : "Max wind"}</span><span class="info-val">${daily.wind_speed_10m_max[0]} km/h</span></div>
+        <div class="info-row"><span class="info-label">☀️ UV ${lang === "es" ? "máximo" : "max"}</span><span class="info-val">${daily.uv_index_max[0]}</span></div>
+        <div class="info-row"><span class="info-label">🌱 ${lang === "es" ? "Estado agrícola" : "Agro status"}</span><span class="info-val" style="color:${risk.border};">${lang === "es" ? (risk.level === "low" ? "✅ Favorable" : risk.level === "medium" ? "⚠️ Moderado" : "❌ Riesgo Alto") : risk.level === "low" ? "✅ Favorable" : risk.level === "medium" ? "⚠️ Moderate" : "❌ High Risk"}</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-title">${lang === "es" ? "🌿 Indicadores de campo" : "🌿 Field indicators"}</div>
+        <div class="info-row"><span class="info-label">🌱 ${lang === "es" ? "Humedad del suelo" : "Soil moisture"}</span><span class="info-val">${(hourly.soil_moisture_0_to_1cm?.[0] || 0).toFixed(3)} m³/m³</span></div>
+        <div class="info-row"><span class="info-label">🌡️ ${lang === "es" ? "Temp. del suelo" : "Soil temperature"}</span><span class="info-val">${(hourly.soil_temperature_0cm?.[0] || cur.temperature_2m).toFixed(1)}°C</span></div>
+        <div class="info-row"><span class="info-label">💦 ${lang === "es" ? "Evapotranspiración" : "Evapotranspiration"}</span><span class="info-val">${(daily.et0_fao_evapotranspiration?.[0] || 0).toFixed(2)} mm/day</span></div>
+        <div class="info-row"><span class="info-label">📊 ${lang === "es" ? "Presión atm." : "Pressure"}</span><span class="info-val">${cur.surface_pressure?.toFixed(0) || "—"} hPa</span></div>
+        <div class="info-row"><span class="info-label">💧 ${lang === "es" ? "Humedad relativa" : "Rel. humidity"}</span><span class="info-val">${cur.relative_humidity_2m}%</span></div>
+        <div class="info-row"><span class="info-label">☔ ${lang === "es" ? "Lluvia 72h" : "Rain 72h"}</span><span class="info-val">${rain72.toFixed(1)} mm</span></div>
+        <div class="info-row"><span class="info-label">📍 ${lang === "es" ? "Coordenadas" : "Coordinates"}</span><span class="info-val" style="font-size:11px;">${lat.toFixed(3)}, ${lon.toFixed(3)}</span></div>
+      </div>
+    </div>
+
+    <!-- AGRO ALERTS -->
+    <div class="alert-card">
+      <div class="alert-title">🤖 ${lang === "es" ? "Alertas Agrícolas del Agente IA" : "AI Agent Agricultural Alerts"}</div>
+      ${alerts
+        .map(
+          (a) => `
+        <div class="agro-alert" style="background:${a.bg};">
+          <div class="aa-icon">${a.icon}</div>
+          <div>
+            <div class="aa-title">${lang === "es" ? a.title_es : a.title_en}</div>
+            <div class="aa-desc">${lang === "es" ? a.desc_es : a.desc_en}</div>
+            <span class="aa-badge" style="background:${a.badge}20;color:${a.badge};">${lang === "es" ? a.badge_es : a.badge_en}</span>
+          </div>
+        </div>`,
+        )
+        .join("")}
+    </div>
+
+    <!-- LATAM COMPARISON -->
+    <div class="latam-card">
+      <div class="latam-title">🌎 ${lang === "es" ? "Clima en otras ciudades LATAM" : "Weather in other LATAM cities"}</div>
+      <div id="latam-table"><div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">${lang === "es" ? "Cargando..." : "Loading..."}</div></div>
+    </div>
+  `;
+
+        // Draw charts
+        drawTempChart(hourly);
+        drawRainChart(hourly);
+        loadLatamTable();
+      }
+
+      function drawTempChart(hourly) {
+        const labels = hourly.time
+          .slice(0, 24)
+          .map((t) => new Date(t).getHours() + ":00");
+        const temps = hourly.temperature_2m.slice(0, 24);
+        if (tempChart) tempChart.destroy();
+        tempChart = new Chart(document.getElementById("temp-chart"), {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: lang === "es" ? "Temperatura" : "Temperature",
+                data: temps,
+                borderColor: "#C8902A",
+                backgroundColor: "rgba(200,144,42,.1)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { font: { size: 10 }, maxTicksLimit: 8 },
+              },
+              y: {
+                grid: { color: "#F0EDE6" },
+                ticks: { font: { size: 10 }, callback: (v) => `${v}°C` },
+              },
+            },
+          },
+        });
+      }
+
+      function drawRainChart(hourly) {
+        const labels = hourly.time
+          .slice(0, 24)
+          .map((t) => new Date(t).getHours() + ":00");
+        const probs = hourly.precipitation_probability.slice(0, 24);
+        if (rainChart) rainChart.destroy();
+        rainChart = new Chart(document.getElementById("rain-chart"), {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [
+              {
+                data: probs,
+                backgroundColor: "rgba(74,144,217,.7)",
+                borderRadius: 4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { font: { size: 10 }, maxTicksLimit: 8 },
+              },
+              y: {
+                grid: { color: "#F0EDE6" },
+                min: 0,
+                max: 100,
+                ticks: { font: { size: 10 }, callback: (v) => `${v}%` },
+              },
+            },
+          },
+        });
+      }
+
+      async function loadLatamTable() {
+        const cities = [
+          { name: "Lima, Peru", lat: -12.046, lon: -77.043 },
+          { name: "Bogotá, Colombia", lat: 4.711, lon: -74.072 },
+          { name: "São Paulo, Brazil", lat: -23.55, lon: -46.633 },
+          { name: "Ciudad de México", lat: 19.432, lon: -99.133 },
+          { name: "Guayaquil, Ecuador", lat: -2.181, lon: -79.882 },
+          { name: "Buenos Aires", lat: -34.603, lon: -58.381 },
+        ];
+        const rows = await Promise.all(
+          cities.map(async (c) => {
+            try {
+              const r = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,weather_code,precipitation,wind_speed_10m&daily=precipitation_sum&forecast_days=1&timezone=auto`,
+              );
+              const d = await r.json();
+              return {
+                name: c.name,
+                temp: Math.round(d.current.temperature_2m),
+                code: d.current.weather_code,
+                rain: d.daily.precipitation_sum[0].toFixed(1),
+                wind: d.current.wind_speed_10m,
+              };
+            } catch {
+              return { name: c.name, temp: "—", code: 0, rain: "—", wind: "—" };
+            }
+          }),
+        );
+        document.getElementById("latam-table").innerHTML = `
+    <table><thead><tr>
+      <th>${lang === "es" ? "Ciudad" : "City"}</th>
+      <th>${lang === "es" ? "Clima" : "Weather"}</th>
+      <th>${lang === "es" ? "Temp" : "Temp"}</th>
+      <th>${lang === "es" ? "Lluvia" : "Rain"}</th>
+      <th>${lang === "es" ? "Viento" : "Wind"}</th>
+    </tr></thead><tbody>
+    ${rows
+      .map(
+        (r) => `<tr>
+      <td>${r.name}</td>
+      <td>${WI(r.code)} ${WD(r.code, lang)}</td>
+      <td>${r.temp}°C</td>
+      <td>💧 ${r.rain} mm</td>
+      <td>💨 ${r.wind} km/h</td>
+    </tr>`,
+      )
+      .join("")}
+    </tbody></table>`;
+      }
+
+      function showDay(i) {
+        document
+          .querySelectorAll(".fday")
+          .forEach((d, idx) => d.classList.toggle("active", idx === i));
+      }
+
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[l]));
+        document
+          .querySelectorAll("[data-en-placeholder]")
+          .forEach((el) => (el.placeholder = el.dataset[l + "Placeholder"]));
+        if (currentLat)
+          loadCity(
+            currentLat,
+            currentLon,
+            document.querySelector(".curr-city")?.textContent || "",
+          );
+      }
+
+      setLang(lang);
+      // Auto-load Lima as default
+      loadCity(-9.298, -75.997, "Tingo María, Peru");
+    </script>
+  </body>
+</html>

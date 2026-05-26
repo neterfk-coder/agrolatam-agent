@@ -1,0 +1,1496 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam — Agent Live</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: #0d1f18;
+        color: #fff;
+        min-height: 100vh;
+      }
+
+      /* NAVBAR */
+      .navbar {
+        background: rgba(10, 74, 53, 0.95);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .nav-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-back {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .lang-switcher {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .lang-opt.active {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      /* PAGE */
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 24px 60px;
+      }
+
+      /* HEADER */
+      .agent-header {
+        text-align: center;
+        padding: 40px 24px 32px;
+        position: relative;
+      }
+      .agent-orb {
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle at 35% 35%, #4ade80, #0a4a35);
+        border-radius: 50%;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        box-shadow: 0 0 40px rgba(74, 222, 128, 0.3);
+        animation: orb-pulse 3s ease-in-out infinite;
+      }
+      @keyframes orb-pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 40px rgba(74, 222, 128, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 70px rgba(74, 222, 128, 0.5);
+        }
+      }
+      .agent-name {
+        font-family: "Fraunces", serif;
+        font-size: 32px;
+        color: #fff;
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+      }
+      .agent-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(74, 222, 128, 0.1);
+        border: 1px solid rgba(74, 222, 128, 0.3);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        color: #4ade80;
+        font-weight: 600;
+      }
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: blink 1.5s infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* STATS ROW */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 16px;
+        text-align: center;
+      }
+      .stat-val {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        color: #fff;
+        margin-bottom: 4px;
+      }
+      .stat-lbl {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .stat-change {
+        font-size: 11px;
+        color: #4ade80;
+        margin-top: 4px;
+      }
+
+      /* MAIN LAYOUT */
+      .main-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 20px;
+      }
+
+      /* ACTIVITY FEED */
+      .feed-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .feed-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .feed-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .feed-controls {
+        display: flex;
+        gap: 8px;
+      }
+      .feed-btn {
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        font-family: "Sora", sans-serif;
+        transition: all 0.2s;
+      }
+      .feed-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .feed-btn.active {
+        background: rgba(74, 222, 128, 0.15);
+        border-color: rgba(74, 222, 128, 0.4);
+        color: #4ade80;
+      }
+      .feed-body {
+        padding: 12px;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+      .feed-body::-webkit-scrollbar {
+        width: 4px;
+      }
+      .feed-body::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .feed-body::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      /* ACTION ITEM */
+      .action-item {
+        display: flex;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        border: 1px solid transparent;
+        transition: all 0.3s;
+        animation: slideIn 0.4s ease-out;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .action-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.06);
+      }
+      .action-item.new {
+        border-color: rgba(74, 222, 128, 0.2);
+        background: rgba(74, 222, 128, 0.04);
+      }
+      .action-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+      .action-content {
+        flex: 1;
+      }
+      .action-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 5px;
+      }
+      .action-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #fff;
+        line-height: 1.3;
+      }
+      .action-time {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.3);
+        white-space: nowrap;
+        margin-top: 2px;
+      }
+      .action-desc {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.55);
+        line-height: 1.5;
+        margin-bottom: 8px;
+      }
+      .action-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .atag {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 500;
+      }
+      .atag-alert {
+        background: rgba(74, 222, 128, 0.15);
+        color: #4ade80;
+      }
+      .atag-price {
+        background: rgba(200, 144, 42, 0.15);
+        color: #c8902a;
+      }
+      .atag-weather {
+        background: rgba(74, 144, 217, 0.15);
+        color: #4a90d9;
+      }
+      .atag-doc {
+        background: rgba(147, 51, 234, 0.15);
+        color: #a78bfa;
+      }
+      .atag-export {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+      }
+      .action-result {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 6px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+      }
+      .result-done {
+        color: #4ade80;
+      }
+      .result-pending {
+        color: #fbbf24;
+      }
+
+      /* TYPE COLORS */
+      .type-alert {
+        background: rgba(74, 222, 128, 0.15);
+      }
+      .type-price {
+        background: rgba(200, 144, 42, 0.15);
+      }
+      .type-weather {
+        background: rgba(74, 144, 217, 0.15);
+      }
+      .type-doc {
+        background: rgba(147, 51, 234, 0.15);
+      }
+      .type-export {
+        background: rgba(239, 68, 68, 0.15);
+      }
+      .type-market {
+        background: rgba(6, 182, 212, 0.15);
+      }
+
+      /* THINKING */
+      .thinking-item {
+        display: flex;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.02);
+        margin-bottom: 8px;
+        align-items: center;
+      }
+      .thinking-dots {
+        display: flex;
+        gap: 4px;
+      }
+      .thinking-dot {
+        width: 6px;
+        height: 6px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: bounce 1.2s infinite;
+      }
+      .thinking-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .thinking-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes bounce {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+        }
+        30% {
+          transform: translateY(-6px);
+        }
+      }
+      .thinking-text {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        font-style: italic;
+      }
+
+      /* SIDEBAR */
+      .side-col {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .side-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 18px;
+      }
+      .side-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      /* MISSION STATUS */
+      .mission-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .mission-item:last-child {
+        border-bottom: none;
+      }
+      .mission-icon {
+        font-size: 16px;
+      }
+      .mission-text {
+        flex: 1;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.4;
+      }
+      .mission-status {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 6px;
+      }
+      .ms-done {
+        background: rgba(74, 222, 128, 0.15);
+        color: #4ade80;
+      }
+      .ms-running {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+      }
+      .ms-pending {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      /* TOOLS */
+      .tool-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 12px;
+      }
+      .tool-item:last-child {
+        border-bottom: none;
+      }
+      .tool-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        flex-shrink: 0;
+      }
+      .tool-name {
+        flex: 1;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      .tool-calls {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.3);
+      }
+      .tool-active {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .active-green {
+        background: #4ade80;
+      }
+      .active-gray {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* IMPACT */
+      .impact-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 12px;
+      }
+      .impact-item:last-child {
+        border-bottom: none;
+      }
+      .impact-label {
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .impact-val {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+
+      /* WHATSAPP PREVIEW */
+      .wa-preview {
+        background: #075e54;
+        border-radius: 14px;
+        padding: 14px;
+        margin-top: 10px;
+      }
+      .wa-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .wa-avatar {
+        width: 32px;
+        height: 32px;
+        background: #25d366;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+      .wa-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+      }
+      .wa-online {
+        font-size: 10px;
+        color: #25d366;
+      }
+      .wa-msg {
+        background: #128c7e;
+        border-radius: 10px 10px 10px 2px;
+        padding: 10px 12px;
+        font-size: 11px;
+        color: #fff;
+        line-height: 1.6;
+        margin-bottom: 4px;
+      }
+      .wa-time {
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.4);
+        text-align: right;
+      }
+
+      @media (max-width: 900px) {
+        .main-layout {
+          grid-template-columns: 1fr;
+        }
+        .stats-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-logo">🌱</div>
+        <span class="nav-title">AgroLatam Agent</span>
+      </a>
+      <div class="nav-right">
+        <div class="lang-switcher">
+          <button class="lang-opt active" onclick="setLang('en')">EN</button>
+          <button class="lang-opt" onclick="setLang('es')">ES</button>
+        </div>
+        <a href="index.html" class="nav-back"
+          >← <span data-en="Dashboard" data-es="Panel">Dashboard</span></a
+        >
+      </div>
+    </nav>
+
+    <div class="page">
+      <!-- AGENT HEADER -->
+      <div class="agent-header">
+        <div class="agent-orb">🤖</div>
+        <div class="agent-name">AgroLatam Agent</div>
+        <div style="margin-top: 8px">
+          <div class="agent-status">
+            <span class="status-dot"></span>
+            <span
+              data-en="Agent is running autonomously"
+              data-es="El agente está ejecutándose de forma autónoma"
+              >Agent is running autonomously</span
+            >
+          </div>
+        </div>
+        <p
+          style="
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 12px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+          "
+          data-en="Monitoring 18 countries, 11 crops and global commodity markets. Acting without human intervention."
+          data-es="Monitoreando 18 países, 11 cultivos y mercados globales de materias primas. Actuando sin intervención humana."
+        >
+          Monitoring 18 countries, 11 crops and global commodity markets. Acting
+          without human intervention.
+        </p>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-val" id="stat-actions">0</div>
+          <div
+            class="stat-lbl"
+            data-en="Actions taken today"
+            data-es="Acciones tomadas hoy"
+          >
+            Actions taken today
+          </div>
+          <div class="stat-change" id="stat-actions-sub">+0 last hour</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-alerts">0</div>
+          <div
+            class="stat-lbl"
+            data-en="Alerts sent"
+            data-es="Alertas enviadas"
+          >
+            Alerts sent
+          </div>
+          <div class="stat-change" id="stat-alerts-sub">0 farmers notified</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-monitored">11</div>
+          <div
+            class="stat-lbl"
+            data-en="Crops monitored"
+            data-es="Cultivos monitoreados"
+          >
+            Crops monitored
+          </div>
+          <div class="stat-change">18 countries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-uptime">99.9%</div>
+          <div class="stat-lbl" data-en="Agent uptime" data-es="Tiempo activo">
+            Agent uptime
+          </div>
+          <div
+            class="stat-change"
+            data-en="Running 24/7"
+            data-es="Corriendo 24/7"
+          >
+            Running 24/7
+          </div>
+        </div>
+      </div>
+
+      <div class="main-layout">
+        <!-- ACTIVITY FEED -->
+        <div class="feed-card">
+          <div class="feed-header">
+            <div class="feed-title">
+              <span class="status-dot"></span>
+              <span
+                data-en="Live Agent Activity"
+                data-es="Actividad en Vivo del Agente"
+                >Live Agent Activity</span
+              >
+            </div>
+            <div class="feed-controls">
+              <button
+                class="feed-btn active"
+                onclick="setFeedFilter('all', this)"
+                data-en="All"
+                data-es="Todas"
+              >
+                All
+              </button>
+              <button
+                class="feed-btn"
+                onclick="setFeedFilter('alert', this)"
+                data-en="Alerts"
+                data-es="Alertas"
+              >
+                Alerts
+              </button>
+              <button
+                class="feed-btn"
+                onclick="setFeedFilter('price', this)"
+                data-en="Prices"
+                data-es="Precios"
+              >
+                Prices
+              </button>
+              <button
+                class="feed-btn"
+                onclick="setFeedFilter('weather', this)"
+                data-en="Weather"
+                data-es="Clima"
+              >
+                Weather
+              </button>
+              <button
+                class="feed-btn"
+                onclick="pauseFeed(this)"
+                id="pause-btn"
+                data-en="⏸ Pause"
+                data-es="⏸ Pausar"
+              >
+                ⏸ Pause
+              </button>
+            </div>
+          </div>
+          <div class="feed-body" id="feed-body"></div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="side-col">
+          <!-- CURRENT MISSION -->
+          <div class="side-card">
+            <div
+              class="side-title"
+              data-en="🎯 Current Missions"
+              data-es="🎯 Misiones Actuales"
+            >
+              🎯 Current Missions
+            </div>
+            <div id="missions-list"></div>
+          </div>
+
+          <!-- TOOLS USED -->
+          <div class="side-card">
+            <div
+              class="side-title"
+              data-en="🔧 Tools & APIs"
+              data-es="🔧 Herramientas y APIs"
+            >
+              🔧 Tools & APIs
+            </div>
+            <div>
+              <div class="tool-item">
+                <div
+                  class="tool-icon"
+                  style="background: rgba(200, 144, 42, 0.2)"
+                >
+                  ⚡
+                </div>
+                <div class="tool-name">Fivetran MCP</div>
+                <div class="tool-calls" id="fivetran-calls">0 calls</div>
+                <div class="tool-active active-green"></div>
+              </div>
+              <div class="tool-item">
+                <div
+                  class="tool-icon"
+                  style="background: rgba(74, 222, 128, 0.2)"
+                >
+                  🤖
+                </div>
+                <div class="tool-name">Gemini 2.0</div>
+                <div class="tool-calls" id="gemini-calls">0 calls</div>
+                <div class="tool-active active-green"></div>
+              </div>
+              <div class="tool-item">
+                <div
+                  class="tool-icon"
+                  style="background: rgba(74, 144, 217, 0.2)"
+                >
+                  🌦️
+                </div>
+                <div class="tool-name">Open-Meteo</div>
+                <div class="tool-calls" id="meteo-calls">0 calls</div>
+                <div class="tool-active active-green"></div>
+              </div>
+              <div class="tool-item">
+                <div
+                  class="tool-icon"
+                  style="background: rgba(147, 51, 234, 0.2)"
+                >
+                  🗄️
+                </div>
+                <div class="tool-name">Supabase</div>
+                <div class="tool-calls" id="supa-calls">0 calls</div>
+                <div class="tool-active active-green"></div>
+              </div>
+              <div class="tool-item">
+                <div
+                  class="tool-icon"
+                  style="background: rgba(239, 68, 68, 0.2)"
+                >
+                  📱
+                </div>
+                <div class="tool-name">WhatsApp API</div>
+                <div class="tool-calls" id="wa-calls">0 sent</div>
+                <div class="tool-active active-green"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- IMPACT -->
+          <div class="side-card">
+            <div
+              class="side-title"
+              data-en="🌎 Impact Today"
+              data-es="🌎 Impacto Hoy"
+            >
+              🌎 Impact Today
+            </div>
+            <div>
+              <div class="impact-item">
+                <span
+                  class="impact-label"
+                  data-en="Farmers reached"
+                  data-es="Agricultores alcanzados"
+                  >Farmers reached</span
+                ><span class="impact-val" id="impact-farmers">0</span>
+              </div>
+              <div class="impact-item">
+                <span
+                  class="impact-label"
+                  data-en="Countries covered"
+                  data-es="Países cubiertos"
+                  >Countries covered</span
+                ><span class="impact-val">18</span>
+              </div>
+              <div class="impact-item">
+                <span
+                  class="impact-label"
+                  data-en="Price alerts sent"
+                  data-es="Alertas de precio"
+                  >Price alerts sent</span
+                ><span class="impact-val" id="impact-price-alerts">0</span>
+              </div>
+              <div class="impact-item">
+                <span
+                  class="impact-label"
+                  data-en="Docs generated"
+                  data-es="Docs generados"
+                  >Docs generated</span
+                ><span class="impact-val" id="impact-docs">0</span>
+              </div>
+              <div class="impact-item">
+                <span
+                  class="impact-label"
+                  data-en="Est. revenue saved"
+                  data-es="Ingresos protegidos"
+                  >Est. revenue saved</span
+                ><span class="impact-val" id="impact-revenue">$0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- WHATSAPP PREVIEW -->
+          <div class="side-card">
+            <div
+              class="side-title"
+              data-en="📱 Latest WhatsApp Alert"
+              data-es="📱 Última Alerta WhatsApp"
+            >
+              📱 Latest WhatsApp Alert
+            </div>
+            <div class="wa-preview">
+              <div class="wa-header">
+                <div class="wa-avatar">🌱</div>
+                <div>
+                  <div class="wa-name">AgroLatam Agent</div>
+                  <div class="wa-online" data-en="Online" data-es="En línea">
+                    Online
+                  </div>
+                </div>
+              </div>
+              <div
+                class="wa-msg"
+                id="wa-msg"
+                data-en="🌱 AgroLatam Alert\n\nMonitoring started. I will notify you of any significant market changes."
+                data-es="🌱 Alerta AgroLatam\n\nMonitoreo iniciado. Te notificaré de cualquier cambio significativo en el mercado."
+              >
+                🌱 AgroLatam Alert Monitoring started. I will notify you of
+                significant market changes.
+              </div>
+              <div class="wa-time" id="wa-time">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let lang = localStorage.getItem("lang") || "en";
+      let feedPaused = false;
+      let feedFilter = "all";
+      let actionCount = 0;
+      let alertCount = 0;
+      let farmerCount = 0;
+      let priceAlertCount = 0;
+      let docCount = 0;
+      let revenueCount = 0;
+      let fivetranCalls = 0;
+      let geminiCalls = 0;
+      let meteoCalls = 0;
+      let supaCalls = 0;
+      let waCalls = 0;
+      let feedItems = [];
+
+      // ── AGENT ACTIONS DATABASE ────────────────────────────────────────────────────
+      const ACTIONS_EN = [
+        {
+          type: "price",
+          icon: "☕",
+          title: "Coffee price drop detected — ICE NY",
+          desc: "Coffee futures fell 3.2% to $2.34/lb. Immediately triggered alert to all coffee farmers in Peru, Colombia and Honduras.",
+          tags: ["price", "alert"],
+          result: "✅ 847 farmers notified via WhatsApp",
+          farmers: 847,
+          revenue: 12000,
+          wa: "☕ PRICE ALERT\n\nCoffee -3.2% → $2.34/lb\n\nRecommendation: Sell before Thursday\n\n📊 AgroLatam Agent",
+          tools: { fivetran: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "weather",
+          icon: "🌧️",
+          title: "Heavy rain detected — Ecuador Amazon",
+          desc: "Open-Meteo reported 48mm rain expected in 72h across Ecuador's palm and cacao zones. Harvest risk classified as HIGH.",
+          tags: ["weather", "alert"],
+          result: "✅ Emergency harvest recommendation sent",
+          farmers: 312,
+          revenue: 8500,
+          wa: "⚠️ WEATHER ALERT\n\n48mm rain in 72h\nEcuador – Amazon region\n\nAction: Accelerate harvest NOW\n\n🌱 AgroLatam Agent",
+          tools: { meteo: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "alert",
+          icon: "🍫",
+          title: "Cacao opportunity — ICE London +1.8%",
+          desc: "European demand for fine-flavor cacao increased. Agent identified 3 potential buyers in Belgium and Switzerland seeking LATAM supply.",
+          tags: ["market", "export"],
+          result: "✅ Buyer contacts prepared and sent",
+          farmers: 156,
+          revenue: 24000,
+          wa: "🍫 OPPORTUNITY\n\nCacao +1.8% ICE London\n$3,812/ton\n\nEuropean buyers available\nContact now → export@agrolatam.ai\n\n🌱 AgroLatam Agent",
+          tools: { fivetran: 1, gemini: 2, supa: 1 },
+        },
+        {
+          type: "doc",
+          icon: "📄",
+          title: "Credit application auto-generated",
+          desc: "Detected that 3 farmers in Bolivia have optimal conditions to apply for agricultural credit. Generated and sent pre-filled documents.",
+          tags: ["doc", "credit"],
+          result: "✅ 3 credit documents generated",
+          farmers: 3,
+          revenue: 45000,
+          wa: "📄 CREDIT DOCS READY\n\nYour agricultural credit application has been auto-generated.\n\nDownload: agrolatam.ai/docs\n\n🌱 AgroLatam Agent",
+          tools: { gemini: 1, supa: 1 },
+        },
+        {
+          type: "price",
+          icon: "🥑",
+          title: "Avocado price surge +3.4% — FAO",
+          desc: "Mexican drought reduced supply. Agent detected price increase and alerted Peruvian and Colombian avocado farmers to accelerate sales.",
+          tags: ["price", "opportunity"],
+          result: "✅ 234 farmers alerted to sell now",
+          farmers: 234,
+          revenue: 18000,
+          wa: "🥑 SELL ALERT\n\nAvocado +3.4% → $2.15/kg\n\nPeak price window: Next 48h\nAct now!\n\n📊 AgroLatam Agent",
+          tools: { fivetran: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "weather",
+          icon: "☀️",
+          title: "Optimal planting window detected — Peru",
+          desc: "7-day forecast shows ideal temperature and humidity for coffee planting in Huánuco and San Martín regions of Peru.",
+          tags: ["weather", "plant"],
+          result: "✅ Planting recommendation sent",
+          farmers: 189,
+          revenue: 0,
+          wa: "🌱 PLANT NOW\n\nOptimal 7-day window\nPeru – Amazon region\n\nIdeal temp: 18-24°C\nHumidity: 70-80%\n\n🌱 AgroLatam Agent",
+          tools: { meteo: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "alert",
+          icon: "🌴",
+          title: "Palm oil biodiesel demand surge",
+          desc: "Brazil and Colombia expanded biodiesel mandates. Agent detected 12% price increase opportunity for palm oil farmers in Colombia and Honduras.",
+          tags: ["market", "price"],
+          result: "✅ Market opportunity alert sent",
+          farmers: 423,
+          revenue: 32000,
+          wa: "🌴 MARKET ALERT\n\nPalm Oil +12% demand\nBiodiesel mandates expanded\n\nBest time to sell: This week\n\n📊 AgroLatam Agent",
+          tools: { fivetran: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "doc",
+          icon: "📊",
+          title: "Monthly production report generated",
+          desc: "Agent automatically compiled production data for 12 cooperatives in Colombia and generated export reports for customs.",
+          tags: ["doc", "export"],
+          result: "✅ 12 export reports generated",
+          farmers: 12,
+          revenue: 0,
+          wa: "📊 MONTHLY REPORT\n\nYour production report is ready.\nGenerated automatically by AgroLatam Agent.\n\nDownload: agrolatam.ai/reports\n\n🌱 AgroLatam Agent",
+          tools: { gemini: 2, supa: 2 },
+        },
+        {
+          type: "price",
+          icon: "🌾",
+          title: "Rice price decline — CBOT -0.6%",
+          desc: "Global rice supply increased. Agent recommended storage strategy for Colombian and Peruvian rice farmers to wait for price recovery.",
+          tags: ["price", "strategy"],
+          result: "✅ Hold recommendation sent",
+          farmers: 567,
+          revenue: 9000,
+          wa: "🌾 HOLD ALERT\n\nRice -0.6% CBOT\nGlobal supply increased\n\nRecommendation: Store & wait 2 weeks\n\n📊 AgroLatam Agent",
+          tools: { fivetran: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "alert",
+          icon: "🌱",
+          title: "Soy export window open — China demand",
+          desc: "Chinese imports increased. Agent identified Brazil and Argentina as ideal exporters and prepared logistics recommendations.",
+          tags: ["export", "market"],
+          result: "✅ Export opportunity sent to 891 farmers",
+          farmers: 891,
+          revenue: 56000,
+          wa: "🌱 EXPORT NOW\n\nChina buying 1.2M ton soy\nBrazil & Argentina: Act now\n\nPrice: $11.20/bushel ▲2.3%\n\n📊 AgroLatam Agent",
+          tools: { fivetran: 1, gemini: 2, supa: 1, wa: 1 },
+        },
+      ];
+
+      const ACTIONS_ES = [
+        {
+          type: "price",
+          icon: "☕",
+          title: "Caída de precio del café detectada — ICE NY",
+          desc: "Futuros del café bajaron 3.2% a $2.34/lb. Activé alerta inmediata para todos los caficultores en Perú, Colombia y Honduras.",
+          tags: ["precio", "alerta"],
+          result: "✅ 847 agricultores notificados por WhatsApp",
+          farmers: 847,
+          revenue: 12000,
+          wa: "☕ ALERTA DE PRECIO\n\nCafé -3.2% → $2.34/lb\n\nRecomendación: Vende antes del jueves\n\n📊 Agente AgroLatam",
+          tools: { fivetran: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "weather",
+          icon: "🌧️",
+          title: "Lluvia intensa detectada — Amazonas Ecuador",
+          desc: "Open-Meteo reportó 48mm de lluvia en 72h en zonas de palma y cacao de Ecuador. Riesgo de cosecha clasificado como ALTO.",
+          tags: ["clima", "alerta"],
+          result: "✅ Recomendación de cosecha urgente enviada",
+          farmers: 312,
+          revenue: 8500,
+          wa: "⚠️ ALERTA CLIMÁTICA\n\n48mm lluvia en 72h\nEcuador – Región Amazónica\n\nAcción: Acelera cosecha AHORA\n\n🌱 Agente AgroLatam",
+          tools: { meteo: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "alert",
+          icon: "🍫",
+          title: "Oportunidad de cacao — ICE Londres +1.8%",
+          desc: "Aumentó la demanda europea de cacao fino. El agente identificó 3 compradores potenciales en Bélgica y Suiza buscando oferta LATAM.",
+          tags: ["mercado", "exportación"],
+          result: "✅ Contactos de compradores preparados y enviados",
+          farmers: 156,
+          revenue: 24000,
+          wa: "🍫 OPORTUNIDAD\n\nCacao +1.8% ICE Londres\n$3,812/ton\n\nCompradores europeos disponibles\nContacta ahora\n\n🌱 Agente AgroLatam",
+          tools: { fivetran: 1, gemini: 2, supa: 1 },
+        },
+        {
+          type: "doc",
+          icon: "📄",
+          title: "Solicitud de crédito generada automáticamente",
+          desc: "Detecté que 3 agricultores en Bolivia tienen condiciones óptimas para solicitar crédito agrícola. Generé y envié documentos prellenados.",
+          tags: ["documento", "crédito"],
+          result: "✅ 3 documentos de crédito generados",
+          farmers: 3,
+          revenue: 45000,
+          wa: "📄 DOCUMENTOS LISTOS\n\nTu solicitud de crédito agrícola fue generada automáticamente.\n\nDescarga: agrolatam.ai/docs\n\n🌱 Agente AgroLatam",
+          tools: { gemini: 1, supa: 1 },
+        },
+        {
+          type: "price",
+          icon: "🥑",
+          title: "Alza de precio del aguacate +3.4% — FAO",
+          desc: "Sequía mexicana redujo oferta. El agente detectó el alza y alertó a agricultores de aguacate en Perú y Colombia para acelerar ventas.",
+          tags: ["precio", "oportunidad"],
+          result: "✅ 234 agricultores alertados para vender ahora",
+          farmers: 234,
+          revenue: 18000,
+          wa: "🥑 ALERTA DE VENTA\n\nAguacate +3.4% → $2.15/kg\n\nVentana de precio pico: 48h\n¡Actúa ahora!\n\n📊 Agente AgroLatam",
+          tools: { fivetran: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "weather",
+          icon: "☀️",
+          title: "Ventana óptima de siembra detectada — Perú",
+          desc: "El pronóstico de 7 días muestra temperatura y humedad ideales para sembrar café en las regiones de Huánuco y San Martín, Perú.",
+          tags: ["clima", "siembra"],
+          result: "✅ Recomendación de siembra enviada",
+          farmers: 189,
+          revenue: 0,
+          wa: "🌱 SEMBRAR AHORA\n\nVentana óptima 7 días\nPerú – Región Amazónica\n\nTemp ideal: 18-24°C\nHumedad: 70-80%\n\n🌱 Agente AgroLatam",
+          tools: { meteo: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "alert",
+          icon: "🌴",
+          title: "Aumento de demanda de biodiesel — Palma aceitera",
+          desc: "Brasil y Colombia ampliaron mandatos de biodiesel. Detecté oportunidad de alza del 12% para palmicultores en Colombia y Honduras.",
+          tags: ["mercado", "precio"],
+          result: "✅ Alerta de oportunidad de mercado enviada",
+          farmers: 423,
+          revenue: 32000,
+          wa: "🌴 ALERTA DE MERCADO\n\nPalma aceitera +12% demanda\nMandatos de biodiesel ampliados\n\nMejor momento para vender: Esta semana\n\n📊 Agente AgroLatam",
+          tools: { fivetran: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "doc",
+          icon: "📊",
+          title: "Reporte mensual de producción generado",
+          desc: "El agente compiló automáticamente datos de producción de 12 cooperativas en Colombia y generó reportes de exportación para aduanas.",
+          tags: ["documento", "exportación"],
+          result: "✅ 12 reportes de exportación generados",
+          farmers: 12,
+          revenue: 0,
+          wa: "📊 REPORTE MENSUAL\n\nTu reporte de producción está listo.\nGenerado automáticamente por AgroLatam Agent.\n\nDescarga: agrolatam.ai/reportes\n\n🌱 Agente AgroLatam",
+          tools: { gemini: 2, supa: 2 },
+        },
+        {
+          type: "price",
+          icon: "🌾",
+          title: "Caída del precio del arroz — CBOT -0.6%",
+          desc: "Aumentó la oferta global de arroz. El agente recomendó estrategia de almacenamiento para agricultores en Colombia y Perú.",
+          tags: ["precio", "estrategia"],
+          result: "✅ Recomendación de retención enviada",
+          farmers: 567,
+          revenue: 9000,
+          wa: "🌾 ALERTA RETENCIÓN\n\nArroz -0.6% CBOT\nOferta global aumentada\n\nRecomendación: Almacena y espera 2 semanas\n\n📊 Agente AgroLatam",
+          tools: { fivetran: 1, gemini: 1, wa: 1 },
+        },
+        {
+          type: "alert",
+          icon: "🌱",
+          title: "Ventana de exportación soya — Demanda China",
+          desc: "Importaciones chinas aumentaron. El agente identificó a Brasil y Argentina como exportadores ideales y preparó recomendaciones logísticas.",
+          tags: ["exportación", "mercado"],
+          result: "✅ Oportunidad de exportación enviada a 891 agricultores",
+          farmers: 891,
+          revenue: 56000,
+          wa: "🌱 EXPORTAR AHORA\n\nChina comprando 1.2M ton soya\nBrasil y Argentina: Actúa ahora\n\nPrecio: $11.20/bushel ▲2.3%\n\n📊 Agente AgroLatam",
+          tools: { fivetran: 1, gemini: 2, supa: 1, wa: 1 },
+        },
+      ];
+
+      const MISSIONS_EN = [
+        {
+          icon: "📈",
+          text: "Monitor coffee price every 5 min via Fivetran",
+          status: "running",
+        },
+        {
+          icon: "🌦️",
+          text: "Check weather for 9 LATAM regions",
+          status: "done",
+        },
+        { icon: "🍫", text: "Find cacao buyers in Europe", status: "done" },
+        { icon: "📄", text: "Generate 3 credit applications", status: "done" },
+        { icon: "🥑", text: "Track avocado demand surge", status: "running" },
+        {
+          icon: "📊",
+          text: "Compile monthly export reports",
+          status: "pending",
+        },
+      ];
+
+      const MISSIONS_ES = [
+        {
+          icon: "📈",
+          text: "Monitorear precio del café cada 5 min via Fivetran",
+          status: "running",
+        },
+        {
+          icon: "🌦️",
+          text: "Revisar clima para 9 regiones de LATAM",
+          status: "done",
+        },
+        {
+          icon: "🍫",
+          text: "Encontrar compradores de cacao en Europa",
+          status: "done",
+        },
+        {
+          icon: "📄",
+          text: "Generar 3 solicitudes de crédito",
+          status: "done",
+        },
+        {
+          icon: "🥑",
+          text: "Rastrear alza de demanda de aguacate",
+          status: "running",
+        },
+        {
+          icon: "📊",
+          text: "Compilar reportes mensuales de exportación",
+          status: "pending",
+        },
+      ];
+
+      // ── RENDER ────────────────────────────────────────────────────────────────────
+      function getActions() {
+        return lang === "es" ? ACTIONS_ES : ACTIONS_EN;
+      }
+      function getMissions() {
+        return lang === "es" ? MISSIONS_ES : MISSIONS_EN;
+      }
+
+      function renderMissions() {
+        const status = {
+          done: `<span class="mission-status ms-done">${lang === "es" ? "✅ Hecho" : "✅ Done"}</span>`,
+          running: `<span class="mission-status ms-running">${lang === "es" ? "⚡ Ejecutando" : "⚡ Running"}</span>`,
+          pending: `<span class="mission-status ms-pending">${lang === "es" ? "⏳ Pendiente" : "⏳ Pending"}</span>`,
+        };
+        document.getElementById("missions-list").innerHTML = getMissions()
+          .map(
+            (m) => `
+    <div class="mission-item">
+      <span class="mission-icon">${m.icon}</span>
+      <span class="mission-text">${m.text}</span>
+      ${status[m.status]}
+    </div>`,
+          )
+          .join("");
+      }
+
+      function renderAction(action, isNew = false) {
+        if (feedFilter !== "all" && action.type !== feedFilter) return;
+        const tagHtml = action.tags
+          .map((t) => `<span class="atag atag-${action.type}">${t}</span>`)
+          .join("");
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+        const item = document.createElement("div");
+        item.className = `action-item type-${action.type} ${isNew ? "new" : ""}`;
+        item.innerHTML = `
+    <div class="action-icon type-${action.type}">${action.icon}</div>
+    <div class="action-content">
+      <div class="action-top">
+        <div class="action-title">${action.title}</div>
+        <div class="action-time">${timeStr}</div>
+      </div>
+      <div class="action-desc">${action.desc}</div>
+      <div class="action-tags">${tagHtml}</div>
+      <div class="action-result ${action.result.startsWith("✅") ? "result-done" : "result-pending"}">${action.result}</div>
+    </div>`;
+        return item;
+      }
+
+      function addThinking() {
+        const el = document.createElement("div");
+        el.className = "thinking-item";
+        el.id = "thinking";
+        el.innerHTML = `<div class="thinking-dots"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div><div class="thinking-text">${lang === "es" ? "Agente procesando datos de Fivetran y Gemini..." : "Agent processing Fivetran and Gemini data..."}</div>`;
+        const feed = document.getElementById("feed-body");
+        feed.insertBefore(el, feed.firstChild);
+      }
+
+      function removeThinking() {
+        document.getElementById("thinking")?.remove();
+      }
+
+      function updateStats(action) {
+        actionCount++;
+        document.getElementById("stat-actions").textContent = actionCount;
+        document.getElementById("stat-actions-sub").textContent =
+          `+${Math.min(actionCount, 5)} ${lang === "es" ? "última hora" : "last hour"}`;
+
+        if (action.farmers > 0) {
+          alertCount++;
+          farmerCount += action.farmers;
+          document.getElementById("stat-alerts").textContent = alertCount;
+          document.getElementById("stat-alerts-sub").textContent =
+            `${farmerCount.toLocaleString()} ${lang === "es" ? "agricultores" : "farmers"}`;
+          document.getElementById("impact-farmers").textContent =
+            farmerCount.toLocaleString();
+        }
+        if (action.type === "price") priceAlertCount++;
+        if (action.type === "doc") docCount++;
+        revenueCount += action.revenue || 0;
+        document.getElementById("impact-price-alerts").textContent =
+          priceAlertCount;
+        document.getElementById("impact-docs").textContent = docCount;
+        document.getElementById("impact-revenue").textContent =
+          "$" + revenueCount.toLocaleString();
+
+        // Update tool calls
+        if (action.tools?.fivetran) {
+          fivetranCalls += action.tools.fivetran;
+          document.getElementById("fivetran-calls").textContent =
+            fivetranCalls + " calls";
+        }
+        if (action.tools?.gemini) {
+          geminiCalls += action.tools.gemini;
+          document.getElementById("gemini-calls").textContent =
+            geminiCalls + " calls";
+        }
+        if (action.tools?.meteo) {
+          meteoCalls += action.tools.meteo;
+          document.getElementById("meteo-calls").textContent =
+            meteoCalls + " calls";
+        }
+        if (action.tools?.supa) {
+          supaCalls += action.tools.supa;
+          document.getElementById("supa-calls").textContent =
+            supaCalls + " calls";
+        }
+        if (action.tools?.wa) {
+          waCalls += action.tools.wa;
+          document.getElementById("wa-calls").textContent = waCalls + " sent";
+        }
+
+        // WhatsApp preview
+        if (action.wa) {
+          document.getElementById("wa-msg").textContent = action.wa;
+          document.getElementById("wa-time").textContent =
+            new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }) + " ✓✓";
+        }
+      }
+
+      let actionIndex = 0;
+      function triggerNextAction() {
+        if (feedPaused) return;
+        const actions = getActions();
+        const action = actions[actionIndex % actions.length];
+        actionIndex++;
+
+        addThinking();
+        setTimeout(
+          () => {
+            removeThinking();
+            const feed = document.getElementById("feed-body");
+            const item = renderAction(action, true);
+            if (item) {
+              feed.insertBefore(item, feed.firstChild);
+              setTimeout(() => item.classList.remove("new"), 3000);
+            }
+            updateStats(action);
+            if (feed.children.length > 20) feed.removeChild(feed.lastChild);
+          },
+          1500 + Math.random() * 1000,
+        );
+      }
+
+      // ── CONTROLS ──────────────────────────────────────────────────────────────────
+      function setFeedFilter(f, el) {
+        feedFilter = f;
+        document
+          .querySelectorAll(".feed-btn:not(#pause-btn)")
+          .forEach((b) => b.classList.remove("active"));
+        el.classList.add("active");
+      }
+
+      let paused = false;
+      let feedInterval;
+      function pauseFeed(el) {
+        paused = !paused;
+        feedPaused = paused;
+        el.textContent = paused
+          ? lang === "es"
+            ? "▶ Reanudar"
+            : "▶ Resume"
+          : lang === "es"
+            ? "⏸ Pausar"
+            : "⏸ Pause";
+        el.classList.toggle("active", paused);
+        if (!paused) scheduleFeed();
+      }
+
+      function scheduleFeed() {
+        clearInterval(feedInterval);
+        feedInterval = setInterval(
+          () => {
+            if (!paused) triggerNextAction();
+          },
+          4000 + Math.random() * 3000,
+        );
+      }
+
+      // ── LANGUAGE ──────────────────────────────────────────────────────────────────
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[l]));
+        renderMissions();
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────────────────────
+      setLang(lang);
+      renderMissions();
+      // Fire first action immediately
+      setTimeout(triggerNextAction, 1000);
+      scheduleFeed();
+    </script>
+  </body>
+</html>
