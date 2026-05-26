@@ -1,9 +1,8 @@
 const API = "https://netricd-agrolatam-agent.hf.space";
 
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
-const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
+const SUPABASE_URL = "TU_SUPABASE_URL";
+const SUPABASE_KEY = "TU_SUPABASE_KEY";
 let sb = null;
 try {
   const { createClient } = supabase;
@@ -320,5 +319,14 @@ loadAlerts();
 setInterval(loadPrices, 60000);
 setInterval(loadAlerts, 90000);
 
-// Wake up backend on page load
-fetch(`${API}/api/health`).catch(() => {});
+// ── DROPDOWN ──────────────────────────────────────────────────────────────────
+function toggleDropdown() {
+  const menu = document.getElementById("dropdown-menu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+document.addEventListener("click", (e) => {
+  if (!document.getElementById("tools-dropdown")?.contains(e.target)) {
+    const menu = document.getElementById("dropdown-menu");
+    if (menu) menu.style.display = "none";
+  }
+});
