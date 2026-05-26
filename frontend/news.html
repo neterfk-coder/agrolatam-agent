@@ -1,0 +1,1269 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam — Agricultural News</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        color: var(--ink);
+      }
+      .navbar {
+        background: var(--forest);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .nav-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-back {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s;
+      }
+      .nav-back:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .lang-switcher {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .lang-opt.active {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 60px;
+      }
+      .page-header {
+        margin-bottom: 24px;
+      }
+      .page-title {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+      }
+      .page-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      /* FILTERS */
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .filter-btn {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1.5px solid var(--border);
+        background: var(--white);
+        color: var(--muted);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .filter-btn:hover {
+        border-color: var(--forest);
+        color: var(--forest);
+      }
+      .filter-btn.active {
+        background: var(--forest);
+        color: #fff;
+        border-color: var(--forest);
+      }
+      .search-bar {
+        display: flex;
+        gap: 8px;
+      }
+      .search-input {
+        padding: 8px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 13px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--white);
+        outline: none;
+        width: 220px;
+        transition: all 0.2s;
+      }
+      .search-input:focus {
+        border-color: var(--forest);
+      }
+
+      /* LAYOUT */
+      .news-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 20px;
+      }
+
+      /* FEATURED */
+      .featured-card {
+        background: var(--forest);
+        border-radius: 20px;
+        padding: 28px;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .featured-card:hover {
+        transform: translateY(-2px);
+      }
+      .featured-card::before {
+        content: "";
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+      }
+      .featured-tag {
+        display: inline-block;
+        background: var(--gold);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 12px;
+      }
+      .featured-title {
+        font-family: "Fraunces", serif;
+        font-size: 22px;
+        color: #fff;
+        line-height: 1.3;
+        margin-bottom: 10px;
+        letter-spacing: -0.3px;
+      }
+      .featured-desc {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+        margin-bottom: 14px;
+      }
+      .featured-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .featured-source {
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 600;
+      }
+
+      /* NEWS GRID */
+      .news-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .news-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px 18px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        gap: 14px;
+      }
+      .news-card:hover {
+        border-color: var(--forest);
+        box-shadow: 0 4px 16px rgba(10, 74, 53, 0.08);
+        transform: translateY(-1px);
+      }
+      .news-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 10px;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: var(--cream);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+      }
+      .news-content {
+        flex: 1;
+      }
+      .news-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-bottom: 6px;
+      }
+      .news-tag {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 6px;
+      }
+      .tag-market {
+        background: #eaf5ef;
+        color: #0a4a35;
+      }
+      .tag-weather {
+        background: #eaf0fb;
+        color: #1a5276;
+      }
+      .tag-policy {
+        background: #f5eef8;
+        color: #6c3483;
+      }
+      .tag-price {
+        background: #fef9ee;
+        color: #c8902a;
+      }
+      .tag-tech {
+        background: #fdf0ee;
+        color: #b03a2e;
+      }
+      .tag-latam {
+        background: #e8f8f5;
+        color: #117a65;
+      }
+      .news-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink);
+        line-height: 1.4;
+        margin-bottom: 5px;
+      }
+      .news-desc {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.5;
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .news-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .news-source {
+        font-weight: 600;
+        color: var(--forest);
+      }
+      .news-dot {
+        width: 3px;
+        height: 3px;
+        background: var(--border);
+        border-radius: 50%;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .side-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+      }
+      .side-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+        margin-bottom: 14px;
+      }
+      .ticker-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f5f2ec;
+        font-size: 13px;
+      }
+      .ticker-item:last-child {
+        border-bottom: none;
+      }
+      .ticker-crop {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .ticker-price {
+        font-family: "Fraunces", serif;
+        font-size: 14px;
+      }
+      .ticker-chg {
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .up {
+        color: #1a6b35;
+      }
+      .dn {
+        color: #9b2b2b;
+      }
+
+      .trending-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f2ec;
+        cursor: pointer;
+      }
+      .trending-item:last-child {
+        border-bottom: none;
+      }
+      .trending-num {
+        font-family: "Fraunces", serif;
+        font-size: 20px;
+        color: var(--border);
+        min-width: 24px;
+      }
+      .trending-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ink);
+        line-height: 1.4;
+      }
+      .trending-meta {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      .source-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f5f2ec;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .source-item:last-child {
+        border-bottom: none;
+      }
+      .source-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+      .source-name {
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .source-count {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      /* LOADING */
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          #ede9e2 25%,
+          #e4dfd6 50%,
+          #ede9e2 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 10px;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      .live-dot {
+        width: 7px;
+        height: 7px;
+        background: #4ade80;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+        margin-right: 5px;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .news-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-logo">🌱</div>
+        <span class="nav-title">AgroLatam Agent</span>
+      </a>
+      <div class="nav-right">
+        <div class="lang-switcher">
+          <button class="lang-opt active" onclick="setLang('en')">EN</button>
+          <button class="lang-opt" onclick="setLang('es')">ES</button>
+        </div>
+        <a href="index.html" class="nav-back"
+          >← <span data-en="Dashboard" data-es="Panel">Dashboard</span></a
+        >
+      </div>
+    </nav>
+
+    <div class="page">
+      <div class="header-row">
+        <div class="page-header">
+          <div class="page-title">
+            📰
+            <span data-en="Agricultural News" data-es="Noticias Agrícolas"
+              >Agricultural News</span
+            >
+          </div>
+          <div class="page-sub">
+            <span class="live-dot"></span
+            ><span
+              data-en="Real-time news from FAO, USDA, and LATAM agricultural sources"
+              data-es="Noticias en tiempo real de FAO, USDA y fuentes agrícolas de LATAM"
+              >Real-time news from FAO, USDA, and LATAM agricultural
+              sources</span
+            >
+          </div>
+        </div>
+        <div class="search-bar">
+          <input
+            class="search-input"
+            id="search"
+            type="text"
+            data-en-placeholder="Search news..."
+            data-es-placeholder="Buscar noticias..."
+            placeholder="Search news..."
+            oninput="filterNews()"
+          />
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filters" style="margin-bottom: 20px">
+        <button
+          class="filter-btn active"
+          onclick="setFilter('all', this)"
+          data-en="All"
+          data-es="Todas"
+        >
+          All
+        </button>
+        <button
+          class="filter-btn"
+          onclick="setFilter('market', this)"
+          data-en="📈 Markets"
+          data-es="📈 Mercados"
+        >
+          📈 Markets
+        </button>
+        <button
+          class="filter-btn"
+          onclick="setFilter('weather', this)"
+          data-en="🌦️ Weather"
+          data-es="🌦️ Clima"
+        >
+          🌦️ Weather
+        </button>
+        <button
+          class="filter-btn"
+          onclick="setFilter('price', this)"
+          data-en="💰 Prices"
+          data-es="💰 Precios"
+        >
+          💰 Prices
+        </button>
+        <button
+          class="filter-btn"
+          onclick="setFilter('policy', this)"
+          data-en="📋 Policy"
+          data-es="📋 Política"
+        >
+          📋 Policy
+        </button>
+        <button
+          class="filter-btn"
+          onclick="setFilter('tech', this)"
+          data-en="🤖 AgriTech"
+          data-es="🤖 AgriTech"
+        >
+          🤖 AgriTech
+        </button>
+        <button
+          class="filter-btn"
+          onclick="setFilter('latam', this)"
+          data-en="🌎 LATAM"
+          data-es="🌎 LATAM"
+        >
+          🌎 LATAM
+        </button>
+      </div>
+
+      <div class="news-layout">
+        <!-- MAIN -->
+        <div>
+          <div id="featured-section"></div>
+          <div class="news-grid" id="news-grid">
+            <!-- Skeletons -->
+            ${Array(4).fill('
+            <div class="news-card">
+              <div class="news-img skeleton"></div>
+              <div style="flex: 1">
+                <div
+                  class="skeleton"
+                  style="height: 12px; width: 60%; margin-bottom: 8px"
+                ></div>
+                <div
+                  class="skeleton"
+                  style="height: 16px; width: 100%; margin-bottom: 6px"
+                ></div>
+                <div class="skeleton" style="height: 12px; width: 80%"></div>
+              </div>
+            </div>
+            ').join("")}
+          </div>
+          <div style="text-align: center; padding: 20px 0">
+            <button
+              onclick="loadMoreNews()"
+              id="load-more"
+              style="
+                padding: 10px 24px;
+                background: var(--forest);
+                color: #fff;
+                border: none;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                font-family: Sora, sans-serif;
+                cursor: pointer;
+              "
+              data-en="Load more"
+              data-es="Ver más"
+            >
+              Load more
+            </button>
+          </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+          <!-- PRICE TICKER -->
+          <div class="side-card">
+            <div class="side-title">
+              ⚡
+              <span data-en="Live Prices" data-es="Precios en Vivo"
+                >Live Prices</span
+              >
+            </div>
+            <div id="price-ticker">
+              ${Array(5).fill('
+              <div class="ticker-item">
+                <div class="skeleton" style="height: 14px; width: 100%"></div>
+              </div>
+              ').join("")}
+            </div>
+          </div>
+
+          <!-- TRENDING -->
+          <div class="side-card">
+            <div class="side-title">
+              🔥
+              <span data-en="Trending Topics" data-es="Temas Tendencia"
+                >Trending Topics</span
+              >
+            </div>
+            <div id="trending-list"></div>
+          </div>
+
+          <!-- SOURCES -->
+          <div class="side-card">
+            <div class="side-title">
+              📡
+              <span data-en="News Sources" data-es="Fuentes de Noticias"
+                >News Sources</span
+              >
+            </div>
+            <div>
+              <div class="source-item">
+                <div class="source-icon" style="background: #eaf5ef">🌾</div>
+                <div>
+                  <div class="source-name">FAO News</div>
+                  <div
+                    class="source-count"
+                    data-en="Food & Agriculture Org."
+                    data-es="Org. Alimentos y Agricultura"
+                  >
+                    Food & Agriculture Org.
+                  </div>
+                </div>
+              </div>
+              <div class="source-item">
+                <div class="source-icon" style="background: #eaf0fb">🇺🇸</div>
+                <div>
+                  <div class="source-name">USDA Reports</div>
+                  <div
+                    class="source-count"
+                    data-en="US Dept. of Agriculture"
+                    data-es="Dpto. Agricultura EE.UU."
+                  >
+                    US Dept. of Agriculture
+                  </div>
+                </div>
+              </div>
+              <div class="source-item">
+                <div class="source-icon" style="background: #f5eef8">📊</div>
+                <div>
+                  <div class="source-name">Agronet LATAM</div>
+                  <div
+                    class="source-count"
+                    data-en="Latin America Agro Network"
+                    data-es="Red Agrícola Latinoamérica"
+                  >
+                    Latin America Agro Network
+                  </div>
+                </div>
+              </div>
+              <div class="source-item">
+                <div class="source-icon" style="background: #fef9ee">☕</div>
+                <div>
+                  <div class="source-name">ICO - Coffee Org.</div>
+                  <div
+                    class="source-count"
+                    data-en="Intl. Coffee Organization"
+                    data-es="Organización Internacional del Café"
+                  >
+                    Intl. Coffee Organization
+                  </div>
+                </div>
+              </div>
+              <div class="source-item">
+                <div class="source-icon" style="background: #e8f8f5">🍫</div>
+                <div>
+                  <div class="source-name">ICCO - Cocoa</div>
+                  <div
+                    class="source-count"
+                    data-en="Intl. Cocoa Organization"
+                    data-es="Org. Internacional del Cacao"
+                  >
+                    Intl. Cocoa Organization
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let lang = localStorage.getItem("lang") || "en";
+      let currentFilter = "all";
+      let allNews = [];
+      let visibleCount = 8;
+
+      // ── MOCK NEWS DATA (realista) ─────────────────────────────────────────────────
+      const NEWS_DB = [
+        {
+          id: 1,
+          category: "price",
+          icon: "☕",
+          title_en:
+            "Coffee futures drop 3.2% on ICE NY amid rising Brazilian output",
+          title_es:
+            "Futuros del café caen 3.2% en ICE NY ante aumento de producción brasileña",
+          desc_en:
+            "Coffee prices fell sharply Tuesday after Brazil's crop agency raised its 2026 harvest estimate by 5 million bags, pushing supply concerns to the forefront.",
+          desc_es:
+            "Los precios del café cayeron bruscamente el martes luego de que la agencia de cosechas de Brasil elevó su estimado de cosecha 2026 en 5 millones de sacos.",
+          source: "Reuters Commodities",
+          time_en: "2 hours ago",
+          time_es: "hace 2 horas",
+          tag: "price",
+        },
+        {
+          id: 2,
+          category: "latam",
+          icon: "🌎",
+          title_en:
+            "Peru becomes world's 2nd largest organic coffee exporter in 2026",
+          title_es:
+            "Perú se convierte en el 2do mayor exportador de café orgánico del mundo en 2026",
+          desc_en:
+            "Peru's coffee exports reached $1.2B in 2025, driven by organic and specialty segments. The country now exports to 63 countries worldwide.",
+          desc_es:
+            "Las exportaciones de café de Perú alcanzaron $1.2B en 2025, impulsadas por los segmentos orgánico y especial. El país exporta ahora a 63 países.",
+          source: "MINCETUR Peru",
+          time_en: "4 hours ago",
+          time_es: "hace 4 horas",
+          tag: "latam",
+        },
+        {
+          id: 3,
+          category: "market",
+          icon: "🍫",
+          title_en:
+            "Cacao prices surge on ICE London as West African supply tightens",
+          title_es:
+            "Precios del cacao suben en ICE Londres por reducción de oferta en África Occidental",
+          desc_en:
+            "Cacao futures climbed 1.8% to $3,812/ton as dry weather in Ghana and Ivory Coast threatens the mid-crop season output.",
+          desc_es:
+            "Los futuros del cacao subieron 1.8% a $3,812/ton mientras el clima seco en Ghana y Costa de Marfil amenaza la producción de la cosecha intermedia.",
+          source: "Bloomberg Agri",
+          time_en: "5 hours ago",
+          time_es: "hace 5 horas",
+          tag: "market",
+        },
+        {
+          id: 4,
+          category: "weather",
+          icon: "🌧️",
+          title_en:
+            "La Niña forecast threatens LATAM crop yields through Q2 2026",
+          title_es:
+            "Pronóstico de La Niña amenaza rendimientos de cultivos en LATAM hasta Q2 2026",
+          desc_en:
+            "NOAA forecasts a moderate La Niña event through March 2026, bringing above-normal rainfall to Colombia and Peru while drought threatens Argentina.",
+          desc_es:
+            "La NOAA pronostica un evento moderado de La Niña hasta marzo 2026, trayendo lluvias sobre lo normal a Colombia y Perú mientras la sequía amenaza Argentina.",
+          source: "NOAA / WMO",
+          time_en: "6 hours ago",
+          time_es: "hace 6 horas",
+          tag: "weather",
+        },
+        {
+          id: 5,
+          category: "tech",
+          icon: "🤖",
+          title_en:
+            "Google DeepMind launches AgriSense AI for smallholder farmers in LATAM",
+          title_es:
+            "Google DeepMind lanza AgriSense IA para pequeños agricultores en LATAM",
+          desc_en:
+            "A new AI-powered crop advisory tool will be made available free to farmers in 12 Latin American countries starting Q1 2026.",
+          desc_es:
+            "Una nueva herramienta de asesoría agrícola con IA estará disponible gratis para agricultores en 12 países latinoamericanos desde Q1 2026.",
+          source: "TechCrunch",
+          time_en: "8 hours ago",
+          time_es: "hace 8 horas",
+          tag: "tech",
+        },
+        {
+          id: 6,
+          category: "latam",
+          icon: "🇨🇴",
+          title_en:
+            "Colombia announces $500M investment in coffee sector modernization",
+          title_es:
+            "Colombia anuncia inversión de $500M para modernización del sector cafetero",
+          desc_en:
+            "The Colombian government will invest in irrigation infrastructure, disease-resistant varieties and direct export channels for smallholder farmers.",
+          desc_es:
+            "El gobierno colombiano invertirá en infraestructura de riego, variedades resistentes a enfermedades y canales de exportación directa para pequeños agricultores.",
+          source: "El Tiempo Colombia",
+          time_en: "9 hours ago",
+          time_es: "hace 9 horas",
+          tag: "latam",
+        },
+        {
+          id: 7,
+          category: "price",
+          icon: "🥑",
+          title_en:
+            "Avocado prices spike 34% as Mexico drought cuts Hass production",
+          title_es:
+            "Precios del aguacate suben 34% por sequía en México que reduce producción Hass",
+          desc_en:
+            "Mexican avocado production fell 18% year-over-year due to severe drought in Michoacán, driving export prices to record highs.",
+          desc_es:
+            "La producción mexicana de aguacate cayó 18% interanual por severa sequía en Michoacán, llevando los precios de exportación a máximos históricos.",
+          source: "FAO Market Monitor",
+          time_en: "11 hours ago",
+          time_es: "hace 11 horas",
+          tag: "price",
+        },
+        {
+          id: 8,
+          category: "policy",
+          icon: "📋",
+          title_en:
+            "FAO calls for urgent action on food security in 5 LATAM nations",
+          title_es:
+            "FAO llama a acción urgente sobre seguridad alimentaria en 5 naciones de LATAM",
+          desc_en:
+            "The Food and Agriculture Organization warned that Bolivia, Haiti, Honduras, Nicaragua and Guatemala face critical food insecurity levels requiring immediate support.",
+          desc_es:
+            "La FAO advirtió que Bolivia, Haití, Honduras, Nicaragua y Guatemala enfrentan niveles críticos de inseguridad alimentaria que requieren apoyo inmediato.",
+          source: "FAO",
+          time_en: "12 hours ago",
+          time_es: "hace 12 horas",
+          tag: "policy",
+        },
+        {
+          id: 9,
+          category: "market",
+          icon: "🌱",
+          title_en: "Soy prices rally 2.3% on strong Chinese import demand",
+          title_es:
+            "Precios de la soya repuntan 2.3% por fuerte demanda de importaciones chinas",
+          desc_en:
+            "Chicago soybean futures rose for a third consecutive session as China bought 1.2M metric tons from Brazil and Argentina.",
+          desc_es:
+            "Los futuros de soya en Chicago subieron por tercera sesión consecutiva mientras China compró 1.2M toneladas métricas de Brasil y Argentina.",
+          source: "CME Group",
+          time_en: "13 hours ago",
+          time_es: "hace 13 horas",
+          tag: "market",
+        },
+        {
+          id: 10,
+          category: "latam",
+          icon: "🇧🇷",
+          title_en:
+            "Brazil's soy harvest reaches 155 million tons — a new record",
+          title_es:
+            "Cosecha de soya de Brasil alcanza 155 millones de toneladas — nuevo récord",
+          desc_en:
+            "Brazil's national crop agency confirmed the 2025/26 soybean harvest at 155.4 million tons, surpassing the previous record by 8%.",
+          desc_es:
+            "La agencia nacional de cosechas de Brasil confirmó la cosecha de soya 2025/26 en 155.4 millones de toneladas, superando el récord anterior en 8%.",
+          source: "CONAB Brazil",
+          time_en: "14 hours ago",
+          time_es: "hace 14 horas",
+          tag: "latam",
+        },
+        {
+          id: 11,
+          category: "tech",
+          icon: "🛰️",
+          title_en:
+            "Satellite monitoring detects 2.3M hectares deforested in Amazon in 2025",
+          title_es:
+            "Monitoreo satelital detecta 2.3M hectáreas deforestadas en Amazonas en 2025",
+          desc_en:
+            "Brazil's INPE reported a 12% reduction in Amazon deforestation compared to 2024, but warned that illegal clearing for agriculture remains a major concern.",
+          desc_es:
+            "El INPE de Brasil reportó una reducción del 12% en la deforestación amazónica vs 2024, pero advirtió que la tala ilegal para agricultura sigue siendo preocupante.",
+          source: "INPE Brazil",
+          time_en: "16 hours ago",
+          time_es: "hace 16 horas",
+          tag: "tech",
+        },
+        {
+          id: 12,
+          category: "weather",
+          icon: "☀️",
+          title_en:
+            "Extended dry season in Ecuador threatens palm oil and banana crops",
+          title_es:
+            "Temporada seca extendida en Ecuador amenaza cultivos de palma y banano",
+          desc_en:
+            "Ecuador's meteorological institute INAMHI issued a drought alert for coastal provinces, where 60% of the country's banana and palm oil is produced.",
+          desc_es:
+            "El instituto meteorológico de Ecuador INAMHI emitió alerta de sequía para provincias costeras, donde se produce el 60% del banano y palma aceitera del país.",
+          source: "INAMHI Ecuador",
+          time_en: "18 hours ago",
+          time_es: "hace 18 horas",
+          tag: "weather",
+        },
+        {
+          id: 13,
+          category: "policy",
+          icon: "🤝",
+          title_en:
+            "LATAM nations sign historic agricultural free trade agreement",
+          title_es:
+            "Naciones de LATAM firman histórico acuerdo de libre comercio agrícola",
+          desc_en:
+            "Peru, Colombia, Ecuador and Bolivia signed a multilateral agreement removing tariffs on 47 agricultural products, effective January 2027.",
+          desc_es:
+            "Perú, Colombia, Ecuador y Bolivia firmaron un acuerdo multilateral eliminando aranceles en 47 productos agrícolas, vigente desde enero 2027.",
+          source: "SICE/OAS",
+          time_en: "20 hours ago",
+          time_es: "hace 20 horas",
+          tag: "policy",
+        },
+        {
+          id: 14,
+          category: "price",
+          icon: "🌴",
+          title_en:
+            "Palm oil hits 3-month high on biodiesel demand surge in LATAM",
+          title_es:
+            "Palma aceitera alcanza máximo de 3 meses por auge de demanda de biodiesel en LATAM",
+          desc_en:
+            "Malaysian palm oil futures rose to $1,124/ton after Brazil and Colombia expanded biodiesel mandates requiring 15% palm oil content.",
+          desc_es:
+            "Los futuros de palma aceitera malasia subieron a $1,124/ton tras la expansión de mandatos de biodiesel en Brasil y Colombia que requieren 15% de contenido de palma.",
+          source: "BMD Malaysia",
+          time_en: "22 hours ago",
+          time_es: "hace 22 horas",
+          tag: "price",
+        },
+        {
+          id: 15,
+          category: "latam",
+          icon: "🇵🇪",
+          title_en: "Peru's cacao exports reach $450M — highest in history",
+          title_es:
+            "Exportaciones de cacao de Perú alcanzan $450M — la más alta de la historia",
+          desc_en:
+            "Peru consolidated its position as the world's 2nd largest fine-flavor cocoa exporter, with 65% of exports going to European premium chocolate makers.",
+          desc_es:
+            "Perú consolidó su posición como el 2do mayor exportador mundial de cacao fino, con el 65% de exportaciones a fabricantes de chocolate premium europeos.",
+          source: "PROMPERU",
+          time_en: "1 day ago",
+          time_es: "hace 1 día",
+          tag: "latam",
+        },
+      ];
+
+      const TRENDING = [
+        {
+          en: "Coffee prices and La Niña 2026",
+          es: "Precios del café y La Niña 2026",
+          count: "2.4K",
+        },
+        {
+          en: "Brazil record soy harvest impact",
+          es: "Impacto de récord de soya brasileña",
+          count: "1.8K",
+        },
+        {
+          en: "Avocado shortage Mexico drought",
+          es: "Escasez de aguacate por sequía en México",
+          count: "1.5K",
+        },
+        {
+          en: "LATAM free trade agriculture",
+          es: "Libre comercio agrícola LATAM",
+          count: "1.2K",
+        },
+        {
+          en: "Amazon deforestation monitoring AI",
+          es: "Monitoreo IA deforestación Amazónica",
+          count: "980",
+        },
+      ];
+
+      // ── RENDER ────────────────────────────────────────────────────────────────────
+      function renderNews() {
+        const query = document.getElementById("search").value.toLowerCase();
+        const filtered = allNews.filter((n) => {
+          const matchFilter =
+            currentFilter === "all" || n.tag === currentFilter;
+          const title = lang === "es" ? n.title_es : n.title_en;
+          const matchSearch =
+            !query ||
+            title.toLowerCase().includes(query) ||
+            n.source.toLowerCase().includes(query);
+          return matchFilter && matchSearch;
+        });
+
+        // Featured
+        const feat = filtered[0];
+        if (feat) {
+          const tagLabels = {
+            market: "📈 Market",
+            weather: "🌦️ Weather",
+            price: "💰 Price Alert",
+            policy: "📋 Policy",
+            tech: "🤖 AgriTech",
+            latam: "🌎 LATAM",
+          };
+          const tagLabelsEs = {
+            market: "📈 Mercado",
+            weather: "🌦️ Clima",
+            price: "💰 Alerta de Precio",
+            policy: "📋 Política",
+            tech: "🤖 AgriTech",
+            latam: "🌎 LATAM",
+          };
+          document.getElementById("featured-section").innerHTML = `
+      <div class="featured-card" onclick="openNews(${feat.id})">
+        <div class="featured-tag">${lang === "es" ? tagLabelsEs[feat.tag] || feat.tag : tagLabels[feat.tag] || feat.tag}</div>
+        <div class="featured-title">${lang === "es" ? feat.title_es : feat.title_en}</div>
+        <div class="featured-desc">${lang === "es" ? feat.desc_es : feat.desc_en}</div>
+        <div class="featured-meta">
+          <span class="featured-source">${feat.source}</span>
+          <span>·</span>
+          <span>${lang === "es" ? feat.time_es : feat.time_en}</span>
+        </div>
+      </div>`;
+        }
+
+        // Rest of news
+        const rest = filtered.slice(1, visibleCount);
+        const tagClass = {
+          market: "tag-market",
+          weather: "tag-weather",
+          price: "tag-price",
+          policy: "tag-policy",
+          tech: "tag-tech",
+          latam: "tag-latam",
+        };
+        const tagLabels = {
+          market: "📈 Market",
+          weather: "🌦️ Weather",
+          price: "💰 Price",
+          policy: "📋 Policy",
+          tech: "🤖 Tech",
+          latam: "🌎 LATAM",
+        };
+        const tagLabelsEs = {
+          market: "📈 Mercado",
+          weather: "🌦️ Clima",
+          price: "💰 Precio",
+          policy: "📋 Política",
+          tech: "🤖 Tech",
+          latam: "🌎 LATAM",
+        };
+
+        document.getElementById("news-grid").innerHTML =
+          rest
+            .map(
+              (n) => `
+    <div class="news-card" onclick="openNews(${n.id})">
+      <div class="news-img">${n.icon}</div>
+      <div class="news-content">
+        <div class="news-tags"><span class="news-tag ${tagClass[n.tag] || ""}">${lang === "es" ? tagLabelsEs[n.tag] || n.tag : tagLabels[n.tag] || n.tag}</span></div>
+        <div class="news-title">${lang === "es" ? n.title_es : n.title_en}</div>
+        <div class="news-desc">${lang === "es" ? n.desc_es : n.desc_en}</div>
+        <div class="news-meta">
+          <span class="news-source">${n.source}</span>
+          <span class="news-dot"></span>
+          <span>${lang === "es" ? n.time_es : n.time_en}</span>
+        </div>
+      </div>
+    </div>`,
+            )
+            .join("") ||
+          `<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px;">${lang === "es" ? "No hay noticias para esta categoría." : "No news for this category."}</div>`;
+      }
+
+      function renderTicker() {
+        const prices = {
+          coffee: { p: 2.34, c: -3.2, icon: "☕" },
+          cacao: { p: 3812, c: 1.8, icon: "🍫" },
+          corn: { p: 4.52, c: 0.5, icon: "🌽" },
+          avocado: { p: 2.15, c: 3.4, icon: "🥑" },
+          soy: { p: 11.2, c: 2.3, icon: "🌱" },
+        };
+        document.getElementById("price-ticker").innerHTML = Object.entries(
+          prices,
+        )
+          .map(([key, d]) => {
+            const names = {
+              coffee: { en: "Coffee", es: "Café" },
+              cacao: { en: "Cacao", es: "Cacao" },
+              corn: { en: "Corn", es: "Maíz" },
+              avocado: { en: "Avocado", es: "Aguacate" },
+              soy: { en: "Soy", es: "Soya" },
+            };
+            const n = names[key];
+            return `<div class="ticker-item">
+      <div class="ticker-crop">${d.icon} ${lang === "es" ? n.es : n.en}</div>
+      <div>
+        <div class="ticker-price">$${d.p}</div>
+        <div class="ticker-chg ${d.c > 0 ? "up" : "dn"}">${d.c > 0 ? "▲" : "▼"} ${Math.abs(d.c)}%</div>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function renderTrending() {
+        document.getElementById("trending-list").innerHTML = TRENDING.map(
+          (t, i) => `
+    <div class="trending-item">
+      <div class="trending-num">${i + 1}</div>
+      <div>
+        <div class="trending-title">${lang === "es" ? t.es : t.en}</div>
+        <div class="trending-meta">${t.count} ${lang === "es" ? "menciones" : "mentions"}</div>
+      </div>
+    </div>`,
+        ).join("");
+      }
+
+      function openNews(id) {
+        const n = allNews.find((x) => x.id === id);
+        if (!n) return;
+        alert(
+          `${lang === "es" ? n.title_es : n.title_en}\n\n${lang === "es" ? n.desc_es : n.desc_en}\n\n${lang === "es" ? "Fuente" : "Source"}: ${n.source}`,
+        );
+      }
+
+      function setFilter(f, el) {
+        currentFilter = f;
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach((b) => b.classList.remove("active"));
+        el.classList.add("active");
+        visibleCount = 8;
+        renderNews();
+      }
+
+      function filterNews() {
+        renderNews();
+      }
+
+      function loadMoreNews() {
+        visibleCount += 6;
+        renderNews();
+      }
+
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[l]));
+        document
+          .querySelectorAll("[data-en-placeholder]")
+          .forEach((el) => (el.placeholder = el.dataset[l + "Placeholder"]));
+        renderNews();
+        renderTicker();
+        renderTrending();
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────────────────────
+      allNews = NEWS_DB;
+      setLang(lang);
+      renderNews();
+      renderTicker();
+      renderTrending();
+      setInterval(() => {
+        renderTicker();
+      }, 30000);
+    </script>
+  </body>
+</html>
