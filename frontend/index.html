@@ -64,6 +64,160 @@
           data-es="Agente"
           >Agent</a
         >
+        <!-- TOOLS DROPDOWN -->
+        <div class="nav-dropdown" id="tools-dropdown">
+          <button
+            class="nav-link nav-dropdown-btn"
+            onclick="toggleDropdown()"
+            data-en="🛠 Tools ▾"
+            data-es="🛠 Herramientas ▾"
+          >
+            🛠 Tools ▾
+          </button>
+          <div class="dropdown-menu" id="dropdown-menu">
+            <a class="dropdown-item" href="agent-live.html"
+              ><span
+                class="di-icon"
+                style="background: rgba(74, 222, 128, 0.15); color: #4ade80"
+                >🤖</span
+              >
+              <div>
+                <div
+                  class="di-title"
+                  data-en="Agent Live"
+                  data-es="Agente en Vivo"
+                >
+                  Agent Live
+                </div>
+                <div
+                  class="di-sub"
+                  data-en="Autonomous actions feed"
+                  data-es="Feed de acciones autónomas"
+                >
+                  Autonomous actions feed
+                </div>
+              </div></a
+            >
+            <a class="dropdown-item" href="charts.html"
+              ><span
+                class="di-icon"
+                style="background: rgba(26, 107, 53, 0.15); color: #4ade80"
+                >📊</span
+              >
+              <div>
+                <div class="di-title" data-en="Analytics" data-es="Análisis">
+                  Analytics
+                </div>
+                <div
+                  class="di-sub"
+                  data-en="Real-time price charts"
+                  data-es="Gráficas de precios en vivo"
+                >
+                  Real-time price charts
+                </div>
+              </div></a
+            >
+            <a class="dropdown-item" href="map.html"
+              ><span
+                class="di-icon"
+                style="background: rgba(200, 144, 42, 0.15); color: #c8902a"
+                >🗺️</span
+              >
+              <div>
+                <div class="di-title" data-en="My Region" data-es="Mi Región">
+                  My Region
+                </div>
+                <div
+                  class="di-sub"
+                  data-en="Markets near you"
+                  data-es="Mercados cerca de ti"
+                >
+                  Markets near you
+                </div>
+              </div></a
+            >
+            <a class="dropdown-item" href="weather.html"
+              ><span
+                class="di-icon"
+                style="background: rgba(74, 144, 217, 0.15); color: #4a90d9"
+                >🌦️</span
+              >
+              <div>
+                <div class="di-title" data-en="Weather" data-es="Clima">
+                  Weather
+                </div>
+                <div
+                  class="di-sub"
+                  data-en="Agricultural forecasts"
+                  data-es="Pronósticos agrícolas"
+                >
+                  Agricultural forecasts
+                </div>
+              </div></a
+            >
+            <a class="dropdown-item" href="calendar.html"
+              ><span
+                class="di-icon"
+                style="background: rgba(26, 107, 53, 0.15); color: #4ade80"
+                >🗓️</span
+              >
+              <div>
+                <div class="di-title" data-en="Calendar" data-es="Calendario">
+                  Calendar
+                </div>
+                <div
+                  class="di-sub"
+                  data-en="Planting schedule"
+                  data-es="Calendario de siembra"
+                >
+                  Planting schedule
+                </div>
+              </div></a
+            >
+            <a class="dropdown-item" href="calculator.html"
+              ><span
+                class="di-icon"
+                style="background: rgba(200, 144, 42, 0.15); color: #c8902a"
+                >💰</span
+              >
+              <div>
+                <div
+                  class="di-title"
+                  data-en="Calculator"
+                  data-es="Calculadora"
+                >
+                  Calculator
+                </div>
+                <div
+                  class="di-sub"
+                  data-en="Profitability analysis"
+                  data-es="Análisis de rentabilidad"
+                >
+                  Profitability analysis
+                </div>
+              </div></a
+            >
+            <a class="dropdown-item" href="news.html"
+              ><span
+                class="di-icon"
+                style="background: rgba(147, 51, 234, 0.15); color: #a78bfa"
+                >📰</span
+              >
+              <div>
+                <div class="di-title" data-en="News" data-es="Noticias">
+                  News
+                </div>
+                <div
+                  class="di-sub"
+                  data-en="LATAM agricultural news"
+                  data-es="Noticias agrícolas LATAM"
+                >
+                  LATAM agricultural news
+                </div>
+              </div></a
+            >
+          </div>
+        </div>
       </div>
       <div class="nav-right">
         <div class="lang-switcher">
@@ -85,73 +239,6 @@
         >
           👤
         </button>
-        <a
-          href="agent-live.html"
-          class="nav-login"
-          style="
-            background: rgba(74, 222, 128, 0.15);
-            border-color: rgba(74, 222, 128, 0.4);
-          "
-          >🤖
-          <span data-en="Agent Live" data-es="Agente en Vivo"
-            >Agent Live</span
-          ></a
-        >
-        <a
-          href="news.html"
-          class="nav-login"
-          style="
-            background: rgba(26, 107, 53, 0.15);
-            border-color: rgba(26, 107, 53, 0.3);
-          "
-          >📰 <span data-en="News" data-es="Noticias">News</span></a
-        >
-        <a
-          href="weather.html"
-          class="nav-login"
-          style="
-            background: rgba(26, 107, 53, 0.15);
-            border-color: rgba(26, 107, 53, 0.3);
-          "
-          >🌦️ <span data-en="Weather" data-es="Clima">Weather</span></a
-        >
-        <a
-          href="calendar.html"
-          class="nav-login"
-          style="
-            background: rgba(26, 107, 53, 0.15);
-            border-color: rgba(26, 107, 53, 0.3);
-          "
-          >🗓️ <span data-en="Calendar" data-es="Calendario">Calendar</span></a
-        >
-        <a
-          href="calculator.html"
-          class="nav-login"
-          style="
-            background: rgba(200, 144, 42, 0.15);
-            border-color: rgba(200, 144, 42, 0.3);
-          "
-          >💰
-          <span data-en="Calculator" data-es="Calculadora">Calculator</span></a
-        >
-        <a
-          href="charts.html"
-          class="nav-login"
-          style="
-            background: rgba(26, 107, 53, 0.2);
-            border-color: rgba(26, 107, 53, 0.4);
-          "
-          >📊 <span data-en="Analytics" data-es="Análisis">Analytics</span></a
-        >
-        <a
-          href="map.html"
-          class="nav-login"
-          style="
-            background: rgba(200, 144, 42, 0.2);
-            border-color: rgba(200, 144, 42, 0.4);
-          "
-          >🗺️ <span data-en="My Region" data-es="Mi Región">My Region</span></a
-        >
         <a
           href="auth/login.html"
           class="nav-login"
