@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" data-lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AgroLatam Agent — Sign In</title>
+    <title>AgroLatam Agent — Iniciar Sesión</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Sora:wght@300;400;500;600&display=swap"
@@ -39,8 +39,6 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
       }
-
-      /* LEFT */
       .left {
         background: var(--forest);
         position: relative;
@@ -69,12 +67,6 @@
         background: rgba(255, 255, 255, 0.04);
         bottom: -80px;
         right: -80px;
-      }
-      .left-grain {
-        position: absolute;
-        inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-        opacity: 0.4;
       }
       .brand {
         position: relative;
@@ -126,7 +118,6 @@
         z-index: 1;
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0;
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 14px;
         overflow: hidden;
@@ -150,8 +141,6 @@
         text-transform: uppercase;
         letter-spacing: 0.06em;
       }
-
-      /* RIGHT */
       .right {
         display: flex;
         align-items: center;
@@ -172,12 +161,11 @@
         background: var(--border);
         border-radius: 8px;
         overflow: hidden;
-        border: none;
       }
       .lang-opt {
         padding: 6px 14px;
         font-size: 12px;
-        font-weight: 500;
+        font-weight: 600;
         font-family: "Sora", sans-serif;
         cursor: pointer;
         border: none;
@@ -261,21 +249,68 @@
         cursor: pointer;
         transition: all 0.2s;
         margin-top: 4px;
-        letter-spacing: 0.02em;
       }
       .btn:hover {
         background: var(--forest2);
         transform: translateY(-1px);
         box-shadow: 0 6px 20px rgba(10, 74, 53, 0.25);
       }
-      .btn:active {
-        transform: translateY(0);
-      }
       .btn:disabled {
         background: #bbb;
         cursor: not-allowed;
         transform: none;
         box-shadow: none;
+      }
+      .btn-guest {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: var(--cream);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 10px;
+        font-family: "Sora", sans-serif;
+        text-align: left;
+      }
+      .btn-guest:hover {
+        border-color: var(--forest);
+        background: #fff;
+        box-shadow: 0 3px 12px rgba(10, 74, 53, 0.08);
+      }
+      .guest-icon {
+        font-size: 20px;
+        width: 36px;
+        height: 36px;
+        background: #fff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: 1px solid var(--border);
+      }
+      .guest-text {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .guest-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .guest-sub {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .guest-arrow {
+        font-size: 20px;
+        color: var(--muted);
       }
       .divider {
         display: flex;
@@ -302,9 +337,6 @@
         font-weight: 600;
         text-decoration: none;
       }
-      .auth-links a:hover {
-        text-decoration: underline;
-      }
       .msg {
         padding: 12px 14px;
         border-radius: 8px;
@@ -323,60 +355,6 @@
         color: var(--success);
         display: block;
       }
-
-      /* GUEST BUTTON */
-      .btn-guest {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
-        background: #f8f4ee;
-        border: 1.5px solid var(--border);
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-top: 10px;
-        font-family: "DM Sans", sans-serif;
-        text-align: left;
-      }
-      .btn-guest:hover {
-        border-color: var(--green);
-        background: #fff;
-        box-shadow: 0 3px 12px rgba(15, 110, 86, 0.08);
-      }
-      .guest-icon {
-        font-size: 20px;
-        width: 36px;
-        height: 36px;
-        background: #fff;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        border: 1px solid var(--border);
-      }
-      .guest-text {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-      .guest-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--text);
-      }
-      .guest-sub {
-        font-size: 11px;
-        color: var(--muted);
-      }
-      .guest-arrow {
-        font-size: 20px;
-        color: var(--muted);
-      }
-
       @media (max-width: 768px) {
         body {
           grid-template-columns: 1fr;
@@ -391,74 +369,63 @@
     </style>
   </head>
   <body>
+    <!-- LEFT PANEL -->
     <div class="left">
-      <div class="left-grain"></div>
       <div class="brand">
         <div class="brand-mark">🌱</div>
         <span class="brand-name">AgroLatam Agent</span>
       </div>
       <div class="left-hero">
-        <h1>
-          Intelligence for<br /><em>every farmer</em><br />in Latin America.
+        <h1 id="hero-title">
+          Información para<br /><em>todos los agricultores</em><br />de América
+          Latina.
         </h1>
-        <p
-          data-en="Real-time commodity prices, weather alerts, and autonomous market intelligence for 60 million farmers across 18 countries."
-          data-es="Precios de materias primas en tiempo real, alertas meteorológicas e inteligencia de mercado autónoma para 60 millones de agricultores en 18 países."
-        >
-          Real-time commodity prices, weather alerts, and autonomous market
-          intelligence for 60 million farmers across 18 countries.
+        <p id="hero-desc">
+          Precios de materias primas en tiempo real, alertas meteorológicas e
+          inteligencia de mercado autónoma para 60 millones de agricultores en
+          18 países.
         </p>
       </div>
       <div class="left-stats">
         <div class="stat">
           <div class="stat-n">60M+</div>
-          <div class="stat-l" data-en="Farmers" data-es="Agricultores">
-            Farmers
-          </div>
+          <div class="stat-l" id="stat-farmers">AGRICULTORES</div>
         </div>
         <div class="stat">
           <div class="stat-n">18</div>
-          <div class="stat-l" data-en="Countries" data-es="Países">
-            Countries
-          </div>
+          <div class="stat-l" id="stat-countries">PAÍSES</div>
         </div>
         <div class="stat">
           <div class="stat-n">5</div>
-          <div class="stat-l" data-en="Crops" data-es="Cultivos">Crops</div>
+          <div class="stat-l" id="stat-crops">CULTIVOS</div>
         </div>
       </div>
     </div>
 
+    <!-- RIGHT PANEL -->
     <div class="right">
       <div class="auth-box">
+        <!-- LANG SWITCHER -->
         <div class="lang-top">
           <div class="lang-btn">
-            <button class="lang-opt active" onclick="setLang('en')">EN</button>
-            <button class="lang-opt" onclick="setLang('es')">ES</button>
+            <button class="lang-opt" onclick="setLang('en')">EN</button>
+            <button class="lang-opt active" onclick="setLang('es')">ES</button>
           </div>
         </div>
 
         <div class="msg" id="msg"></div>
 
-        <div class="auth-title" data-en="Welcome back" data-es="Bienvenido">
-          Welcome back
-        </div>
-        <div
-          class="auth-sub"
-          data-en="Sign in to your AgroLatam account"
-          data-es="Inicia sesión en tu cuenta AgroLatam"
-        >
-          Sign in to your AgroLatam account
+        <div class="auth-title" id="auth-title">Bienvenido de nuevo</div>
+        <div class="auth-sub" id="auth-sub">
+          Inicia sesión en tu cuenta AgroLatam.
         </div>
 
         <div class="field">
-          <label data-en="Email address" data-es="Correo electrónico"
-            >Email address</label
-          >
-          <input type="email" id="email" placeholder="you@example.com" />
+          <label id="label-email">DIRECCIÓN DE CORREO ELECTRÓNICO</label>
+          <input type="email" id="email" placeholder="tú@ejemplo.com" />
         </div>
         <div class="field">
-          <label data-en="Password" data-es="Contraseña">Password</label>
+          <label id="label-password">CONTRASEÑA</label>
           <input
             type="password"
             id="password"
@@ -467,86 +434,108 @@
           />
         </div>
         <div class="forgot">
-          <a
-            onclick="window.location.href = 'forgot.html'"
-            data-en="Forgot password?"
-            data-es="¿Olvidaste tu contraseña?"
-            >Forgot password?</a
+          <a onclick="window.location.href = 'forgot.html'" id="forgot-link"
+            >¿Has olvidado tu contraseña?</a
           >
         </div>
 
-        <button
-          class="btn"
-          id="btn"
-          onclick="login()"
-          data-en="Sign In →"
-          data-es="Iniciar sesión →"
-        >
-          Sign In →
-        </button>
+        <button class="btn" id="btn" onclick="login()">Iniciar sesión →</button>
 
         <button class="btn-guest" onclick="continueAsGuest()">
           <span class="guest-icon">👤</span>
           <div class="guest-text">
-            <span
-              class="guest-title"
-              data-en="Continue as Guest"
-              data-es="Continuar como Invitado"
-              >Continue as Guest</span
+            <span class="guest-title" id="guest-title"
+              >Continuar como invitado</span
             >
-            <span
-              class="guest-sub"
-              data-en="Browse without an account"
-              data-es="Navega sin una cuenta"
-              >Browse without an account</span
-            >
+            <span class="guest-sub" id="guest-sub">Navega sin una cuenta</span>
           </div>
           <span class="guest-arrow">›</span>
         </button>
 
-        <div class="divider" data-en="or" data-es="o">or</div>
+        <div class="divider" id="divider-or">o</div>
+
         <div class="auth-links">
-          <span data-en="Don't have an account?" data-es="¿No tienes cuenta?"
-            >Don't have an account?</span
-          >
-          <a
-            href="register.html"
-            data-en=" Create one free"
-            data-es=" Regístrate gratis"
-          >
-            Create one free</a
-          >
+          <span id="no-account">¿No tienes una cuenta?</span>
+          <a href="register.html" id="create-link"> Crea una gratis.</a>
         </div>
       </div>
     </div>
 
     <script>
-      const SUPABASE_URL = "TU_SUPABASE_URL";
-      const SUPABASE_KEY = "TU_SUPABASE_KEY";
+      const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
+      const SUPABASE_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
       const { createClient } = supabase;
       const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      const t = {
-        en: {
-          signing: "Signing in...",
-          errorEmpty: "Please fill in all fields.",
-          errorInvalid: "Invalid email or password.",
-          success: "✅ Welcome! Redirecting...",
+      // ── ALL TRANSLATIONS ──────────────────────────────────────────────────────────
+      const TEXTS = {
+        heroTitle: {
+          en: "Intelligence for<br/><em>every farmer</em><br/>in Latin America.",
+          es: "Información para<br/><em>todos los agricultores</em><br/>de América Latina.",
         },
-        es: {
-          signing: "Iniciando sesión...",
-          errorEmpty: "Por favor completa todos los campos.",
-          errorInvalid: "Correo o contraseña incorrectos.",
-          success: "✅ ¡Bienvenido! Redirigiendo...",
+        heroDesc: {
+          en: "Real-time commodity prices, weather alerts, and autonomous market intelligence for 60 million farmers across 18 countries.",
+          es: "Precios de materias primas en tiempo real, alertas meteorológicas e inteligencia de mercado autónoma para 60 millones de agricultores en 18 países.",
+        },
+        statFarmers: { en: "FARMERS", es: "AGRICULTORES" },
+        statCountries: { en: "COUNTRIES", es: "PAÍSES" },
+        statCrops: { en: "CROPS", es: "CULTIVOS" },
+        authTitle: { en: "Welcome back", es: "Bienvenido de nuevo" },
+        authSub: {
+          en: "Sign in to your AgroLatam account.",
+          es: "Inicia sesión en tu cuenta AgroLatam.",
+        },
+        labelEmail: {
+          en: "EMAIL ADDRESS",
+          es: "DIRECCIÓN DE CORREO ELECTRÓNICO",
+        },
+        labelPass: { en: "PASSWORD", es: "CONTRASEÑA" },
+        emailPh: { en: "you@example.com", es: "tú@ejemplo.com" },
+        passPh: { en: "••••••••", es: "••••••••" },
+        forgotLink: {
+          en: "Forgot password?",
+          es: "¿Has olvidado tu contraseña?",
+        },
+        btnSignIn: { en: "Sign In →", es: "Iniciar sesión →" },
+        guestTitle: { en: "Continue as Guest", es: "Continuar como invitado" },
+        guestSub: {
+          en: "Browse without an account",
+          es: "Navega sin una cuenta",
+        },
+        dividerOr: { en: "or", es: "o" },
+        noAccount: {
+          en: "Don't have an account?",
+          es: "¿No tienes una cuenta?",
+        },
+        createLink: { en: " Create one free.", es: " Crea una gratis." },
+        signing: { en: "Signing in...", es: "Iniciando sesión..." },
+        errorEmpty: {
+          en: "Please fill in all fields.",
+          es: "Por favor completa todos los campos.",
+        },
+        errorInvalid: {
+          en: "Invalid email or password.",
+          es: "Correo o contraseña incorrectos.",
+        },
+        success: {
+          en: "✅ Welcome! Redirecting...",
+          es: "✅ ¡Bienvenido! Redirigiendo...",
+        },
+        pageTitle: {
+          en: "AgroLatam Agent — Sign In",
+          es: "AgroLatam Agent — Iniciar Sesión",
         },
       };
 
-      let lang = localStorage.getItem("lang") || "en";
-      setLang(lang);
+      let lang = localStorage.getItem("lang") || "es";
 
       function setLang(l) {
         lang = l;
         localStorage.setItem("lang", l);
+        document.documentElement.lang = l;
+
+        // Lang buttons
         document
           .querySelectorAll(".lang-opt")
           .forEach((b, i) =>
@@ -555,9 +544,38 @@
               (l === "en" && i === 0) || (l === "es" && i === 1),
             ),
           );
-        document.querySelectorAll("[data-en]").forEach((el) => {
-          el.textContent = el.dataset[l];
-        });
+
+        // Page title
+        document.title = TEXTS.pageTitle[l];
+
+        // Left panel
+        document.getElementById("hero-title").innerHTML = TEXTS.heroTitle[l];
+        document.getElementById("hero-desc").textContent = TEXTS.heroDesc[l];
+        document.getElementById("stat-farmers").textContent =
+          TEXTS.statFarmers[l];
+        document.getElementById("stat-countries").textContent =
+          TEXTS.statCountries[l];
+        document.getElementById("stat-crops").textContent = TEXTS.statCrops[l];
+
+        // Right panel
+        document.getElementById("auth-title").textContent = TEXTS.authTitle[l];
+        document.getElementById("auth-sub").textContent = TEXTS.authSub[l];
+        document.getElementById("label-email").textContent =
+          TEXTS.labelEmail[l];
+        document.getElementById("label-password").textContent =
+          TEXTS.labelPass[l];
+        document.getElementById("email").placeholder = TEXTS.emailPh[l];
+        document.getElementById("password").placeholder = TEXTS.passPh[l];
+        document.getElementById("forgot-link").textContent =
+          TEXTS.forgotLink[l];
+        document.getElementById("btn").textContent = TEXTS.btnSignIn[l];
+        document.getElementById("guest-title").textContent =
+          TEXTS.guestTitle[l];
+        document.getElementById("guest-sub").textContent = TEXTS.guestSub[l];
+        document.getElementById("divider-or").textContent = TEXTS.dividerOr[l];
+        document.getElementById("no-account").textContent = TEXTS.noAccount[l];
+        document.getElementById("create-link").textContent =
+          TEXTS.createLink[l];
       }
 
       function showMsg(text, type) {
@@ -570,34 +588,36 @@
         const email = document.getElementById("email").value.trim();
         const pass = document.getElementById("password").value;
         if (!email || !pass) {
-          showMsg(t[lang].errorEmpty, "error");
+          showMsg(TEXTS.errorEmpty[lang], "error");
           return;
         }
         const btn = document.getElementById("btn");
         btn.disabled = true;
-        btn.textContent = t[lang].signing;
+        btn.textContent = TEXTS.signing[lang];
         const { error } = await sb.auth.signInWithPassword({
           email,
           password: pass,
         });
         btn.disabled = false;
-        btn.textContent = lang === "en" ? "Sign In →" : "Iniciar sesión →";
+        btn.textContent = TEXTS.btnSignIn[lang];
         if (error) {
-          showMsg(t[lang].errorInvalid, "error");
+          showMsg(TEXTS.errorInvalid[lang], "error");
         } else {
-          showMsg(t[lang].success, "success");
+          showMsg(TEXTS.success[lang], "success");
           setTimeout(() => (window.location.href = "../index.html"), 1200);
         }
       }
-
-      sb.auth.getSession().then(({ data: { session } }) => {
-        if (session) window.location.href = "../index.html";
-      });
 
       function continueAsGuest() {
         localStorage.setItem("guest_mode", "true");
         window.location.href = "../index.html";
       }
+
+      // Apply saved language on load
+      setLang(lang);
+      sb.auth.getSession().then(({ data: { session } }) => {
+        if (session) window.location.href = "../index.html";
+      });
     </script>
   </body>
 </html>
