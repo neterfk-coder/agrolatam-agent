@@ -417,3 +417,47 @@ loadPrices();
 loadAlerts();
 setInterval(loadPrices, 60000);
 setInterval(loadAlerts, 90000);
+
+// ── MOBILE MENU ───────────────────────────────────────────────────────────────
+function toggleMenu() {
+  const menu = document.getElementById("mobile-menu");
+  const btn = document.getElementById("hamburger");
+  const open = menu?.classList.toggle("open");
+  btn?.classList.toggle("open", open);
+  document.body.style.overflow = open ? "hidden" : "";
+}
+
+function closeMenu() {
+  document.getElementById("mobile-menu")?.classList.remove("open");
+  document.getElementById("hamburger")?.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function updateMobileLang(l) {
+  document.getElementById("mlang-en")?.classList.toggle("active", l === "en");
+  document.getElementById("mlang-es")?.classList.toggle("active", l === "es");
+  // Update mobile menu text
+  document.querySelectorAll("#mobile-menu [data-en]").forEach((el) => {
+    if (el.dataset[l]) el.textContent = el.dataset[l];
+  });
+}
+
+// Close menu on section change
+const _origShow = showSection;
+window.showSection = function (name, el) {
+  closeMenu();
+  _origShow(name, el);
+};
+
+// Close menu when clicking outside
+document.addEventListener("click", (e) => {
+  const menu = document.getElementById("mobile-menu");
+  const btn = document.getElementById("hamburger");
+  if (
+    menu?.classList.contains("open") &&
+    !menu.contains(e.target) &&
+    !btn?.contains(e.target)
+  ) {
+    closeMenu();
+  }
+});
