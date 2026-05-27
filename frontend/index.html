@@ -28,6 +28,15 @@
           </div>
         </div>
       </div>
+      <!-- HAMBURGER -->
+      <button
+        class="hamburger"
+        id="hamburger"
+        onclick="toggleMenu()"
+        aria-label="Menu"
+      >
+        <span></span><span></span><span></span>
+      </button>
       <div class="nav-links">
         <a
           class="nav-link active"
@@ -269,6 +278,165 @@
         </button>
       </div>
     </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobile-menu">
+      <div class="mobile-nav-section" data-en="Navigation" data-es="Navegación">
+        Navegación
+      </div>
+      <a
+        class="mobile-nav-link active"
+        onclick="
+          showSection('home', this);
+          closeMenu();
+        "
+        data-en="🏠 Home"
+        data-es="🏠 Inicio"
+        >🏠 Inicio</a
+      >
+      <a
+        class="mobile-nav-link"
+        onclick="
+          showSection('dashboard', this);
+          closeMenu();
+        "
+        data-en="📊 Dashboard"
+        data-es="📊 Panel"
+        >📊 Panel</a
+      >
+      <a
+        class="mobile-nav-link"
+        onclick="
+          showSection('markets', this);
+          closeMenu();
+        "
+        data-en="📈 Markets"
+        data-es="📈 Mercados"
+        >📈 Mercados</a
+      >
+      <a
+        class="mobile-nav-link"
+        onclick="
+          showSection('alerts', this);
+          closeMenu();
+        "
+        data-en="🔔 Alerts"
+        data-es="🔔 Alertas"
+        >🔔 Alertas</a
+      >
+      <a
+        class="mobile-nav-link"
+        onclick="
+          showSection('agent', this);
+          closeMenu();
+        "
+        data-en="🤖 Agent"
+        data-es="🤖 Agente"
+        >🤖 Agente</a
+      >
+
+      <div class="mobile-nav-section" data-en="Tools" data-es="Herramientas">
+        Herramientas
+      </div>
+      <div class="mobile-nav-tools">
+        <a class="mobile-tool-btn" href="agent-live.html"
+          ><span class="mobile-tool-icon">🤖</span
+          ><span
+            class="mobile-tool-label"
+            data-en="Agent Live"
+            data-es="Agente en Vivo"
+            >Agente en Vivo</span
+          ></a
+        >
+        <a class="mobile-tool-btn" href="charts.html"
+          ><span class="mobile-tool-icon">📊</span
+          ><span
+            class="mobile-tool-label"
+            data-en="Analytics"
+            data-es="Análisis"
+            >Análisis</span
+          ></a
+        >
+        <a class="mobile-tool-btn" href="map.html"
+          ><span class="mobile-tool-icon">🗺️</span
+          ><span
+            class="mobile-tool-label"
+            data-en="My Region"
+            data-es="Mi Región"
+            >Mi Región</span
+          ></a
+        >
+        <a class="mobile-tool-btn" href="weather.html"
+          ><span class="mobile-tool-icon">🌦️</span
+          ><span class="mobile-tool-label" data-en="Weather" data-es="Clima"
+            >Clima</span
+          ></a
+        >
+        <a class="mobile-tool-btn" href="calendar.html"
+          ><span class="mobile-tool-icon">🗓️</span
+          ><span
+            class="mobile-tool-label"
+            data-en="Calendar"
+            data-es="Calendario"
+            >Calendario</span
+          ></a
+        >
+        <a class="mobile-tool-btn" href="calculator.html"
+          ><span class="mobile-tool-icon">💰</span
+          ><span
+            class="mobile-tool-label"
+            data-en="Calculator"
+            data-es="Calculadora"
+            >Calculadora</span
+          ></a
+        >
+        <a class="mobile-tool-btn" href="news.html"
+          ><span class="mobile-tool-icon">📰</span
+          ><span class="mobile-tool-label" data-en="News" data-es="Noticias"
+            >Noticias</span
+          ></a
+        >
+      </div>
+
+      <div class="mobile-lang-row">
+        <button
+          class="mobile-lang-btn"
+          onclick="
+            setLang('en');
+            updateMobileLang('en');
+          "
+          id="mlang-en"
+        >
+          EN
+        </button>
+        <button
+          class="mobile-lang-btn active"
+          onclick="
+            setLang('es');
+            updateMobileLang('es');
+          "
+          id="mlang-es"
+        >
+          ES
+        </button>
+      </div>
+      <div class="mobile-auth-row">
+        <a
+          href="auth/login.html"
+          class="mobile-auth-btn mobile-signin"
+          data-en="Sign In"
+          data-es="Iniciar Sesión"
+          >Iniciar Sesión</a
+        >
+        <a
+          href="auth/register.html"
+          class="mobile-auth-btn mobile-register"
+          data-en="Register"
+          data-es="Registrarse"
+          >Registrarse</a
+        >
+      </div>
+    </div>
 
     <!-- SETTINGS MODAL -->
     <div class="modal-overlay" id="settings-modal" onclick="closeSettings()">
