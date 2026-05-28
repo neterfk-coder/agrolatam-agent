@@ -1,0 +1,2008 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLatam — Panel de Administración</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+        --up: #1a6b35;
+        --down: #9b2b2b;
+        --up-bg: #eaf5ef;
+        --down-bg: #fee2e2;
+        --sidebar-w: 240px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: #f0ede6;
+        color: var(--ink);
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        width: var(--sidebar-w);
+        background: var(--forest);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 100;
+        padding: 0;
+      }
+      .sb-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sb-logo {
+        width: 34px;
+        height: 34px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      .sb-name {
+        font-family: "Fraunces", serif;
+        font-size: 15px;
+        color: #fff;
+      }
+      .sb-badge {
+        font-size: 9px;
+        background: rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 2px 7px;
+        border-radius: 10px;
+        margin-left: 4px;
+        font-weight: 600;
+        vertical-align: middle;
+      }
+      .sb-nav {
+        flex: 1;
+        padding: 12px 10px;
+        overflow-y: auto;
+      }
+      .sb-section {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: rgba(255, 255, 255, 0.3);
+        padding: 12px 10px 6px;
+      }
+      .sb-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 13px;
+        text-decoration: none;
+        margin-bottom: 2px;
+      }
+      .sb-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+      }
+      .sb-item.active {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+      }
+      .sb-item-icon {
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
+      }
+      .sb-item-badge {
+        margin-left: auto;
+        background: var(--gold);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 10px;
+      }
+      .sb-footer {
+        padding: 14px 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sb-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sb-avatar {
+        width: 32px;
+        height: 32px;
+        background: var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+      .sb-user-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+      }
+      .sb-user-role {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.45);
+      }
+      .sb-back {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        text-decoration: none;
+        margin-top: 10px;
+        transition: color 0.2s;
+      }
+      .sb-back:hover {
+        color: #fff;
+      }
+
+      /* MAIN */
+      .main {
+        margin-left: var(--sidebar-w);
+        flex: 1;
+        padding: 28px;
+        overflow-y: auto;
+      }
+      .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .top-title {
+        font-family: "Fraunces", serif;
+        font-size: 26px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+      }
+      .top-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .top-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .refresh-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: "Sora", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .refresh-btn:hover {
+        background: var(--forest2);
+      }
+      .live-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--up);
+        background: var(--up-bg);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+      }
+      .live-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--up);
+        border-radius: 50%;
+        animation: blink 1.5s infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* VIEW SYSTEM */
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+      }
+
+      /* KPI GRID */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .kpi {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+      }
+      .kpi:hover {
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+      }
+      .kpi-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .kpi-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .kpi-trend {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 8px;
+      }
+      .trend-up {
+        background: var(--up-bg);
+        color: var(--up);
+      }
+      .trend-down {
+        background: var(--down-bg);
+        color: var(--down);
+      }
+      .kpi-val {
+        font-family: "Fraunces", serif;
+        font-size: 34px;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+      }
+      .kpi-label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .kpi-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: 0 0 16px 16px;
+      }
+
+      /* GRID LAYOUTS */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+      .card-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: var(--ink);
+      }
+      .card-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      canvas {
+        max-height: 220px;
+      }
+
+      /* TABLE */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th {
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #f5f2ec;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: #fafaf8;
+      }
+      .avatar-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--forest);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .user-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .user-email {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .status-pill {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 8px;
+      }
+      .sp-active {
+        background: var(--up-bg);
+        color: var(--up);
+      }
+      .sp-inactive {
+        background: #f5f2ec;
+        color: var(--muted);
+      }
+      .sp-new {
+        background: #eaf0fb;
+        color: #1a5276;
+      }
+
+      /* CROP BARS */
+      .crop-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f2ec;
+      }
+      .crop-row:last-child {
+        border-bottom: none;
+      }
+      .crop-name {
+        font-size: 13px;
+        min-width: 110px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .crop-bar-wrap {
+        flex: 1;
+        height: 8px;
+        background: #f0ede6;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .crop-bar {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.8s ease;
+      }
+      .crop-count {
+        font-size: 12px;
+        color: var(--muted);
+        min-width: 40px;
+        text-align: right;
+      }
+      .crop-pct {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--forest);
+        min-width: 36px;
+        text-align: right;
+      }
+
+      /* ALERT ITEMS */
+      .alert-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f5f2ec;
+      }
+      .alert-row:last-child {
+        border-bottom: none;
+      }
+      .alert-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 5px;
+        flex-shrink: 0;
+      }
+      .dc {
+        background: #dc2626;
+      }
+      .dw {
+        background: #d97706;
+      }
+      .do {
+        background: #059669;
+      }
+      .alert-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .alert-meta {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .alert-reach {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--forest);
+        margin-left: auto;
+        white-space: nowrap;
+      }
+
+      /* ACTIVITY FEED */
+      .feed-item {
+        display: flex;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f5f2ec;
+        align-items: flex-start;
+      }
+      .feed-item:last-child {
+        border-bottom: none;
+      }
+      .feed-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      .feed-text {
+        font-size: 13px;
+        color: var(--ink);
+        line-height: 1.4;
+      }
+      .feed-time {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      /* COUNTRY STATS */
+      .country-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px solid #f5f2ec;
+        font-size: 13px;
+      }
+      .country-item:last-child {
+        border-bottom: none;
+      }
+      .country-flag {
+        font-size: 18px;
+      }
+      .country-name {
+        flex: 1;
+      }
+      .country-bar-wrap {
+        width: 80px;
+        height: 6px;
+        background: #f0ede6;
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .country-bar {
+        height: 100%;
+        background: var(--forest);
+        border-radius: 3px;
+      }
+      .country-count {
+        font-size: 12px;
+        color: var(--muted);
+        min-width: 30px;
+        text-align: right;
+      }
+
+      /* SELECTS */
+      select.filter-sel {
+        padding: 7px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        font-size: 12px;
+        font-family: "Sora", sans-serif;
+        color: var(--ink);
+        background: var(--cream);
+        outline: none;
+        cursor: pointer;
+      }
+
+      /* SKELETON */
+      .skel {
+        background: linear-gradient(
+          90deg,
+          #ede9e2 25%,
+          #e4dfd6 50%,
+          #ede9e2 75%
+        );
+        background-size: 200% 100%;
+        animation: sh 1.4s infinite;
+        border-radius: 8px;
+      }
+      @keyframes sh {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .sidebar {
+          display: none;
+        }
+        .main {
+          margin-left: 0;
+        }
+        .kpi-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sb-brand">
+        <div class="sb-logo">🌱</div>
+        <div>
+          <span class="sb-name">AgroLatam</span>
+          <span class="sb-badge">ADMIN</span>
+        </div>
+      </div>
+
+      <nav class="sb-nav">
+        <div class="sb-section" data-en="Overview" data-es="General">
+          General
+        </div>
+        <a class="sb-item active" onclick="showView('overview', this)"
+          ><span class="sb-item-icon">📊</span
+          ><span data-en="Dashboard" data-es="Panel">Panel</span></a
+        >
+        <a class="sb-item" onclick="showView('users', this)"
+          ><span class="sb-item-icon">👥</span
+          ><span data-en="Users" data-es="Usuarios">Usuarios</span
+          ><span class="sb-item-badge" id="sb-users-count">0</span></a
+        >
+        <a class="sb-item" onclick="showView('crops', this)"
+          ><span class="sb-item-icon">🌾</span
+          ><span data-en="Crops" data-es="Cultivos">Cultivos</span></a
+        >
+        <a class="sb-item" onclick="showView('alerts', this)"
+          ><span class="sb-item-icon">🔔</span
+          ><span data-en="Alerts" data-es="Alertas">Alertas</span
+          ><span class="sb-item-badge" id="sb-alerts-count">0</span></a
+        >
+        <a class="sb-item" onclick="showView('prices', this)"
+          ><span class="sb-item-icon">📈</span
+          ><span data-en="Prices" data-es="Precios">Precios</span></a
+        >
+
+        <div class="sb-section" data-en="Analytics" data-es="Analítica">
+          Analítica
+        </div>
+        <a class="sb-item" onclick="showView('countries', this)"
+          ><span class="sb-item-icon">🌎</span
+          ><span data-en="Countries" data-es="Países">Países</span></a
+        >
+        <a class="sb-item" onclick="showView('activity', this)"
+          ><span class="sb-item-icon">⚡</span
+          ><span data-en="Activity" data-es="Actividad">Actividad</span></a
+        >
+      </nav>
+
+      <div class="sb-footer">
+        <div class="sb-user">
+          <div class="sb-avatar">👤</div>
+          <div>
+            <div class="sb-user-name">Admin</div>
+            <div
+              class="sb-user-role"
+              data-en="Administrator"
+              data-es="Administrador"
+            >
+              Administrador
+            </div>
+          </div>
+        </div>
+        <a href="index.html" class="sb-back"
+          >←
+          <span data-en="Back to site" data-es="Volver al sitio"
+            >Volver al sitio</span
+          ></a
+        >
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <div>
+          <div
+            class="top-title"
+            id="view-title"
+            data-en="Admin Dashboard"
+            data-es="Panel de Administración"
+          >
+            Panel de Administración
+          </div>
+          <div
+            class="top-sub"
+            id="view-sub"
+            data-en="Overview of your platform"
+            data-es="Vista general de tu plataforma"
+          >
+            Vista general de tu plataforma
+          </div>
+        </div>
+        <div class="top-right">
+          <div class="live-badge">
+            <span class="live-dot"></span
+            ><span data-en="Live" data-es="En vivo">En vivo</span>
+          </div>
+          <button class="refresh-btn" onclick="loadAll()">
+            🔄 <span data-en="Refresh" data-es="Actualizar">Actualizar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── VIEW: OVERVIEW ── -->
+      <div class="view active" id="view-overview">
+        <div class="kpi-grid" id="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="background: #eaf5ef">👥</div>
+              <span class="kpi-trend trend-up" id="kpi-users-trend">+0%</span>
+            </div>
+            <div class="kpi-val" id="kpi-users">0</div>
+            <div
+              class="kpi-label"
+              data-en="Registered users"
+              data-es="Usuarios registrados"
+            >
+              Usuarios registrados
+            </div>
+            <div class="kpi-bar" style="background: var(--up)"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="background: #fef9ee">🔔</div>
+              <span class="kpi-trend trend-up" id="kpi-alerts-trend">0</span>
+            </div>
+            <div class="kpi-val" id="kpi-alerts-total">0</div>
+            <div
+              class="kpi-label"
+              data-en="Alerts sent today"
+              data-es="Alertas enviadas hoy"
+            >
+              Alertas enviadas hoy
+            </div>
+            <div class="kpi-bar" style="background: var(--gold)"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="background: #eaf0fb">🌾</div>
+              <span class="kpi-trend trend-up">11</span>
+            </div>
+            <div class="kpi-val">11</div>
+            <div
+              class="kpi-label"
+              data-en="Crops monitored"
+              data-es="Cultivos monitoreados"
+            >
+              Cultivos monitoreados
+            </div>
+            <div class="kpi-bar" style="background: #1a5276"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="background: #f5eef8">🤖</div>
+              <span class="kpi-trend trend-up">99.9%</span>
+            </div>
+            <div class="kpi-val">18</div>
+            <div
+              class="kpi-label"
+              data-en="Countries active"
+              data-es="Países activos"
+            >
+              Países activos
+            </div>
+            <div class="kpi-bar" style="background: #6c3483"></div>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div
+                  class="card-title"
+                  data-en="User growth"
+                  data-es="Crecimiento de usuarios"
+                >
+                  Crecimiento de usuarios
+                </div>
+                <div
+                  class="card-sub"
+                  data-en="Last 7 days"
+                  data-es="Últimos 7 días"
+                >
+                  Últimos 7 días
+                </div>
+              </div>
+            </div>
+            <canvas id="chart-growth"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div
+                  class="card-title"
+                  data-en="Top crops"
+                  data-es="Cultivos más consultados"
+                >
+                  Cultivos más consultados
+                </div>
+              </div>
+            </div>
+            <canvas id="chart-crops-mini"></canvas>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div
+                class="card-title"
+                data-en="Recent alerts"
+                data-es="Alertas recientes"
+              >
+                Alertas recientes
+              </div>
+            </div>
+            <div id="alerts-mini"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div
+                class="card-title"
+                data-en="Recent activity"
+                data-es="Actividad reciente"
+              >
+                Actividad reciente
+              </div>
+            </div>
+            <div id="activity-mini"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VIEW: USERS ── -->
+      <div class="view" id="view-users">
+        <div class="card" style="margin-bottom: 16px">
+          <div class="card-header">
+            <div
+              class="card-title"
+              data-en="Registered Users"
+              data-es="Usuarios Registrados"
+            >
+              Usuarios Registrados
+            </div>
+            <select class="filter-sel" onchange="filterUsers(this.value)">
+              <option value="all" data-en="All users" data-es="Todos">
+                Todos
+              </option>
+              <option value="active" data-en="Active" data-es="Activos">
+                Activos
+              </option>
+              <option value="new" data-en="New (7d)" data-es="Nuevos (7d)">
+                Nuevos (7d)
+              </option>
+            </select>
+          </div>
+          <div id="users-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-en="User" data-es="Usuario">Usuario</th>
+                  <th data-en="Country" data-es="País">País</th>
+                  <th data-en="Crop" data-es="Cultivo">Cultivo</th>
+                  <th data-en="Joined" data-es="Registrado">Registrado</th>
+                  <th data-en="Status" data-es="Estado">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div
+                class="card-title"
+                data-en="Users by country"
+                data-es="Usuarios por país"
+              >
+                Usuarios por país
+              </div>
+            </div>
+            <div id="users-by-country"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div
+                class="card-title"
+                data-en="Users by crop"
+                data-es="Usuarios por cultivo"
+              >
+                Usuarios por cultivo
+              </div>
+            </div>
+            <canvas id="chart-users-crop"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VIEW: CROPS ── -->
+      <div class="view" id="view-crops">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div
+                class="card-title"
+                data-en="Most consulted crops"
+                data-es="Cultivos más consultados"
+              >
+                Cultivos más consultados
+              </div>
+            </div>
+            <div id="crops-bars"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div
+                class="card-title"
+                data-en="Price change today"
+                data-es="Cambio de precio hoy"
+              >
+                Cambio de precio hoy
+              </div>
+            </div>
+            <canvas id="chart-price-change"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div
+              class="card-title"
+              data-en="Crop details"
+              data-es="Detalle de cultivos"
+            >
+              Detalle de cultivos
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th data-en="Crop" data-es="Cultivo">Cultivo</th>
+                <th data-en="Price" data-es="Precio">Precio</th>
+                <th data-en="Change" data-es="Cambio">Cambio</th>
+                <th data-en="Exchange" data-es="Bolsa">Bolsa</th>
+                <th data-en="Consultations" data-es="Consultas">Consultas</th>
+                <th data-en="Trend" data-es="Tendencia">Tendencia</th>
+              </tr>
+            </thead>
+            <tbody id="crops-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── VIEW: ALERTS ── -->
+      <div class="view" id="view-alerts">
+        <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr)">
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="background: #fee2e2">🚨</div>
+            </div>
+            <div class="kpi-val" id="alerts-critical">0</div>
+            <div
+              class="kpi-label"
+              data-en="Critical alerts"
+              data-es="Alertas críticas"
+            >
+              Alertas críticas
+            </div>
+            <div class="kpi-bar" style="background: #dc2626"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="background: #fef9ee">⚠️</div>
+            </div>
+            <div class="kpi-val" id="alerts-warning">0</div>
+            <div class="kpi-label" data-en="Warnings" data-es="Advertencias">
+              Advertencias
+            </div>
+            <div class="kpi-bar" style="background: #d97706"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="background: var(--up-bg)">✅</div>
+            </div>
+            <div class="kpi-val" id="alerts-opportunity">0</div>
+            <div
+              class="kpi-label"
+              data-en="Opportunities"
+              data-es="Oportunidades"
+            >
+              Oportunidades
+            </div>
+            <div class="kpi-bar" style="background: var(--up)"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div
+              class="card-title"
+              data-en="All alerts sent"
+              data-es="Todas las alertas enviadas"
+            >
+              Todas las alertas enviadas
+            </div>
+          </div>
+          <div id="alerts-full-list"></div>
+        </div>
+      </div>
+
+      <!-- ── VIEW: PRICES ── -->
+      <div class="view" id="view-prices">
+        <div class="card" style="margin-bottom: 16px">
+          <div class="card-header">
+            <div
+              class="card-title"
+              data-en="Live prices log"
+              data-es="Registro de precios en vivo"
+            >
+              Registro de precios en vivo
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th data-en="Crop" data-es="Cultivo">Cultivo</th>
+                <th data-en="Price" data-es="Precio">Precio</th>
+                <th data-en="Change" data-es="Cambio">Cambio</th>
+                <th data-en="Unit" data-es="Unidad">Unidad</th>
+                <th data-en="Exchange" data-es="Bolsa">Bolsa</th>
+                <th data-en="Signal" data-es="Señal">Señal</th>
+              </tr>
+            </thead>
+            <tbody id="prices-tbody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div
+              class="card-title"
+              data-en="Price changes overview"
+              data-es="Resumen de cambios de precio"
+            >
+              Resumen de cambios de precio
+            </div>
+          </div>
+          <canvas id="chart-prices-all" style="max-height: 280px"></canvas>
+        </div>
+      </div>
+
+      <!-- ── VIEW: COUNTRIES ── -->
+      <div class="view" id="view-countries">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div
+                class="card-title"
+                data-en="Users by country"
+                data-es="Usuarios por país"
+              >
+                Usuarios por país
+              </div>
+            </div>
+            <div id="countries-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div
+                class="card-title"
+                data-en="Distribution"
+                data-es="Distribución"
+              >
+                Distribución
+              </div>
+            </div>
+            <canvas id="chart-countries"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VIEW: ACTIVITY ── -->
+      <div class="view" id="view-activity">
+        <div class="card">
+          <div class="card-header">
+            <div
+              class="card-title"
+              data-en="Agent activity log"
+              data-es="Registro de actividad del agente"
+            >
+              Registro de actividad del agente
+            </div>
+          </div>
+          <div id="activity-full"></div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
+      const SUPABASE_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
+      const API = "https://netricd-agrolatam-agent.hf.space";
+      const { createClient } = supabase;
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      let lang = localStorage.getItem("lang") || "es";
+      let priceData = {};
+      let alertsData = [];
+      let charts = {};
+
+      // ── MOCK DATA (until real users register) ────────────────────────────────────
+      const MOCK_USERS = [
+        {
+          name: "Carlos Mendoza",
+          email: "carlos@gmail.com",
+          country: "🇵🇪 Perú",
+          crop: "☕ Café",
+          joined: "26/05/2026",
+          status: "active",
+        },
+        {
+          name: "María García",
+          email: "maria@gmail.com",
+          country: "🇨🇴 Colombia",
+          crop: "🍫 Cacao",
+          joined: "25/05/2026",
+          status: "new",
+        },
+        {
+          name: "João Silva",
+          email: "joao@gmail.com",
+          country: "🇧🇷 Brasil",
+          crop: "🌱 Soya",
+          joined: "24/05/2026",
+          status: "active",
+        },
+        {
+          name: "Ana López",
+          email: "ana@gmail.com",
+          country: "🇲🇽 México",
+          crop: "🥑 Aguacate",
+          joined: "23/05/2026",
+          status: "active",
+        },
+        {
+          name: "Luis Vargas",
+          email: "luis@gmail.com",
+          country: "🇪🇨 Ecuador",
+          crop: "🍌 Banano",
+          joined: "22/05/2026",
+          status: "inactive",
+        },
+        {
+          name: "Rosa Flores",
+          email: "rosa@gmail.com",
+          country: "🇧🇴 Bolivia",
+          crop: "🌾 Arroz",
+          joined: "21/05/2026",
+          status: "new",
+        },
+        {
+          name: "Pedro Ruiz",
+          email: "pedro@gmail.com",
+          country: "🇨🇱 Chile",
+          crop: "🍅 Tomate",
+          joined: "20/05/2026",
+          status: "active",
+        },
+        {
+          name: "Lucía Mora",
+          email: "lucia@gmail.com",
+          country: "🇦🇷 Argentina",
+          crop: "🌽 Maíz",
+          joined: "19/05/2026",
+          status: "active",
+        },
+      ];
+
+      const MOCK_ACTIVITY = [
+        {
+          icon: "☕",
+          bg: "rgba(200,144,42,.1)",
+          text_es:
+            "Precio del café detectado -3.2% → 847 agricultores alertados",
+          text_en: "Coffee price -3.2% detected → 847 farmers alerted",
+          time: "hace 2 min",
+        },
+        {
+          icon: "🌧️",
+          bg: "rgba(74,144,217,.1)",
+          text_es: "Lluvia 48mm en Ecuador → Recomendación de cosecha enviada",
+          text_en: "Rain 48mm Ecuador → Harvest recommendation sent",
+          time: "hace 15 min",
+        },
+        {
+          icon: "🍫",
+          bg: "rgba(63,40,20,.1)",
+          text_es: "Cacao +1.8% ICE Londres → Compradores europeos contactados",
+          text_en: "Cacao +1.8% ICE London → European buyers contacted",
+          time: "hace 45 min",
+        },
+        {
+          icon: "📄",
+          bg: "rgba(147,51,234,.1)",
+          text_es: "3 solicitudes de crédito generadas automáticamente",
+          text_en: "3 credit applications auto-generated",
+          time: "hace 1h",
+        },
+        {
+          icon: "🥑",
+          bg: "rgba(26,107,53,.1)",
+          text_es: "Aguacate +3.4% → 234 agricultores notificados para vender",
+          text_en: "Avocado +3.4% → 234 farmers notified to sell",
+          time: "hace 2h",
+        },
+        {
+          icon: "🌱",
+          bg: "rgba(74,222,128,.1)",
+          text_es: "Ventana de siembra óptima detectada en Perú",
+          text_en: "Optimal planting window detected in Peru",
+          time: "hace 3h",
+        },
+      ];
+
+      const CROP_STATS = [
+        {
+          key: "coffee",
+          icon: "☕",
+          name_es: "Café",
+          name_en: "Coffee",
+          count: 1247,
+          pct: 95,
+        },
+        {
+          key: "cacao",
+          icon: "🍫",
+          name_es: "Cacao",
+          name_en: "Cacao",
+          count: 983,
+          pct: 75,
+        },
+        {
+          key: "avocado",
+          icon: "🥑",
+          name_es: "Aguacate",
+          name_en: "Avocado",
+          count: 876,
+          pct: 67,
+        },
+        {
+          key: "corn",
+          icon: "🌽",
+          name_es: "Maíz",
+          name_en: "Corn",
+          count: 754,
+          pct: 58,
+        },
+        {
+          key: "soy",
+          icon: "🌱",
+          name_es: "Soya",
+          name_en: "Soy",
+          count: 698,
+          pct: 53,
+        },
+        {
+          key: "banana",
+          icon: "🍌",
+          name_es: "Banano",
+          name_en: "Banana",
+          count: 634,
+          pct: 49,
+        },
+        {
+          key: "rice",
+          icon: "🌾",
+          name_es: "Arroz",
+          name_en: "Rice",
+          count: 521,
+          pct: 40,
+        },
+        {
+          key: "palm_oil",
+          icon: "🌴",
+          name_es: "Palma",
+          name_en: "Palm Oil",
+          count: 489,
+          pct: 37,
+        },
+        {
+          key: "sugarcane",
+          icon: "🍬",
+          name_es: "Caña",
+          name_en: "Sugarcane",
+          count: 412,
+          pct: 32,
+        },
+        {
+          key: "orange",
+          icon: "🍊",
+          name_es: "Naranja",
+          name_en: "Orange",
+          count: 378,
+          pct: 29,
+        },
+        {
+          key: "tomato",
+          icon: "🍅",
+          name_es: "Tomate",
+          name_en: "Tomato",
+          count: 298,
+          pct: 23,
+        },
+      ];
+
+      const COUNTRY_STATS = [
+        { flag: "🇵🇪", name: "Perú", count: 312, pct: 85 },
+        { flag: "🇨🇴", name: "Colombia", count: 287, pct: 78 },
+        { flag: "🇧🇷", name: "Brasil", count: 256, pct: 70 },
+        { flag: "🇲🇽", name: "México", count: 234, pct: 64 },
+        { flag: "🇪🇨", name: "Ecuador", count: 198, pct: 54 },
+        { flag: "🇦🇷", name: "Argentina", count: 167, pct: 46 },
+        { flag: "🇧🇴", name: "Bolivia", count: 134, pct: 37 },
+        { flag: "🇭🇳", name: "Honduras", count: 112, pct: 31 },
+      ];
+
+      // ── NAVIGATION ────────────────────────────────────────────────────────────────
+      const VIEW_TITLES = {
+        overview: { en: "Admin Dashboard", es: "Panel de Administración" },
+        users: { en: "Users", es: "Usuarios" },
+        crops: { en: "Crop Analytics", es: "Análisis de Cultivos" },
+        alerts: { en: "Alerts Sent", es: "Alertas Enviadas" },
+        prices: { en: "Price Monitor", es: "Monitor de Precios" },
+        countries: { en: "Countries", es: "Países" },
+        activity: { en: "Agent Activity", es: "Actividad del Agente" },
+      };
+
+      function showView(name, el) {
+        document
+          .querySelectorAll(".view")
+          .forEach((v) => v.classList.remove("active"));
+        document
+          .querySelectorAll(".sb-item")
+          .forEach((i) => i.classList.remove("active"));
+        document.getElementById("view-" + name)?.classList.add("active");
+        el?.classList.add("active");
+        const t = VIEW_TITLES[name];
+        if (t) {
+          document.getElementById("view-title").textContent = t[lang];
+          document.getElementById("view-sub").textContent = "";
+        }
+        renderView(name);
+      }
+
+      // ── LOAD ALL DATA ─────────────────────────────────────────────────────────────
+      async function loadAll() {
+        await Promise.all([loadPrices(), loadAlerts(), loadUsers()]);
+        renderView("overview");
+      }
+
+      async function loadPrices() {
+        try {
+          const r = await fetch(`${API}/api/prices`);
+          priceData = await r.json();
+        } catch {
+          priceData = {
+            coffee: {
+              price: 2.34,
+              change: -3.2,
+              unit: "USD/lb",
+              exchange: "ICE NY",
+            },
+            cacao: {
+              price: 3812,
+              change: 1.8,
+              unit: "USD/ton",
+              exchange: "ICE London",
+            },
+            corn: {
+              price: 4.52,
+              change: 0.5,
+              unit: "USD/bushel",
+              exchange: "CME",
+            },
+            banana: {
+              price: 0.89,
+              change: -1.1,
+              unit: "USD/kg",
+              exchange: "FAO",
+            },
+            soy: {
+              price: 11.2,
+              change: 2.3,
+              unit: "USD/bushel",
+              exchange: "CME",
+            },
+            palm_oil: {
+              price: 1124,
+              change: 0.8,
+              unit: "USD/ton",
+              exchange: "BMD",
+            },
+            rice: {
+              price: 17.4,
+              change: -0.6,
+              unit: "USD/cwt",
+              exchange: "CBOT",
+            },
+            sugarcane: {
+              price: 0.21,
+              change: 1.2,
+              unit: "USD/kg",
+              exchange: "ICE NY",
+            },
+            avocado: {
+              price: 2.15,
+              change: 3.4,
+              unit: "USD/kg",
+              exchange: "FAO",
+            },
+            orange: {
+              price: 1.85,
+              change: -0.9,
+              unit: "USD/kg",
+              exchange: "FAO",
+            },
+            tomato: {
+              price: 1.1,
+              change: 0.4,
+              unit: "USD/kg",
+              exchange: "FAO",
+            },
+          };
+        }
+      }
+
+      async function loadAlerts() {
+        try {
+          const r = await fetch(`${API}/api/alerts`);
+          alertsData = await r.json();
+        } catch {
+          alertsData = [
+            {
+              type: "critical",
+              title: "Coffee price drop -3.2%",
+              description: "ICE NY futures fell sharply.",
+              countries: ["Peru", "Colombia"],
+              action: "Sell before Thursday",
+              time: "2 min ago",
+            },
+            {
+              type: "warning",
+              title: "Heavy rain Ecuador",
+              description: "72h rainfall risk in palm zones.",
+              countries: ["Ecuador", "Colombia"],
+              action: "Accelerate harvest",
+              time: "15 min ago",
+            },
+            {
+              type: "opportunity",
+              title: "Cacao +1.8% ICE London",
+              description: "European buyers increasing demand.",
+              countries: ["Peru", "Ecuador"],
+              action: "Contact buyers",
+              time: "45 min ago",
+            },
+            {
+              type: "opportunity",
+              title: "Avocado surge +3.4%",
+              description: "Mexico drought cut supply.",
+              countries: ["Mexico", "Peru"],
+              action: "Sell now",
+              time: "1h ago",
+            },
+            {
+              type: "warning",
+              title: "Rice prices falling",
+              description: "Global supply increased.",
+              countries: ["Brazil", "Colombia"],
+              action: "Hold stock",
+              time: "2h ago",
+            },
+          ];
+        }
+      }
+
+      async function loadUsers() {
+        let users = MOCK_USERS;
+        try {
+          const { data } = await sb.from("farmers").select("*").limit(50);
+          if (data && data.length > 0)
+            users = data.map((u) => ({
+              name: u.full_name || "Unknown",
+              email: "—",
+              country: u.country || "—",
+              crop: u.crop || "—",
+              joined: new Date(u.created_at).toLocaleDateString("es-PE"),
+              status: "active",
+            }));
+        } catch {}
+
+        const count = users.length;
+        document.getElementById("kpi-users").textContent = count;
+        document.getElementById("sb-users-count").textContent = count;
+        document.getElementById("kpi-users-trend").textContent = `+${count}`;
+
+        const alertCount = alertsData.length;
+        document.getElementById("kpi-alerts-total").textContent = alertCount;
+        document.getElementById("kpi-alerts-trend").textContent =
+          alertCount + " hoy";
+        document.getElementById("sb-alerts-count").textContent = alertCount;
+        document.getElementById("alerts-critical").textContent =
+          alertsData.filter((a) => a.type === "critical").length;
+        document.getElementById("alerts-warning").textContent =
+          alertsData.filter((a) => a.type === "warning").length;
+        document.getElementById("alerts-opportunity").textContent =
+          alertsData.filter((a) => a.type === "opportunity").length;
+      }
+
+      // ── RENDER VIEWS ──────────────────────────────────────────────────────────────
+      function renderView(name) {
+        if (name === "overview") renderOverview();
+        if (name === "users") renderUsers();
+        if (name === "crops") renderCrops();
+        if (name === "alerts") renderAlerts();
+        if (name === "prices") renderPrices();
+        if (name === "countries") renderCountries();
+        if (name === "activity") renderActivity();
+      }
+
+      function renderOverview() {
+        // Growth chart
+        const days =
+          lang === "es"
+            ? ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Hoy"]
+            : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Today"];
+        if (charts.growth) charts.growth.destroy();
+        charts.growth = new Chart(document.getElementById("chart-growth"), {
+          type: "line",
+          data: {
+            labels: days,
+            datasets: [
+              {
+                data: [2, 5, 8, 12, 18, 24, MOCK_USERS.length],
+                borderColor: "#0A4A35",
+                backgroundColor: "rgba(10,74,53,.08)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                borderWidth: 2,
+                pointBackgroundColor: "#0A4A35",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+              y: { grid: { color: "#F0EDE6" }, ticks: { font: { size: 10 } } },
+            },
+          },
+        });
+
+        // Crops mini donut
+        if (charts.cropsMini) charts.cropsMini.destroy();
+        const top5 = CROP_STATS.slice(0, 5);
+        charts.cropsMini = new Chart(
+          document.getElementById("chart-crops-mini"),
+          {
+            type: "doughnut",
+            data: {
+              labels: top5.map((c) => (lang === "es" ? c.name_es : c.name_en)),
+              datasets: [
+                {
+                  data: top5.map((c) => c.count),
+                  backgroundColor: [
+                    "#0A4A35",
+                    "#C8902A",
+                    "#1A5276",
+                    "#6C3483",
+                    "#B03A2E",
+                  ],
+                  borderWidth: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: { font: { size: 10 }, boxWidth: 10 },
+                },
+              },
+            },
+          },
+        );
+
+        // Alerts mini
+        document.getElementById("alerts-mini").innerHTML = alertsData
+          .slice(0, 4)
+          .map(
+            (a) => `
+    <div class="alert-row">
+      <span class="alert-dot ${a.type === "critical" ? "dc" : a.type === "warning" ? "dw" : "do"}"></span>
+      <div style="flex:1"><div class="alert-title">${a.title}</div><div class="alert-meta">${a.countries?.join(", ") || ""} · ${a.time || ""}</div></div>
+      <span class="alert-reach">${lang === "es" ? "alerta" : "alert"}</span>
+    </div>`,
+          )
+          .join("");
+
+        // Activity mini
+        document.getElementById("activity-mini").innerHTML =
+          MOCK_ACTIVITY.slice(0, 4)
+            .map(
+              (a) => `
+    <div class="feed-item">
+      <div class="feed-icon" style="background:${a.bg};">${a.icon}</div>
+      <div><div class="feed-text">${lang === "es" ? a.text_es : a.text_en}</div><div class="feed-time">${a.time}</div></div>
+    </div>`,
+            )
+            .join("");
+      }
+
+      function renderUsers() {
+        const statusLabel = {
+          active: { es: "Activo", en: "Active" },
+          new: { es: "Nuevo", en: "New" },
+          inactive: { es: "Inactivo", en: "Inactive" },
+        };
+        const statusClass = {
+          active: "sp-active",
+          new: "sp-new",
+          inactive: "sp-inactive",
+        };
+        document.getElementById("users-tbody").innerHTML = MOCK_USERS.map(
+          (u) => `
+    <tr>
+      <td><div class="avatar-cell"><div class="user-avatar">${u.name[0]}</div><div><div class="user-name">${u.name}</div><div class="user-email">${u.email}</div></div></div></td>
+      <td>${u.country}</td>
+      <td>${u.crop}</td>
+      <td>${u.joined}</td>
+      <td><span class="status-pill ${statusClass[u.status]}">${statusLabel[u.status][lang]}</span></td>
+    </tr>`,
+        ).join("");
+
+        // Users by country
+        document.getElementById("users-by-country").innerHTML =
+          COUNTRY_STATS.map(
+            (c) => `
+    <div class="country-item">
+      <span class="country-flag">${c.flag}</span>
+      <span class="country-name">${c.name}</span>
+      <div class="country-bar-wrap"><div class="country-bar" style="width:${c.pct}%;"></div></div>
+      <span class="country-count">${c.count}</span>
+    </div>`,
+          ).join("");
+
+        if (charts.usersCrop) charts.usersCrop.destroy();
+        charts.usersCrop = new Chart(
+          document.getElementById("chart-users-crop"),
+          {
+            type: "bar",
+            data: {
+              labels: CROP_STATS.slice(0, 6).map((c) =>
+                lang === "es" ? c.name_es : c.name_en,
+              ),
+              datasets: [
+                {
+                  data: CROP_STATS.slice(0, 6).map((c) => c.count),
+                  backgroundColor: "rgba(10,74,53,.7)",
+                  borderRadius: 6,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                y: {
+                  grid: { color: "#F0EDE6" },
+                  ticks: { font: { size: 10 } },
+                },
+              },
+            },
+          },
+        );
+      }
+
+      function renderCrops() {
+        document.getElementById("crops-bars").innerHTML = CROP_STATS.map(
+          (c) => `
+    <div class="crop-row">
+      <div class="crop-name">${c.icon} ${lang === "es" ? c.name_es : c.name_en}</div>
+      <div class="crop-bar-wrap"><div class="crop-bar" style="width:${c.pct}%;background:var(--forest);"></div></div>
+      <span class="crop-count">${c.count.toLocaleString()}</span>
+      <span class="crop-pct">${c.pct}%</span>
+    </div>`,
+        ).join("");
+
+        // Price change chart
+        const changes = Object.entries(priceData).map(([k, d]) => d.change);
+        const labels = Object.keys(priceData).map(
+          (k) =>
+            CROP_STATS.find((c) => c.key === k)?.[
+              lang === "es" ? "name_es" : "name_en"
+            ] || k,
+        );
+        const colors = changes.map((c) =>
+          c >= 0 ? "rgba(26,107,53,.7)" : "rgba(155,43,43,.7)",
+        );
+        if (charts.priceChange) charts.priceChange.destroy();
+        charts.priceChange = new Chart(
+          document.getElementById("chart-price-change"),
+          {
+            type: "bar",
+            data: {
+              labels,
+              datasets: [
+                { data: changes, backgroundColor: colors, borderRadius: 6 },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+                y: {
+                  grid: { color: "#F0EDE6" },
+                  ticks: { font: { size: 10 }, callback: (v) => `${v}%` },
+                },
+              },
+            },
+          },
+        );
+
+        // Crops table
+        const consult = {
+          coffee: 1247,
+          cacao: 983,
+          avocado: 876,
+          corn: 754,
+          soy: 698,
+          banana: 634,
+          rice: 521,
+          palm_oil: 489,
+          sugarcane: 412,
+          orange: 378,
+          tomato: 298,
+        };
+        document.getElementById("crops-tbody").innerHTML = Object.entries(
+          priceData,
+        )
+          .map(([k, d]) => {
+            const cs = CROP_STATS.find((c) => c.key === k);
+            const n = lang === "es" ? cs?.name_es || k : cs?.name_en || k;
+            const big = Math.abs(d.change) > 2;
+            const sig =
+              big && d.change > 0
+                ? `<span style="background:var(--up-bg);color:var(--up);font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;">${lang === "es" ? "COMPRAR" : "BUY"}</span>`
+                : big && d.change < 0
+                  ? `<span style="background:var(--down-bg);color:var(--down);font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;">${lang === "es" ? "VENDER" : "SELL"}</span>`
+                  : `<span style="background:#FEF9C3;color:#92400E;font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;">${lang === "es" ? "MANTENER" : "HOLD"}</span>`;
+            return `<tr>
+      <td>${cs?.icon || ""} ${n}</td>
+      <td style="font-family:'Fraunces',serif;">${d.price > 100 ? "$" + d.price.toLocaleString() : "$" + d.price.toFixed(2)}</td>
+      <td style="color:${d.change >= 0 ? "var(--up)" : "var(--down)"};font-weight:600;">${d.change >= 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%</td>
+      <td>${d.exchange}</td>
+      <td>${(consult[k] || 0).toLocaleString()}</td>
+      <td>${sig}</td>
+    </tr>`;
+          })
+          .join("");
+      }
+
+      function renderAlerts() {
+        const typeLabel = {
+          critical: { es: "🚨 Crítica", en: "🚨 Critical" },
+          warning: { es: "⚠️ Advertencia", en: "⚠️ Warning" },
+          opportunity: { es: "✅ Oportunidad", en: "✅ Opportunity" },
+        };
+        const typeBg = {
+          critical: "#FEE2E2",
+          warning: "#FEF9EE",
+          opportunity: "var(--up-bg)",
+        };
+        document.getElementById("alerts-full-list").innerHTML =
+          alertsData
+            .map(
+              (a) => `
+    <div class="alert-row">
+      <span class="alert-dot ${a.type === "critical" ? "dc" : a.type === "warning" ? "dw" : "do"}"></span>
+      <div style="flex:1">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-meta">${a.description}</div>
+        <div class="alert-meta" style="margin-top:4px;">📍 ${a.countries?.join(", ") || ""} · ⏱ ${a.time || ""} · 🎯 ${a.action || ""}</div>
+      </div>
+      <span style="background:${typeBg[a.type]};font-size:10px;font-weight:700;padding:3px 9px;border-radius:8px;white-space:nowrap;">${typeLabel[a.type]?.[lang] || a.type}</span>
+    </div>`,
+            )
+            .join("") ||
+          `<div style="text-align:center;padding:30px;color:var(--muted);">${lang === "es" ? "Sin alertas aún" : "No alerts yet"}</div>`;
+      }
+
+      function renderPrices() {
+        const consult = {
+          coffee: 1247,
+          cacao: 983,
+          avocado: 876,
+          corn: 754,
+          soy: 698,
+          banana: 634,
+          rice: 521,
+          palm_oil: 489,
+          sugarcane: 412,
+          orange: 378,
+          tomato: 298,
+        };
+        document.getElementById("prices-tbody").innerHTML = Object.entries(
+          priceData,
+        )
+          .map(([k, d]) => {
+            const cs = CROP_STATS.find((c) => c.key === k);
+            const n = lang === "es" ? cs?.name_es || k : cs?.name_en || k;
+            const big = Math.abs(d.change) > 2;
+            const sig =
+              big && d.change > 0
+                ? `<span style="background:var(--up-bg);color:var(--up);font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;">${lang === "es" ? "COMPRAR" : "BUY"}</span>`
+                : big && d.change < 0
+                  ? `<span style="background:var(--down-bg);color:var(--down);font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;">${lang === "es" ? "VENDER" : "SELL"}</span>`
+                  : `<span style="background:#FEF9C3;color:#92400E;font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;">${lang === "es" ? "MANTENER" : "HOLD"}</span>`;
+            return `<tr>
+      <td>${cs?.icon || ""} ${n}</td>
+      <td style="font-family:'Fraunces',serif;">${d.price > 100 ? "$" + d.price.toLocaleString() : "$" + d.price.toFixed(2)}</td>
+      <td style="color:${d.change >= 0 ? "var(--up)" : "var(--down)"};font-weight:600;">${d.change >= 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%</td>
+      <td>${d.unit}</td><td>${d.exchange}</td><td>${sig}</td>
+    </tr>`;
+          })
+          .join("");
+
+        // All prices chart
+        const labels = Object.keys(priceData).map(
+          (k) =>
+            CROP_STATS.find((c) => c.key === k)?.[
+              lang === "es" ? "name_es" : "name_en"
+            ] || k,
+        );
+        const changes = Object.values(priceData).map((d) => d.change);
+        const colors = changes.map((c) =>
+          c >= 0 ? "rgba(26,107,53,.7)" : "rgba(155,43,43,.7)",
+        );
+        if (charts.pricesAll) charts.pricesAll.destroy();
+        charts.pricesAll = new Chart(
+          document.getElementById("chart-prices-all"),
+          {
+            type: "bar",
+            data: {
+              labels,
+              datasets: [
+                {
+                  data: changes,
+                  backgroundColor: colors,
+                  borderRadius: 6,
+                  label: lang === "es" ? "Cambio %" : "Change %",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                y: {
+                  grid: { color: "#F0EDE6" },
+                  ticks: { font: { size: 10 }, callback: (v) => `${v}%` },
+                },
+              },
+            },
+          },
+        );
+      }
+
+      function renderCountries() {
+        document.getElementById("countries-list").innerHTML = COUNTRY_STATS.map(
+          (c) => `
+    <div class="country-item">
+      <span class="country-flag" style="font-size:22px;">${c.flag}</span>
+      <span class="country-name" style="font-size:14px;">${c.name}</span>
+      <div class="country-bar-wrap" style="width:100px;"><div class="country-bar" style="width:${c.pct}%;"></div></div>
+      <span class="country-count" style="font-family:'Fraunces',serif;font-size:16px;">${c.count}</span>
+    </div>`,
+        ).join("");
+
+        if (charts.countries) charts.countries.destroy();
+        charts.countries = new Chart(
+          document.getElementById("chart-countries"),
+          {
+            type: "doughnut",
+            data: {
+              labels: COUNTRY_STATS.map((c) => c.name),
+              datasets: [
+                {
+                  data: COUNTRY_STATS.map((c) => c.count),
+                  backgroundColor: [
+                    "#0A4A35",
+                    "#C8902A",
+                    "#1A5276",
+                    "#6C3483",
+                    "#B03A2E",
+                    "#117A65",
+                    "#854F0B",
+                    "#185FA5",
+                  ],
+                  borderWidth: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: { font: { size: 10 }, boxWidth: 10 },
+                },
+              },
+            },
+          },
+        );
+      }
+
+      function renderActivity() {
+        document.getElementById("activity-full").innerHTML = MOCK_ACTIVITY.map(
+          (a) => `
+    <div class="feed-item">
+      <div class="feed-icon" style="background:${a.bg};font-size:20px;">${a.icon}</div>
+      <div>
+        <div class="feed-text">${lang === "es" ? a.text_es : a.text_en}</div>
+        <div class="feed-time">${a.time}</div>
+      </div>
+    </div>`,
+        ).join("");
+      }
+
+      function filterUsers(val) {
+        renderUsers();
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────────────────────
+      loadAll();
+      setInterval(loadAll, 60000);
+    </script>
+  </body>
+</html>
