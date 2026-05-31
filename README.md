@@ -2,7 +2,7 @@
 
 > The first autonomous AI agent for Latin America's 60 million farmers.
 
-Built for the **Hackathon AlgoFest 2026** — Fivetran track.
+Built for the **Hackathon AlgoFest 2026** .
 
 ---
 
