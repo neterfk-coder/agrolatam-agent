@@ -41,13 +41,11 @@ class FarmerProfile(BaseModel):
 
 # ── 11 CROPS ──────────────────────────────────────────────────────────────────
 PRICES = {
-    # Original 5
     "coffee":     {"price": 2.34,  "change": -3.2, "unit": "USD/lb",     "exchange": "ICE NY"},
     "cacao":      {"price": 3812,  "change":  1.8,  "unit": "USD/ton",    "exchange": "ICE London"},
     "corn":       {"price": 4.52,  "change":  0.5,  "unit": "USD/bushel", "exchange": "CME"},
     "banana":     {"price": 0.89,  "change": -1.1,  "unit": "USD/kg",     "exchange": "FAO"},
     "soy":        {"price": 11.20, "change":  2.3,  "unit": "USD/bushel", "exchange": "CME"},
-    # New 6
     "palm_oil":   {"price": 1124,  "change":  0.8,  "unit": "USD/ton",    "exchange": "BMD Malaysia"},
     "rice":       {"price": 17.40, "change": -0.6,  "unit": "USD/cwt",    "exchange": "CBOT"},
     "sugarcane":  {"price": 0.21,  "change":  1.2,  "unit": "USD/kg",     "exchange": "ICE NY"},
@@ -56,17 +54,65 @@ PRICES = {
     "tomato":     {"price": 1.10,  "change":  0.4,  "unit": "USD/kg",     "exchange": "FAO"},
 }
 
+YAHOO_TICKERS = {
+    "coffee":    {"symbol": "KC=F", "exchange": "ICE NY",    "unit": "USD/lb"},
+    "cacao":     {"symbol": "CC=F", "exchange": "ICE London", "unit": "USD/ton"},
+    "corn":      {"symbol": "ZC=F", "exchange": "CME",       "unit": "USD/bushel"},
+    "soy":       {"symbol": "ZS=F", "exchange": "CME",       "unit": "USD/bushel"},
+    "rice":      {"symbol": "ZR=F", "exchange": "CBOT",      "unit": "USD/cwt"},
+    "sugarcane": {"symbol": "SB=F", "exchange": "ICE NY",    "unit": "USD/kg"},
+    "orange":    {"symbol": "OJ=F", "exchange": "ICE NY",    "unit": "USD/kg"},
+}
+
+YAHOO_QUOTE_URL = "https://query1.finance.yahoo.com/v7/finance/quote"
+
+async def fetch_realtime_prices():
+    symbols = ",".join([v["symbol"] for v in YAHOO_TICKERS.values() if v.get("symbol")])
+    async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.get(YAHOO_QUOTE_URL, params={"symbols": symbols})
+        r.raise_for_status()
+        data = r.json()
+
+    quotes = {q["symbol"]: q for q in data.get("quoteResponse", {}).get("result", [])}
+    prices = {}
+    for crop, meta in YAHOO_TICKERS.items():
+        symbol = meta.get("symbol")
+        quote = quotes.get(symbol)
+        if quote and quote.get("regularMarketPrice") is not None:
+            prices[crop] = {
+                "price": quote["regularMarketPrice"],
+                "change": round(quote.get("regularMarketChangePercent", 0.0), 2),
+                "unit": meta["unit"],
+                "exchange": meta["exchange"],
+            }
+        else:
+            prices[crop] = PRICES[crop]
+
+    # Keep crops without Yahoo tickers as fallback static values
+    for crop in PRICES:
+        if crop not in prices:
+            prices[crop] = PRICES[crop]
+
+    return prices
+
 @app.get("/api/prices")
 async def get_prices():
+    try:
+        prices = await fetch_realtime_prices()
+    except Exception:
+        prices = PRICES
+
     if sb:
         try:
-            rows = [{"crop": c, "price": d["price"], "change_pct": d["change"],
-                     "exchange": d["exchange"], "recorded_at": datetime.utcnow().isoformat()}
-                    for c, d in PRICES.items()]
+            rows = [
+                {"crop": c, "price": d["price"], "change_pct": d["change"],
+                 "exchange": d["exchange"], "recorded_at": datetime.utcnow().isoformat()}
+                for c, d in prices.items()
+            ]
             sb.table("prices").insert(rows).execute()
         except Exception:
             pass
-    return PRICES
+    return prices
 
 @app.get("/api/weather")
 async def get_weather():
