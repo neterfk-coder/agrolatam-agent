@@ -1149,9 +1149,8 @@
     </main>
 
     <script>
-      const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
-      const SUPABASE_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
+      const SUPABASE_URL = "TU_SUPABASE_URL";
+      const SUPABASE_KEY = "TU_SUPABASE_KEY";
       const API = "https://netricd-agrolatam-agent.hf.space";
       const { createClient } = supabase;
       const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1537,30 +1536,156 @@
         }
       }
 
-      async function loadUsers() {
-        let users = MOCK_USERS;
-        try {
-          const { data } = await sb.from("farmers").select("*").limit(50);
-          if (data && data.length > 0)
-            users = data.map((u) => ({
-              name: u.full_name || "Unknown",
-              email: "—",
-              country: u.country || "—",
-              crop: u.crop || "—",
-              joined: new Date(u.created_at).toLocaleDateString("es-PE"),
-              status: "active",
-            }));
-        } catch {}
+      let REAL_USERS = [];
 
-        const count = users.length;
+      const COUNTRY_FLAGS = {
+        PE: "🇵🇪",
+        BR: "🇧🇷",
+        CO: "🇨🇴",
+        MX: "🇲🇽",
+        AR: "🇦🇷",
+        EC: "🇪🇨",
+        BO: "🇧🇴",
+        CL: "🇨🇱",
+        GT: "🇬🇹",
+        HN: "🇭🇳",
+        PY: "🇵🇾",
+        UY: "🇺🇾",
+        NI: "🇳🇮",
+        CR: "🇨🇷",
+        PA: "🇵🇦",
+        DO: "🇩🇴",
+        VE: "🇻🇪",
+        SV: "🇸🇻",
+      };
+      const COUNTRY_NAMES = {
+        PE: "Perú",
+        BR: "Brasil",
+        CO: "Colombia",
+        MX: "México",
+        AR: "Argentina",
+        EC: "Ecuador",
+        BO: "Bolivia",
+        CL: "Chile",
+        GT: "Guatemala",
+        HN: "Honduras",
+        PY: "Paraguay",
+        UY: "Uruguay",
+        NI: "Nicaragua",
+        CR: "Costa Rica",
+        PA: "Panamá",
+        DO: "Rep. Dom.",
+        VE: "Venezuela",
+        SV: "El Salvador",
+      };
+      const CROP_ICONS_MAP = {
+        coffee: "☕",
+        cacao: "🍫",
+        corn: "🌽",
+        banana: "🍌",
+        soy: "🌱",
+        palm_oil: "🌴",
+        rice: "🌾",
+        sugarcane: "🍬",
+        avocado: "🥑",
+        orange: "🍊",
+        tomato: "🍅",
+      };
+      const CROP_NAMES_MAP = {
+        coffee: "Café",
+        cacao: "Cacao",
+        corn: "Maíz",
+        banana: "Banano",
+        soy: "Soya",
+        palm_oil: "Palma",
+        rice: "Arroz",
+        sugarcane: "Caña",
+        avocado: "Aguacate",
+        orange: "Naranja",
+        tomato: "Tomate",
+      };
+
+      async function loadUsers() {
+        try {
+          const { data, error } = await sb
+            .from("farmers")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(100);
+          if (data && data.length > 0) {
+            REAL_USERS = data.map((u) => ({
+              name: u.full_name || "Usuario",
+              email: u.email || "—",
+              country:
+                (COUNTRY_FLAGS[u.country] || "🌎") +
+                " " +
+                (COUNTRY_NAMES[u.country] || u.country || "—"),
+              crop:
+                (CROP_ICONS_MAP[u.crop] || "🌾") +
+                " " +
+                (CROP_NAMES_MAP[u.crop] || u.crop || "—"),
+              joined: u.created_at
+                ? new Date(u.created_at).toLocaleDateString("es-PE")
+                : "—",
+              status: "active",
+              raw: u,
+            }));
+          } else {
+            REAL_USERS = MOCK_USERS;
+          }
+        } catch (e) {
+          console.log("Supabase error:", e);
+          REAL_USERS = MOCK_USERS;
+        }
+
+        // Update KPIs
+        const count = REAL_USERS.length;
         document.getElementById("kpi-users").textContent = count;
         document.getElementById("sb-users-count").textContent = count;
         document.getElementById("kpi-users-trend").textContent = `+${count}`;
 
+        // Update country stats from real data
+        const countryCounts = {};
+        REAL_USERS.forEach((u) => {
+          const c = u.raw?.country || "PE";
+          countryCounts[c] = (countryCounts[c] || 0) + 1;
+        });
+        const maxCount = Math.max(...Object.values(countryCounts), 1);
+        if (Object.keys(countryCounts).length > 0) {
+          const sorted = Object.entries(countryCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 8);
+          COUNTRY_STATS.splice(
+            0,
+            COUNTRY_STATS.length,
+            ...sorted.map(([code, cnt]) => ({
+              flag: COUNTRY_FLAGS[code] || "🌎",
+              name: COUNTRY_NAMES[code] || code,
+              count: cnt,
+              pct: Math.round((cnt / maxCount) * 100),
+            })),
+          );
+        }
+
+        // Update crop stats from real data
+        const cropCounts = {};
+        REAL_USERS.forEach((u) => {
+          const c = u.raw?.crop || "coffee";
+          cropCounts[c] = (cropCounts[c] || 0) + 1;
+        });
+        if (Object.keys(cropCounts).length > 0) {
+          const maxCrop = Math.max(...Object.values(cropCounts), 1);
+          CROP_STATS.forEach((cs) => {
+            cs.count = cropCounts[cs.key] || cs.count;
+            cs.pct = Math.round(((cropCounts[cs.key] || 1) / maxCrop) * 100);
+          });
+        }
+
+        // Update alerts KPIs
         const alertCount = alertsData.length;
         document.getElementById("kpi-alerts-total").textContent = alertCount;
         document.getElementById("kpi-alerts-trend").textContent =
-          alertCount + " hoy";
+          alertCount + (lang === "es" ? " hoy" : " today");
         document.getElementById("sb-alerts-count").textContent = alertCount;
         document.getElementById("alerts-critical").textContent =
           alertsData.filter((a) => a.type === "critical").length;
@@ -1594,7 +1719,15 @@
             labels: days,
             datasets: [
               {
-                data: [2, 5, 8, 12, 18, 24, MOCK_USERS.length],
+                data: [
+                  2,
+                  5,
+                  8,
+                  12,
+                  18,
+                  24,
+                  REAL_USERS.length || MOCK_USERS.length,
+                ],
                 borderColor: "#0A4A35",
                 backgroundColor: "rgba(10,74,53,.08)",
                 fill: true,
@@ -1687,8 +1820,10 @@
           new: "sp-new",
           inactive: "sp-inactive",
         };
-        document.getElementById("users-tbody").innerHTML = MOCK_USERS.map(
-          (u) => `
+        const usersToShow = REAL_USERS.length > 0 ? REAL_USERS : MOCK_USERS;
+        document.getElementById("users-tbody").innerHTML = usersToShow
+          .map(
+            (u) => `
     <tr>
       <td><div class="avatar-cell"><div class="user-avatar">${u.name[0]}</div><div><div class="user-name">${u.name}</div><div class="user-email">${u.email}</div></div></div></td>
       <td>${u.country}</td>
@@ -1696,7 +1831,8 @@
       <td>${u.joined}</td>
       <td><span class="status-pill ${statusClass[u.status]}">${statusLabel[u.status][lang]}</span></td>
     </tr>`,
-        ).join("");
+          )
+          .join("");
 
         // Users by country
         document.getElementById("users-by-country").innerHTML =
