@@ -1255,15 +1255,88 @@
         renderTrending();
       }
 
+      // ── FETCH REAL NEWS FROM BACKEND ─────────────────────────────────────────────
+      const API = "https://netricd-agrolatam-agent.hf.space";
+
+      async function loadRealNews() {
+        try {
+          const res = await fetch(`${API}/api/news`);
+          const data = await res.json();
+          if (data && data.length > 0) {
+            // Convert backend news to our format and prepend to static news
+            const realNews = data.map((n, i) => ({
+              id: 1000 + i,
+              category: "latam",
+              icon: "🌾",
+              title_en: n.title,
+              title_es: n.title,
+              desc_en: n.summary,
+              desc_es: n.summary,
+              source: n.source || "FAO",
+              time_en: "Live",
+              time_es: "En vivo",
+              tag: "latam",
+              link: n.link || "#",
+            }));
+            // Mix real news with static news
+            allNews = [...realNews, ...NEWS_DB];
+          } else {
+            allNews = NEWS_DB;
+          }
+        } catch {
+          allNews = NEWS_DB;
+        }
+        renderNews();
+      }
+
+      // ── FETCH REAL PRICES FOR TICKER ──────────────────────────────────────────────
+      async function loadRealTicker() {
+        try {
+          const res = await fetch(`${API}/api/prices`);
+          const data = await res.json();
+          const ICONS = {
+            coffee: "☕",
+            cacao: "🍫",
+            corn: "🌽",
+            avocado: "🥑",
+            soy: "🌱",
+          };
+          const NAMES = {
+            coffee: { en: "Coffee", es: "Café" },
+            cacao: { en: "Cacao", es: "Cacao" },
+            corn: { en: "Corn", es: "Maíz" },
+            avocado: { en: "Avocado", es: "Aguacate" },
+            soy: { en: "Soy", es: "Soya" },
+          };
+          const top5 = ["coffee", "cacao", "corn", "avocado", "soy"];
+          document.getElementById("price-ticker").innerHTML = top5
+            .map((key) => {
+              const d = data[key];
+              if (!d) return "";
+              const n = NAMES[key];
+              return `<div class="ticker-item">
+        <div class="ticker-crop">${ICONS[key]} ${lang === "es" ? n.es : n.en}</div>
+        <div>
+          <div class="ticker-price">$${d.price > 100 ? d.price.toLocaleString() : d.price.toFixed(2)}</div>
+          <div class="ticker-chg ${d.change >= 0 ? "up" : "dn"}">${d.change >= 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%</div>
+        </div>
+      </div>`;
+            })
+            .join("");
+        } catch {
+          renderTicker(); // fallback to static
+        }
+      }
+
       // ── INIT ──────────────────────────────────────────────────────────────────────
       allNews = NEWS_DB;
       setLang(lang);
       renderNews();
-      renderTicker();
       renderTrending();
-      setInterval(() => {
-        renderTicker();
-      }, 30000);
+      loadRealNews();
+      loadRealTicker();
+      setInterval(loadRealTicker, 30000);
+      setInterval(loadRealNews, 300000); // refresh news every 5 min
     </script>
   </body>
 </html>
