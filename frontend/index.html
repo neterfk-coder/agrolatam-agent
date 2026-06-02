@@ -780,14 +780,17 @@
                 </div>
                 <div
                   class="si-sub"
-                  data-en="Coming soon"
-                  data-es="Próximamente"
+                  data-en="Switch to dark theme"
+                  data-es="Cambiar a tema oscuro"
                 >
-                  Coming soon
+                  Cambiar a tema oscuro
                 </div>
               </div>
               <label class="toggle"
-                ><input type="checkbox" disabled /><span
+                ><input
+                  type="checkbox"
+                  id="dark-mode-toggle"
+                  onchange="toggleDarkMode(this.checked)" /><span
                   class="toggle-slider"
                 ></span
               ></label>
@@ -858,7 +861,7 @@
               </div>
               <span class="si-arrow">›</span>
             </button>
-            <button class="settings-item">
+            <button class="settings-item" onclick="openSupport()">
               <span class="si-icon">💬</span>
               <div class="si-text">
                 <div
@@ -866,14 +869,14 @@
                   data-en="Technical Support"
                   data-es="Soporte Técnico"
                 >
-                  Technical Support
+                  Soporte Técnico
                 </div>
                 <div
                   class="si-sub"
                   data-en="Contact: support@agrolatam.ai"
                   data-es="Contacto: support@agrolatam.ai"
                 >
-                  Contact: support@agrolatam.ai
+                  Contacto: support@agrolatam.ai
                 </div>
               </div>
               <span class="si-arrow">›</span>

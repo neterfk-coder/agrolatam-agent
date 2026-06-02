@@ -2,8 +2,8 @@ const API = "https://netricd-agrolatam-agent.hf.space";
 
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
-("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk");
-const SUPABASE_KEY = "";
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
 let sb = null;
 try {
   const { createClient } = supabase;
@@ -461,4 +461,32 @@ document.addEventListener("click", (e) => {
     closeMenu();
   }
 });
-s;
+
+// ── SUPPORT ───────────────────────────────────────────────────────────────────
+function openSupport() {
+  const subject =
+    lang === "es"
+      ? "Soporte Técnico - AgroLatam Agent"
+      : "Technical Support - AgroLatam Agent";
+  const body =
+    lang === "es"
+      ? "Hola, necesito ayuda con AgroLatam Agent.\n\nDescripción del problema:\n"
+      : "Hello, I need help with AgroLatam Agent.\n\nProblem description:\n";
+  window.open(
+    `mailto:support@agrolatam.ai?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+    "_blank",
+  );
+}
+
+// ── DARK MODE ─────────────────────────────────────────────────────────────────
+function toggleDarkMode(enabled) {
+  document.body.classList.toggle("dark-mode", enabled);
+  localStorage.setItem("dark_mode", enabled ? "1" : "0");
+}
+
+// Apply saved dark mode on load
+if (localStorage.getItem("dark_mode") === "1") {
+  document.body.classList.add("dark-mode");
+  const toggle = document.getElementById("dark-mode-toggle");
+  if (toggle) toggle.checked = true;
+}

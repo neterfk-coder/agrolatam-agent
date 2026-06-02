@@ -1714,3 +1714,93 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ── DARK MODE ───────────────────────────────────────────────────────────── */
+body.dark-mode {
+  background: #0d1f18;
+}
+body.dark-mode .navbar {
+  background: #071410;
+}
+body.dark-mode .card,
+body.dark-mode .metric-card,
+body.dark-mode .alert-card,
+body.dark-mode .chat-container {
+  background: #112318;
+  border-color: #1a3a28;
+  color: #e8e8e0;
+}
+body.dark-mode .section {
+  background: #0d1f18;
+}
+body.dark-mode .hero {
+  background: #071410;
+}
+body.dark-mode .section-block {
+  background: #0d1f18;
+}
+body.dark-mode .feat-card {
+  background: #112318;
+  border-color: #1a3a28;
+}
+body.dark-mode .feat-title,
+body.dark-mode .block-title,
+body.dark-mode .page-title {
+  color: #e8e8e0;
+}
+body.dark-mode .feat-desc,
+body.dark-mode .block-desc,
+body.dark-mode .page-sub {
+  color: #7a9a88;
+}
+body.dark-mode .step-card {
+  background: #112318;
+  border-color: #1a3a28;
+}
+body.dark-mode .step-title {
+  color: #e8e8e0;
+}
+body.dark-mode .step-desc {
+  color: #7a9a88;
+}
+body.dark-mode .mkt-table th {
+  background: #071410;
+  color: #7a9a88;
+}
+body.dark-mode .mkt-table td {
+  border-color: #1a3a28;
+  color: #e8e8e0;
+}
+body.dark-mode .mkt-table tr:hover td {
+  background: #112318;
+}
+body.dark-mode .tech-card {
+  background: #112318;
+  border-color: #1a3a28;
+}
+body.dark-mode .tech-name {
+  color: #e8e8e0;
+}
+body.dark-mode .settings-panel {
+  background: #112318;
+}
+body.dark-mode .settings-item {
+  background: #0d1f18;
+  border-color: #1a3a28;
+}
+body.dark-mode .footer {
+  background: #071410;
+}
+body.dark-mode .chat-msgs {
+  background: #071410;
+}
+body.dark-mode .user-msg {
+  background: #1a3a28;
+}
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #112318;
+  border-color: #1a3a28;
+  color: #e8e8e0;
+}
