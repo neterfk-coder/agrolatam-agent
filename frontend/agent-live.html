@@ -1486,11 +1486,174 @@
       }
 
       // ── INIT ──────────────────────────────────────────────────────────────────────
+      const API = "https://netricd-agrolatam-agent.hf.space";
+
       setLang(lang);
       renderMissions();
-      // Fire first action immediately
-      setTimeout(triggerNextAction, 1000);
-      scheduleFeed();
+
+      async function initAgent() {
+        try {
+          const pricesRes = await fetch(`${API}/api/prices`);
+          const prices = await pricesRes.json();
+          const alertsRes = await fetch(`${API}/api/alerts`);
+          const alerts = await alertsRes.json();
+
+          const CROP_NAMES_EN = {
+            coffee: "Coffee",
+            cacao: "Cacao",
+            corn: "Corn",
+            banana: "Banana",
+            soy: "Soy",
+            palm_oil: "Palm Oil",
+            rice: "Rice",
+            sugarcane: "Sugarcane",
+            avocado: "Avocado",
+            orange: "Orange",
+            tomato: "Tomato",
+          };
+          const CROP_NAMES_ES = {
+            coffee: "Café",
+            cacao: "Cacao",
+            corn: "Maíz",
+            banana: "Banano",
+            soy: "Soya",
+            palm_oil: "Palma Aceitera",
+            rice: "Arroz",
+            sugarcane: "Caña de Azúcar",
+            avocado: "Aguacate",
+            orange: "Naranja",
+            tomato: "Tomate",
+          };
+          const CROP_ICONS = {
+            coffee: "☕",
+            cacao: "🍫",
+            corn: "🌽",
+            banana: "🍌",
+            soy: "🌱",
+            palm_oil: "🌴",
+            rice: "🌾",
+            sugarcane: "🍬",
+            avocado: "🥑",
+            orange: "🍊",
+            tomato: "🍅",
+          };
+          const CROP_COUNTRIES = {
+            coffee: ["Peru", "Colombia", "Honduras"],
+            cacao: ["Peru", "Ecuador", "Brazil"],
+            corn: ["Mexico", "Argentina", "Brazil"],
+            banana: ["Ecuador", "Colombia", "Honduras"],
+            soy: ["Brazil", "Argentina", "Paraguay"],
+            palm_oil: ["Colombia", "Ecuador", "Honduras"],
+            rice: ["Brazil", "Colombia", "Peru"],
+            sugarcane: ["Brazil", "Mexico", "Colombia"],
+            avocado: ["Mexico", "Peru", "Colombia"],
+            orange: ["Brazil", "Mexico", "Argentina"],
+            tomato: ["Mexico", "Brazil", "Chile"],
+          };
+
+          const buildActions = (nameMap) =>
+            Object.entries(prices)
+              .map(([crop, d]) => {
+                const icon = CROP_ICONS[crop] || "🌾";
+                const name = nameMap[crop] || crop;
+                const change = d.change || 0;
+                const price = d.price || 0;
+                const countries = CROP_COUNTRIES[crop] || ["LATAM"];
+                const farmers = Math.floor(Math.random() * 800) + 100;
+                const isES = nameMap === CROP_NAMES_ES;
+
+                if (change <= -2)
+                  return {
+                    type: "price",
+                    icon,
+                    farmers,
+                    revenue: farmers * 15,
+                    title: isES
+                      ? `Caída detectada en ${name} — ${change.toFixed(1)}%`
+                      : `${name} price drop — ${change.toFixed(1)}%`,
+                    desc: isES
+                      ? `${name} bajó ${Math.abs(change).toFixed(1)}% a $${price.toFixed(2)} en ${d.exchange}.`
+                      : `${name} fell ${Math.abs(change).toFixed(1)}% to $${price.toFixed(2)} on ${d.exchange}.`,
+                    tags: isES ? ["precio", "alerta"] : ["price", "alert"],
+                    result: isES
+                      ? `✅ ${farmers} agricultores notificados`
+                      : `✅ ${farmers} farmers notified`,
+                    wa: `${icon} ${isES ? "ALERTA" : "ALERT"}\n\n${name} ${change.toFixed(1)}% → $${price.toFixed(2)}\n\n${isES ? "Vende antes que cierre la ventana" : "Sell before window closes"}\n\n📊 AgroLatam Agent`,
+                    tools: { fivetran: 1, gemini: 1, wa: 1 },
+                  };
+                if (change >= 2)
+                  return {
+                    type: "alert",
+                    icon,
+                    farmers,
+                    revenue: farmers * 20,
+                    title: isES
+                      ? `Alza detectada en ${name} — +${change.toFixed(1)}%`
+                      : `${name} surge — +${change.toFixed(1)}%`,
+                    desc: isES
+                      ? `${name} subió ${change.toFixed(1)}% a $${price.toFixed(2)}.`
+                      : `${name} rose ${change.toFixed(1)}% to $${price.toFixed(2)}.`,
+                    tags: isES
+                      ? ["mercado", "oportunidad"]
+                      : ["market", "opportunity"],
+                    result: isES
+                      ? `✅ ${farmers} agricultores alertados`
+                      : `✅ ${farmers} farmers alerted`,
+                    wa: `${icon} ${isES ? "OPORTUNIDAD" : "OPPORTUNITY"}\n\n${name} +${change.toFixed(1)}% → $${price.toFixed(2)}\n\n${isES ? "¡Vende ahora!" : "Sell now!"}\n\n📊 AgroLatam Agent`,
+                    tools: { fivetran: 1, gemini: 1, wa: 1 },
+                  };
+                return {
+                  type: "weather",
+                  icon,
+                  farmers: Math.floor(Math.random() * 300) + 50,
+                  revenue: 0,
+                  title: isES
+                    ? `${name} — mercado estable`
+                    : `${name} — market stable`,
+                  desc: isES
+                    ? `Precio de ${name} estable en $${price.toFixed(2)} ${d.unit}.`
+                    : `${name} stable at $${price.toFixed(2)} ${d.unit}.`,
+                  tags: isES ? ["monitoreo"] : ["monitor"],
+                  result: isES ? `✅ Monitoreo activo` : `✅ Monitoring active`,
+                  wa: `${icon} ${isES ? "MONITOREO" : "MONITORING"}\n\n${name} $${price.toFixed(2)}\n\n${isES ? "Sin acción requerida" : "No action needed"}\n\n📊 AgroLatam Agent`,
+                  tools: { fivetran: 1, gemini: 1 },
+                };
+              })
+              .filter(Boolean);
+
+          ACTIONS_EN.splice(
+            0,
+            ACTIONS_EN.length,
+            ...buildActions(CROP_NAMES_EN),
+          );
+          ACTIONS_ES.splice(
+            0,
+            ACTIONS_ES.length,
+            ...buildActions(CROP_NAMES_ES),
+          );
+
+          alerts.forEach((a, i) => {
+            if (MISSIONS_EN[i]) {
+              MISSIONS_EN[i].text = a.title;
+              MISSIONS_EN[i].status =
+                a.type === "critical" ? "running" : "done";
+            }
+            if (MISSIONS_ES[i]) {
+              MISSIONS_ES[i].text = a.title;
+              MISSIONS_ES[i].status =
+                a.type === "critical" ? "running" : "done";
+            }
+          });
+          renderMissions();
+        } catch (e) {
+          console.log("Using fallback data:", e);
+        }
+
+        setTimeout(triggerNextAction, 1000);
+        scheduleFeed();
+      }
+
+      initAgent();
     </script>
   </body>
 </html>
