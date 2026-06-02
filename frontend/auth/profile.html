@@ -425,6 +425,24 @@
         <div class="nav-logo">🌱</div>
         <span class="nav-title">AgroLatam Agent</span>
       </a>
+      <button
+        onclick="signOut()"
+        style="
+          padding: 7px 14px;
+          background: rgba(176, 58, 46, 0.2);
+          border: 1px solid rgba(176, 58, 46, 0.4);
+          color: #fff;
+          border-radius: 8px;
+          font-size: 13px;
+          cursor: pointer;
+          font-family: Sora, sans-serif;
+          margin-right: 8px;
+        "
+        data-en="Sign Out"
+        data-es="Cerrar Sesión"
+      >
+        Cerrar Sesión
+      </button>
       <a href="../index.html" class="nav-back"
         >←
         <span data-en="Back to Dashboard" data-es="Volver al Panel"
@@ -829,25 +847,182 @@
         }
       }
 
-      // Load saved profile
-      const saved = JSON.parse(localStorage.getItem("profile") || "{}");
-      if (saved.fname) {
-        document.getElementById("fname").value = saved.fname;
-        document.getElementById("lname").value = saved.lname;
-        document.getElementById("display-name").textContent = (
-          saved.fname +
-          " " +
-          saved.lname
-        ).trim();
+      // ── LOAD USER DATA FROM SUPABASE + LOCALSTORAGE ──────────────────────────────
+      async function loadUserData() {
+        let userData = {};
+
+        // Try Supabase first
+        try {
+          const {
+            data: { session },
+          } = await sb.auth.getSession();
+          if (session?.user) {
+            const u = session.user;
+            const meta = u.user_metadata || {};
+
+            userData = {
+              fname: meta.first_name || meta.full_name?.split(" ")[0] || "",
+              lname:
+                meta.last_name ||
+                meta.full_name?.split(" ").slice(1).join(" ") ||
+                "",
+              email: u.email || "",
+              country: meta.country || "",
+              created: new Date(u.created_at).toLocaleDateString(
+                lang === "es" ? "es-PE" : "en-US",
+              ),
+            };
+
+            // Also try farmers table
+            try {
+              const { data: farmer } = await sb
+                .from("farmers")
+                .select("*")
+                .eq("id", u.id)
+                .single();
+              if (farmer) {
+                userData.crop = farmer.crop || "coffee";
+                userData.country = farmer.country || userData.country;
+              }
+            } catch {}
+
+            // Update sign in/out buttons in navbar
+            const btnIn = document.getElementById("btn-signin");
+            const btnOut = document.getElementById("btn-signout");
+            if (btnIn) btnIn.style.display = "none";
+            if (btnOut) btnOut.style.display = "flex";
+          } else {
+            // Not logged in - redirect to login
+            window.location.href = "login.html";
+            return;
+          }
+        } catch (e) {
+          console.log("Supabase error:", e);
+        }
+
+        // Fallback to localStorage
+        const savedProfile = JSON.parse(
+          localStorage.getItem("user_profile") || "{}",
+        );
+        const saved = JSON.parse(localStorage.getItem("profile") || "{}");
+
+        const fname =
+          userData.fname || saved.fname || savedProfile.first_name || "";
+        const lname =
+          userData.lname || saved.lname || savedProfile.last_name || "";
+        const email = userData.email || saved.email || savedProfile.email || "";
+        const country =
+          userData.country || saved.country || savedProfile.country || "";
+        const crop = userData.crop || saved.crop || "coffee";
+
+        // Fill form fields
+        if (fname) document.getElementById("fname").value = fname;
+        if (lname) document.getElementById("lname").value = lname;
+        if (email) document.getElementById("email").value = email;
+        if (country) document.getElementById("country").value = country;
+        if (crop) document.getElementById("crop").value = crop;
+
+        // Update display name and avatar
+        const fullName = (fname + " " + lname).trim();
+        const displayEl = document.getElementById("display-name");
+        if (displayEl)
+          displayEl.textContent =
+            fullName || (lang === "es" ? "Tu Nombre" : "Your Name");
+
+        const avatarEl = document.getElementById("avatar-display");
+        if (avatarEl && fullName)
+          avatarEl.textContent = fullName[0].toUpperCase();
+
+        // Update role
+        const roleEl = document.getElementById("display-role");
+        if (roleEl)
+          roleEl.textContent =
+            lang === "es" ? "Agricultor · AgroLatam" : "Farmer · AgroLatam";
+
+        // Update member since
+        const memberEl = document.getElementById("member-since");
+        if (memberEl && userData.created)
+          memberEl.textContent = userData.created;
       }
-      if (saved.email) document.getElementById("email").value = saved.email;
-      if (saved.country)
-        document.getElementById("country").value = saved.country;
-      if (saved.crop) document.getElementById("crop").value = saved.crop;
-      if (saved.bio) document.getElementById("bio").value = saved.bio;
+
+      async function saveProfile() {
+        const fname = document.getElementById("fname").value.trim();
+        const lname = document.getElementById("lname").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const country = document.getElementById("country").value;
+        const crop = document.getElementById("crop").value;
+        const bio = document.getElementById("bio")?.value || "";
+
+        // Update display
+        const fullName = (fname + " " + lname).trim();
+        const displayEl = document.getElementById("display-name");
+        if (displayEl) displayEl.textContent = fullName;
+
+        // Save to localStorage
+        localStorage.setItem(
+          "profile",
+          JSON.stringify({ fname, lname, email, country, crop, bio }),
+        );
+        localStorage.setItem(
+          "user_profile",
+          JSON.stringify({
+            first_name: fname,
+            last_name: lname,
+            email,
+            country,
+            crop,
+          }),
+        );
+
+        // Save to Supabase
+        try {
+          const {
+            data: { session },
+          } = await sb.auth.getSession();
+          if (session?.user) {
+            await sb.from("farmers").upsert({
+              id: session.user.id,
+              full_name: fullName,
+              country: country,
+              crop: crop,
+            });
+            await sb.auth.updateUser({
+              data: {
+                full_name: fullName,
+                first_name: fname,
+                last_name: lname,
+                country,
+              },
+            });
+          }
+        } catch (e) {
+          console.log("Save error:", e);
+        }
+
+        // Show success message
+        const msg = document.getElementById("save-msg");
+        if (msg) {
+          msg.textContent =
+            lang === "es" ? "✅ Perfil guardado" : "✅ Profile saved";
+          msg.classList.add("show");
+          setTimeout(() => msg.classList.remove("show"), 3000);
+        }
+      }
+
+      async function signOut() {
+        await sb.auth.signOut();
+        localStorage.removeItem("user_profile");
+        localStorage.removeItem("profile");
+        window.location.href = "login.html";
+      }
+
+      // Apply accent color
       const accent = localStorage.getItem("accent");
       if (accent)
         document.documentElement.style.setProperty("--forest", accent);
+
+      // Load data on page load
+      loadUserData();
     </script>
   </body>
 </html>

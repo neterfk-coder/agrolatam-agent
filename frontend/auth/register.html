@@ -404,8 +404,8 @@
       <div class="auth-box">
         <div class="lang-top">
           <div class="lang-btn">
-            <button class="lang-opt active" onclick="setLang('en')">EN</button>
-            <button class="lang-opt" onclick="setLang('es')">ES</button>
+            <button class="lang-opt" onclick="setLang('en')">EN</button>
+            <button class="lang-opt active" onclick="setLang('es')">ES</button>
           </div>
         </div>
 
@@ -532,7 +532,7 @@
         },
       };
 
-      let lang = localStorage.getItem("lang") || "en";
+      let lang = localStorage.getItem("lang") || "es";
       setLang(lang);
 
       function setLang(l) {
@@ -563,6 +563,7 @@
         const email = document.getElementById("email").value.trim();
         const country = document.getElementById("country").value;
         const pass = document.getElementById("password").value;
+
         if (!fname || !lname || !email || !country || !pass) {
           showMsg(t[lang].errorEmpty, "error");
           return;
@@ -571,21 +572,67 @@
           showMsg(t[lang].errorPass, "error");
           return;
         }
+
         const btn = document.getElementById("btn");
         btn.disabled = true;
         btn.textContent = t[lang].creating;
-        const { error } = await sb.auth.signUp({
+
+        const { data, error } = await sb.auth.signUp({
           email,
           password: pass,
-          options: { data: { full_name: fname + " " + lname, country } },
+          options: {
+            data: {
+              full_name: fname + " " + lname,
+              first_name: fname,
+              last_name: lname,
+              country: country,
+            },
+          },
         });
+
         btn.disabled = false;
         btn.textContent = lang === "en" ? "Create Account →" : "Crear Cuenta →";
+
         if (error) {
           showMsg(error.message, "error");
-        } else {
-          showMsg(t[lang].success, "success");
+          return;
         }
+
+        // Save user data to localStorage for immediate use
+        const userData = {
+          full_name: fname + " " + lname,
+          first_name: fname,
+          last_name: lname,
+          email: email,
+          country: country,
+          created_at: new Date().toISOString(),
+        };
+        localStorage.setItem("user_profile", JSON.stringify(userData));
+
+        // Try to save to Supabase farmers table
+        if (data?.user) {
+          try {
+            await sb.from("farmers").upsert({
+              id: data.user.id,
+              full_name: fname + " " + lname,
+              country: country,
+              crop: "coffee",
+            });
+          } catch (e) {
+            console.log("Profile save:", e);
+          }
+        }
+
+        // Show success and redirect
+        showMsg(
+          lang === "es"
+            ? "✅ ¡Cuenta creada! Redirigiendo..."
+            : "✅ Account created! Redirecting...",
+          "success",
+        );
+        setTimeout(() => {
+          window.location.href = "../index.html";
+        }, 1500);
       }
     </script>
   </body>
