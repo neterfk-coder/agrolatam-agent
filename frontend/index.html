@@ -15,6 +15,222 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
+    <!-- LOADING SCREEN -->
+    <div
+      id="app-loader"
+      style="
+        position: fixed;
+        inset: 0;
+        background: #0a4a35;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+      "
+    >
+      <div style="text-align: center">
+        <!-- LOGO -->
+        <div
+          style="
+            width: 72px;
+            height: 72px;
+            background: #c8902a;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 40px rgba(200, 144, 42, 0.4);
+            animation: logoPulse 2s ease-in-out infinite;
+          "
+        >
+          🌱
+        </div>
+        <!-- NAME -->
+        <div
+          style="
+            font-family: &quot;Fraunces&quot;, serif;
+            font-size: 28px;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+          "
+        >
+          AgroLatam Agent
+        </div>
+        <div
+          id="loader-msg"
+          style="
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 32px;
+            font-family: &quot;Sora&quot;, sans-serif;
+          "
+        >
+          Conectando a mercados globales...
+        </div>
+        <!-- PROGRESS BAR -->
+        <div
+          style="
+            width: 220px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto 20px;
+          "
+        >
+          <div
+            id="loader-bar"
+            style="
+              height: 100%;
+              background: linear-gradient(90deg, #c8902a, #4ade80);
+              border-radius: 10px;
+              width: 0%;
+              transition: width 0.4s ease;
+            "
+          ></div>
+        </div>
+        <!-- STEPS -->
+        <div style="display: flex; gap: 20px; justify-content: center">
+          <div
+            id="step1"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              font-size: 11px;
+              color: rgba(255, 255, 255, 0.3);
+              font-family: &quot;Sora&quot;, sans-serif;
+              transition: color 0.3s;
+            "
+          >
+            ⚡ Fivetran
+          </div>
+          <div
+            id="step2"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              font-size: 11px;
+              color: rgba(255, 255, 255, 0.3);
+              font-family: &quot;Sora&quot;, sans-serif;
+              transition: color 0.3s;
+            "
+          >
+            🤖 Gemini
+          </div>
+          <div
+            id="step3"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              font-size: 11px;
+              color: rgba(255, 255, 255, 0.3);
+              font-family: &quot;Sora&quot;, sans-serif;
+              transition: color 0.3s;
+            "
+          >
+            🌦️ Open-Meteo
+          </div>
+          <div
+            id="step4"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              font-size: 11px;
+              color: rgba(255, 255, 255, 0.3);
+              font-family: &quot;Sora&quot;, sans-serif;
+              transition: color 0.3s;
+            "
+          >
+            🗄️ Supabase
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes logoPulse {
+        0%,
+        100% {
+          box-shadow: 0 0 40px rgba(200, 144, 42, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 70px rgba(200, 144, 42, 0.7);
+        }
+      }
+    </style>
+
+    <script>
+      // ── LOADING SCREEN ────────────────────────────────────────────────────────────
+      const loaderMsgs = {
+        es: [
+          "Conectando a mercados globales...",
+          "Sincronizando precios con Fivetran...",
+          "Despertando al agente IA...",
+          "Cargando datos climáticos...",
+          "¡Listo!",
+        ],
+        en: [
+          "Connecting to global markets...",
+          "Syncing prices with Fivetran...",
+          "Waking up the AI agent...",
+          "Loading weather data...",
+          "Ready!",
+        ],
+      };
+      const savedLang = localStorage.getItem("lang") || "es";
+      const msgs = loaderMsgs[savedLang] || loaderMsgs.es;
+      let loaderStep = 0;
+
+      function advanceLoader(pct, msgIdx, stepId) {
+        document.getElementById("loader-bar").style.width = pct + "%";
+        document.getElementById("loader-msg").textContent = msgs[msgIdx];
+        if (stepId) {
+          const el = document.getElementById(stepId);
+          if (el) el.style.color = "#4ade80";
+        }
+      }
+
+      // Animate loader steps
+      setTimeout(() => advanceLoader(25, 1, "step1"), 300);
+      setTimeout(() => advanceLoader(50, 2, "step2"), 900);
+      setTimeout(() => advanceLoader(75, 3, "step3"), 1400);
+      setTimeout(() => advanceLoader(90, 3, "step4"), 1800);
+
+      // Hide loader when page is ready
+      async function hideLoader() {
+        try {
+          const API = "https://netricd-agrolatam-agent.hf.space";
+          const res = await fetch(`${API}/api/health`, {
+            signal: AbortSignal.timeout(8000),
+          });
+          if (res.ok) {
+            advanceLoader(100, 4, "step4");
+          } else {
+            advanceLoader(100, 4, "step4");
+          }
+        } catch {
+          advanceLoader(100, 4, "step4");
+        }
+        setTimeout(() => {
+          const loader = document.getElementById("app-loader");
+          loader.style.opacity = "0";
+          setTimeout(() => (loader.style.display = "none"), 500);
+        }, 400);
+      }
+
+      // Start hiding after minimum 2 seconds
+      setTimeout(hideLoader, 2000);
+    </script>
+
     <!-- NAVBAR -->
     <nav class="navbar">
       <div class="nav-brand">
