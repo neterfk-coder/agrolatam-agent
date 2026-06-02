@@ -1256,7 +1256,7 @@
 
       // ── UPDATE LOCATION ───────────────────────────────────────────────────────────
       async function updateLocation(lat, lon, displayName) {
-        map.setView([lat, lon], 13, { animate: true });
+        map.setView([lat, lon], 12, { animate: true });
 
         if (userMarker) {
           map.removeLayer(userMarker);
@@ -1359,44 +1359,79 @@
 
       // ── FETCH NEARBY PLACES (Overpass API) ────────────────────────────────────────
       async function fetchNearbyPlaces(lat, lon) {
-        const r = 5000; // 5km radius
+        const r = 15000; // 15km radius — wider search
 
-        // Overpass query for agricultural commercial places
+        // Comprehensive Overpass query for ALL agricultural and commercial places in LATAM
         const query = `
-    [out:json][timeout:25];
+    [out:json][timeout:30];
     (
       node["amenity"="marketplace"](around:${r},${lat},${lon});
+      node["amenity"="market"](around:${r},${lat},${lon});
       node["shop"="agrarian"](around:${r},${lat},${lon});
       node["shop"="farm"](around:${r},${lat},${lon});
       node["shop"="supermarket"](around:${r},${lat},${lon});
-      node["shop"="convenience"](around:${r},${lat},${lon});
-      node["landuse"="farmyard"](around:${r},${lat},${lon});
+      node["shop"="general"](around:${r},${lat},${lon});
+      node["shop"="hardware"](around:${r},${lat},${lon});
+      node["shop"="wholesale"](around:${r},${lat},${lon});
       node["building"="warehouse"](around:${r},${lat},${lon});
+      node["building"="industrial"](around:${r},${lat},${lon});
       node["office"="agricultural"](around:${r},${lat},${lon});
-      node["amenity"="marketplace"](around:${r},${lat},${lon});
+      node["office"="cooperative"](around:${r},${lat},${lon});
+      node["landuse"="farmyard"](around:${r},${lat},${lon});
+      node["landuse"="farm"](around:${r},${lat},${lon});
+      node["name"~"mercado|market|feria|agro|coop|almacen|bodega|campo|agric",i](around:${r},${lat},${lon});
       way["amenity"="marketplace"](around:${r},${lat},${lon});
       way["shop"="agrarian"](around:${r},${lat},${lon});
       way["landuse"="farmyard"](around:${r},${lat},${lon});
       way["building"="warehouse"](around:${r},${lat},${lon});
+      way["name"~"mercado|market|feria|agro|coop|almacen",i](around:${r},${lat},${lon});
     );
-    out center;
+    out center 60;
   `;
 
         let osmPlaces = [];
-        try {
-          const res = await fetch("https://overpass-api.de/api/interpreter", {
-            method: "POST",
-            body: "data=" + encodeURIComponent(query),
-          });
-          const data = await res.json();
-          osmPlaces = parseOsmPlaces(data.elements, lat, lon);
-        } catch {}
+
+        // Try multiple Overpass API mirrors for reliability
+        const OVERPASS_MIRRORS = [
+          "https://overpass-api.de/api/interpreter",
+          "https://overpass.kumi.systems/api/interpreter",
+          "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+        ];
+
+        for (const mirror of OVERPASS_MIRRORS) {
+          try {
+            const res = await fetch(mirror, {
+              method: "POST",
+              body: "data=" + encodeURIComponent(query),
+              signal: AbortSignal.timeout(10000),
+            });
+            if (!res.ok) continue;
+            const data = await res.json();
+            osmPlaces = parseOsmPlaces(data.elements, lat, lon);
+            if (osmPlaces.length > 0) break; // Got results, stop trying mirrors
+          } catch {
+            continue;
+          }
+        }
 
         // Always add curated local places for common LATAM cities
         const curatedPlaces = getCuratedPlaces(lat, lon);
 
-        allPlaces = [...curatedPlaces, ...osmPlaces];
+        // Combine: OSM real places first, then curated
+        allPlaces = [...osmPlaces, ...curatedPlaces];
+
+        // Remove duplicates by name
+        const seen = new Set();
+        allPlaces = allPlaces.filter((p) => {
+          const key = p.name.toLowerCase().trim();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+
         document.getElementById("loc-places").textContent = allPlaces.length;
+        document.getElementById("loc-places").style.color =
+          allPlaces.length > 0 ? "#4ade80" : "#fff";
         filterPlaces();
       }
 
@@ -1413,10 +1448,59 @@
             const name = tags.name || "Unknown";
             const dist = calcDist(userLat, userLon, lat, lon);
 
+            // Detect place type intelligently
             let type = "store";
-            if (tags.amenity === "marketplace") type = "market";
-            else if (tags.shop === "agrarian" || tags.shop === "farm")
+            const nameLow = name.toLowerCase();
+            if (tags.amenity === "marketplace" || tags.amenity === "market")
+              type = "market";
+            else if (
+              tags.shop === "agrarian" ||
+              tags.shop === "farm" ||
+              tags.shop === "wholesale"
+            )
               type = "store";
+            else if (
+              tags.building === "warehouse" ||
+              tags.building === "industrial"
+            )
+              type = "warehouse";
+            else if (
+              tags.office === "agricultural" ||
+              tags.office === "cooperative"
+            )
+              type = "cooperative";
+            else if (tags.landuse === "farmyard" || tags.landuse === "farm")
+              type = "farm";
+            else if (
+              nameLow.includes("coop") ||
+              nameLow.includes("cooperativa") ||
+              nameLow.includes("asociacion") ||
+              nameLow.includes("asociación")
+            )
+              type = "cooperative";
+            else if (nameLow.includes("export") || nameLow.includes("acopio"))
+              type = "exporter";
+            else if (
+              nameLow.includes("mercado") ||
+              nameLow.includes("market") ||
+              nameLow.includes("feria") ||
+              nameLow.includes("plaza")
+            )
+              type = "market";
+            else if (
+              nameLow.includes("almacen") ||
+              nameLow.includes("almacén") ||
+              nameLow.includes("bodega") ||
+              nameLow.includes("silo")
+            )
+              type = "warehouse";
+            else if (
+              nameLow.includes("agro") ||
+              nameLow.includes("campo") ||
+              nameLow.includes("farm") ||
+              nameLow.includes("agricol")
+            )
+              type = "farm";
             else if (tags.building === "warehouse") type = "warehouse";
             else if (tags.office === "agricultural") type = "cooperative";
             else if (tags.landuse === "farmyard") type = "farm";
@@ -1687,9 +1771,9 @@
             dist: calcDist(lat, lon, p.lat, p.lon),
             source: "curated",
           }))
-          .filter((p) => p.dist < 200)
+          .filter((p) => p.dist < 100)
           .sort((a, b) => a.dist - b.dist)
-          .slice(0, 20);
+          .slice(0, 15);
       }
 
       // ── RENDER PLACES LIST ────────────────────────────────────────────────────────
