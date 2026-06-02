@@ -1681,3 +1681,36 @@ body {
     font-size: 12px;
   }
 }
+
+/* ── FEAT CARDS CLICKABLE ────────────────────────────────────────────────── */
+.feat-clickable {
+  cursor: pointer;
+  transition: all 0.25s !important;
+}
+.feat-clickable:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 32px rgba(10, 74, 53, 0.12) !important;
+  border-color: var(--forest) !important;
+}
+.feat-clickable:hover .feat-icon {
+  transform: scale(1.15);
+}
+.feat-icon {
+  display: inline-block;
+  transition: transform 0.25s;
+}
+.feat-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--forest);
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all 0.25s;
+}
+.feat-clickable:hover .feat-link {
+  opacity: 1;
+  transform: translateY(0);
+}

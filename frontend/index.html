@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AgroLatam Agent — Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googlezs.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Sora:wght@300;400;500;600&display=swap"
       rel="stylesheet"
@@ -23,7 +23,9 @@
             class="nav-sub"
             data-en="Powered by Gemini + Fivetran"
             data-es="Impulsado por Gemini + Fivetran"
-          ></div>
+          >
+            Powered by Gemini + Fivetran
+          </div>
         </div>
       </div>
       <!-- HAMBURGER -->
@@ -974,110 +976,181 @@
             Everything a farmer needs, automated
           </h2>
           <div class="features-grid">
-            <div class="feat-card feat-large">
+            <div
+              class="feat-card feat-large feat-clickable"
+              onclick="
+                showSection(
+                  'markets',
+                  document.querySelectorAll('.nav-link')[2],
+                )
+              "
+            >
               <div class="feat-icon">📈</div>
               <div
                 class="feat-title"
                 data-en="Real-time commodity prices"
                 data-es="Precios en tiempo real"
               >
-                Real-time commodity prices
+                Precios en tiempo real
               </div>
               <div
                 class="feat-desc"
                 data-en="Live prices from ICE NY, ICE London, CME and FAO for coffee, cacao, corn, banana and soy across all of Latin America."
                 data-es="Precios en vivo de ICE NY, ICE Londres, CME y FAO para café, cacao, maíz, banano y soya en toda Latinoamérica."
               >
-                Live prices from ICE NY, ICE London, CME and FAO for coffee,
-                cacao, corn, banana and soy across all of Latin America.
+                Precios en vivo de ICE NY, ICE Londres, CME y FAO para café,
+                cacao, maíz, banano y soya en toda Latinoamérica.
+              </div>
+              <div
+                class="feat-link"
+                data-en="View Markets →"
+                data-es="Ver Mercados →"
+              >
+                Ver Mercados →
               </div>
             </div>
-            <div class="feat-card">
+
+            <div
+              class="feat-card feat-clickable"
+              onclick="window.location.href = 'weather.html'"
+            >
               <div class="feat-icon">🌦️</div>
               <div
                 class="feat-title"
                 data-en="Weather intelligence"
                 data-es="Inteligencia climática"
               >
-                Weather intelligence
+                Inteligencia climática
               </div>
               <div
                 class="feat-desc"
                 data-en="72-hour forecasts across LATAM with harvest risk alerts."
                 data-es="Pronósticos de 72 horas con alertas de riesgo para la cosecha."
               >
-                72-hour forecasts across LATAM with harvest risk alerts.
+                Pronósticos de 72 horas con alertas de riesgo para la cosecha.
+              </div>
+              <div
+                class="feat-link"
+                data-en="View Weather →"
+                data-es="Ver Clima →"
+              >
+                Ver Clima →
               </div>
             </div>
-            <div class="feat-card">
+
+            <div
+              class="feat-card feat-clickable"
+              onclick="
+                showSection('agent', document.querySelectorAll('.nav-link')[4])
+              "
+            >
               <div class="feat-icon">🤖</div>
               <div
                 class="feat-title"
                 data-en="AI-powered chat"
                 data-es="Chat con IA"
               >
-                AI-powered chat
+                Chat con IA
               </div>
               <div
                 class="feat-desc"
                 data-en="Ask the agent anything — it reasons with live market data."
                 data-es="Pregunta lo que quieras — razona con datos de mercado en vivo."
               >
-                Ask the agent anything — it reasons with live market data.
+                Pregunta lo que quieras — razona con datos de mercado en vivo.
+              </div>
+              <div
+                class="feat-link"
+                data-en="Talk to Agent →"
+                data-es="Hablar con Agente →"
+              >
+                Hablar con Agente →
               </div>
             </div>
-            <div class="feat-card">
+
+            <div
+              class="feat-card feat-clickable"
+              onclick="window.location.href = 'agent-live.html'"
+            >
               <div class="feat-icon">📄</div>
               <div
                 class="feat-title"
                 data-en="Auto-generate docs"
                 data-es="Documentos automáticos"
               >
-                Auto-generate docs
+                Documentos automáticos
               </div>
               <div
                 class="feat-desc"
                 data-en="Credit applications and export documents generated instantly."
                 data-es="Solicitudes de crédito y documentos de exportación generados al instante."
               >
-                Credit applications and export documents generated instantly.
+                Solicitudes de crédito y documentos de exportación generados al
+                instante.
+              </div>
+              <div
+                class="feat-link"
+                data-en="View Agent →"
+                data-es="Ver Agente →"
+              >
+                Ver Agente →
               </div>
             </div>
-            <div class="feat-card">
+
+            <div
+              class="feat-card feat-clickable"
+              onclick="
+                showSection('alerts', document.querySelectorAll('.nav-link')[3])
+              "
+            >
               <div class="feat-icon">🔔</div>
               <div
                 class="feat-title"
                 data-en="Smart alerts"
                 data-es="Alertas inteligentes"
               >
-                Smart alerts
+                Alertas inteligentes
               </div>
               <div
                 class="feat-desc"
                 data-en="WhatsApp and SMS alerts when prices move significantly."
-                data-es="Alertas por WhatsApp y SMS cuando los precios cambian significativamente."
+                data-es="Alertas cuando los precios cambian significativamente."
               >
-                WhatsApp and SMS alerts when prices move significantly.
+                Alertas cuando los precios cambian significativamente.
+              </div>
+              <div
+                class="feat-link"
+                data-en="View Alerts →"
+                data-es="Ver Alertas →"
+              >
+                Ver Alertas →
               </div>
             </div>
-            <div class="feat-card feat-large">
+
+            <div
+              class="feat-card feat-large feat-clickable"
+              onclick="window.location.href = 'map.html'"
+            >
               <div class="feat-icon">🗺️</div>
               <div
                 class="feat-title"
                 data-en="18-country coverage"
                 data-es="Cobertura de 18 países"
               >
-                18-country coverage
+                Cobertura de 18 países
               </div>
               <div
                 class="feat-desc"
                 data-en="Peru, Brazil, Colombia, Mexico, Argentina, Chile, Bolivia, Ecuador, Paraguay, Uruguay, Honduras, Guatemala, Nicaragua, Costa Rica, Panama, Dominican Republic, Venezuela and El Salvador."
                 data-es="Perú, Brasil, Colombia, México, Argentina, Chile, Bolivia, Ecuador, Paraguay, Uruguay, Honduras, Guatemala, Nicaragua, Costa Rica, Panamá, República Dominicana, Venezuela y El Salvador."
               >
-                Peru, Brazil, Colombia, Mexico, Argentina, Chile, Bolivia,
+                Perú, Brasil, Colombia, México, Argentina, Chile, Bolivia,
                 Ecuador, Paraguay, Uruguay, Honduras, Guatemala, Nicaragua,
-                Costa Rica, Panama, Dominican Republic, Venezuela and El
+                Costa Rica, Panamá, República Dominicana, Venezuela y El
                 Salvador.
+              </div>
+              <div class="feat-link" data-en="View Map →" data-es="Ver Mapa →">
+                Ver Mapa →
               </div>
             </div>
           </div>
