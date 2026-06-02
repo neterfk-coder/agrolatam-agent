@@ -2,8 +2,8 @@ const API = "https://netricd-agrolatam-agent.hf.space";
 
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
+("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk");
+const SUPABASE_KEY = "";
 let sb = null;
 try {
   const { createClient } = supabase;
@@ -287,7 +287,7 @@ function renderMarketsTable() {
       <td>${ICONS[crop] || ""} ${cropName(crop)}</td>
       <td class="price-val">${d.price > 100 ? "$" + d.price.toLocaleString() : "$" + d.price.toFixed(2)}</td>
       <td class="${d.change > 0 ? "up-text" : "down-text"}">${d.change > 0 ? "▲" : "▼"} ${Math.abs(d.change).toFixed(1)}%</td>
-      <td>${d.unit}</td><td>${d.exchange}</td><td>${sig}</td>
+      <td><span translate="no">${d.unit}</span></td><td><span translate="no">${d.exchange}</span></td><td>${sig}</td>
     </tr>`;
     })
     .join("");
@@ -461,3 +461,4 @@ document.addEventListener("click", (e) => {
     closeMenu();
   }
 });
+s;
