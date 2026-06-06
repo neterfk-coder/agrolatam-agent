@@ -42,7 +42,7 @@ async function signOutUser() {
 }
 
 // ── LANGUAGE ──────────────────────────────────────────────────────────────────
-let lang = localStorage.getItem("lang") || "es"; // Default: Spanish
+let lang = localStorage.getItem("lang") || "en"; // Default: English
 
 // All static translations for texts without data-en/data-es attributes
 const T = {
