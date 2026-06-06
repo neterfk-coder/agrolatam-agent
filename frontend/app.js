@@ -247,6 +247,8 @@ async function loadPrices() {
   }
   renderPriceGrid();
   renderMarketsTable();
+  // Check for price alerts and notify
+  if (typeof checkAndNotify === "function") checkAndNotify(priceData);
 }
 
 function renderPriceGrid() {
