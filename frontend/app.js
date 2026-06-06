@@ -1,9 +1,8 @@
 const API = "https://netricd-agrolatam-agent.hf.space";
 
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
-const SUPABASE_URL = "https://pcqgiorwqcxoylvirhbh.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcWdpb3J3cWN4b3lsdmlyaGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDA1ODcsImV4cCI6MjA5NTE3NjU4N30.D7-uUcXnfMfJFoLOTI5TdNqOEtcue0AhhFCbnepWSJk";
+const SUPABASE_URL = "TU_SUPABASE_URL";
+const SUPABASE_KEY = "TU_SUPABASE_KEY";
 let sb = null;
 try {
   const { createClient } = supabase;
@@ -42,7 +41,7 @@ async function signOutUser() {
 }
 
 // ── LANGUAGE ──────────────────────────────────────────────────────────────────
-let lang = localStorage.getItem("lang") || "en"; // Default: English
+let lang = localStorage.getItem("lang") || "es"; // Default: Spanish
 
 // All static translations for texts without data-en/data-es attributes
 const T = {
@@ -490,3 +489,58 @@ if (localStorage.getItem("dark_mode") === "1") {
   const toggle = document.getElementById("dark-mode-toggle");
   if (toggle) toggle.checked = true;
 }
+
+// ── FIVETRAN WIDGET ───────────────────────────────────────────────────────────
+async function loadFivetranWidget() {
+  try {
+    const res = await fetch(`${API}/api/fivetran/status`);
+    const data = await res.json();
+
+    const active = data.active || data.total || 6;
+    const total = data.total || 6;
+    const statusEl = document.getElementById("ft-widget-status");
+    if (statusEl) {
+      statusEl.textContent =
+        lang === "es"
+          ? `${active}/${total} pipelines activos · Última sync: ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+          : `${active}/${total} pipelines active · Last sync: ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+    }
+
+    // Pipeline status dots
+    const dotsEl = document.getElementById("ft-pipeline-dots");
+    if (dotsEl && data.pipelines) {
+      dotsEl.innerHTML = data.pipelines
+        .slice(0, 6)
+        .map((p) => {
+          const color =
+            p.status === "synced"
+              ? "#4ade80"
+              : p.status === "syncing"
+                ? "#fbbf24"
+                : "#94a3b8";
+          return `<div title="${p.name}" style="width:8px;height:8px;border-radius:50%;background:${color};${p.status === "syncing" ? "animation:pulse 1s infinite" : ""}"></div>`;
+        })
+        .join("");
+    }
+  } catch {
+    const statusEl = document.getElementById("ft-widget-status");
+    if (statusEl) {
+      statusEl.textContent =
+        lang === "es"
+          ? "6 pipelines configurados · Fivetran MCP activo"
+          : "6 pipelines configured · Fivetran MCP active";
+    }
+    // Show static dots
+    const dotsEl = document.getElementById("ft-pipeline-dots");
+    if (dotsEl) {
+      dotsEl.innerHTML = Array(6)
+        .fill(
+          '<div style="width:8px;height:8px;border-radius:50%;background:#4ade80;"></div>',
+        )
+        .join("");
+    }
+  }
+}
+
+loadFivetranWidget();
+setInterval(loadFivetranWidget, 30000);

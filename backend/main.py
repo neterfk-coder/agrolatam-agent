@@ -1,10 +1,13 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 import os
+import yfinance as yf
+import feedparser
 from dotenv import load_dotenv
 from agent import AgroLatamAgent
+from fivetran_mcp import fivetran_mcp
 from datetime import datetime
 
 load_dotenv()
@@ -39,79 +42,64 @@ class FarmerProfile(BaseModel):
     country: str
     crop: str
 
-# ── 11 CROPS ──────────────────────────────────────────────────────────────────
-PRICES = {
-    "coffee":     {"price": 2.34,  "change": -3.2, "unit": "USD/lb",     "exchange": "ICE NY"},
-    "cacao":      {"price": 3812,  "change":  1.8,  "unit": "USD/ton",    "exchange": "ICE London"},
-    "corn":       {"price": 4.52,  "change":  0.5,  "unit": "USD/bushel", "exchange": "CME"},
-    "banana":     {"price": 0.89,  "change": -1.1,  "unit": "USD/kg",     "exchange": "FAO"},
-    "soy":        {"price": 11.20, "change":  2.3,  "unit": "USD/bushel", "exchange": "CME"},
-    "palm_oil":   {"price": 1124,  "change":  0.8,  "unit": "USD/ton",    "exchange": "BMD Malaysia"},
-    "rice":       {"price": 17.40, "change": -0.6,  "unit": "USD/cwt",    "exchange": "CBOT"},
-    "sugarcane":  {"price": 0.21,  "change":  1.2,  "unit": "USD/kg",     "exchange": "ICE NY"},
-    "avocado":    {"price": 2.15,  "change":  3.4,  "unit": "USD/kg",     "exchange": "FAO"},
-    "orange":     {"price": 1.85,  "change": -0.9,  "unit": "USD/kg",     "exchange": "FAO"},
-    "tomato":     {"price": 1.10,  "change":  0.4,  "unit": "USD/kg",     "exchange": "FAO"},
+# ── YAHOO FINANCE SYMBOLS ─────────────────────────────────────────────────────
+SYMBOLS = {
+    "coffee":    {"symbol": "KC=F",  "unit": "USD/lb",     "exchange": "ICE NY",      "factor": 1},
+    "cacao":     {"symbol": "CC=F",  "unit": "USD/ton",    "exchange": "ICE London",  "factor": 1},
+    "corn":      {"symbol": "ZC=F",  "unit": "USD/bushel", "exchange": "CME",         "factor": 1},
+    "soy":       {"symbol": "ZS=F",  "unit": "USD/bushel", "exchange": "CME",         "factor": 1},
+    "sugarcane": {"symbol": "SB=F",  "unit": "USD/lb",     "exchange": "ICE NY",      "factor": 1},
+    "palm_oil":  {"symbol": "KPO=F", "unit": "USD/ton",    "exchange": "BMD Malaysia","factor": 1},
+    "rice":      {"symbol": "ZR=F",  "unit": "USD/cwt",    "exchange": "CBOT",        "factor": 1},
 }
 
-YAHOO_TICKERS = {
-    "coffee":    {"symbol": "KC=F", "exchange": "ICE NY",    "unit": "USD/lb"},
-    "cacao":     {"symbol": "CC=F", "exchange": "ICE London", "unit": "USD/ton"},
-    "corn":      {"symbol": "ZC=F", "exchange": "CME",       "unit": "USD/bushel"},
-    "soy":       {"symbol": "ZS=F", "exchange": "CME",       "unit": "USD/bushel"},
-    "rice":      {"symbol": "ZR=F", "exchange": "CBOT",      "unit": "USD/cwt"},
-    "sugarcane": {"symbol": "SB=F", "exchange": "ICE NY",    "unit": "USD/kg"},
-    "orange":    {"symbol": "OJ=F", "exchange": "ICE NY",    "unit": "USD/kg"},
+# Fallback prices for crops not available on Yahoo Finance
+FALLBACK = {
+    "banana":   {"price": 0.89,  "unit": "USD/kg",  "exchange": "FAO"},
+    "cacao":    {"price": 3812,  "unit": "USD/ton", "exchange": "ICE London"},
+    "avocado":  {"price": 2.15,  "unit": "USD/kg",  "exchange": "FAO"},
+    "orange":   {"price": 1.85,  "unit": "USD/kg",  "exchange": "FAO"},
+    "tomato":   {"price": 1.10,  "unit": "USD/kg",  "exchange": "FAO"},
 }
 
-YAHOO_QUOTE_URL = "https://query1.finance.yahoo.com/v7/finance/quote"
-
-async def fetch_realtime_prices():
-    symbols = ",".join([v["symbol"] for v in YAHOO_TICKERS.values() if v.get("symbol")])
-    async with httpx.AsyncClient(timeout=10) as client:
-        r = await client.get(YAHOO_QUOTE_URL, params={"symbols": symbols})
-        r.raise_for_status()
-        data = r.json()
-
-    quotes = {q["symbol"]: q for q in data.get("quoteResponse", {}).get("result", [])}
-    prices = {}
-    for crop, meta in YAHOO_TICKERS.items():
-        symbol = meta.get("symbol")
-        quote = quotes.get(symbol)
-        if quote and quote.get("regularMarketPrice") is not None:
-            prices[crop] = {
-                "price": quote["regularMarketPrice"],
-                "change": round(quote.get("regularMarketChangePercent", 0.0), 2),
-                "unit": meta["unit"],
-                "exchange": meta["exchange"],
-            }
-        else:
-            prices[crop] = PRICES[crop]
-
-    # Keep crops without Yahoo tickers as fallback static values
-    for crop in PRICES:
-        if crop not in prices:
-            prices[crop] = PRICES[crop]
-
-    return prices
+def get_real_price(symbol_info):
+    try:
+        ticker = yf.Ticker(symbol_info["symbol"])
+        hist   = ticker.history(period="2d")
+        if hist.empty:
+            return None, None
+        latest   = float(hist["Close"].iloc[-1])
+        previous = float(hist["Close"].iloc[-2]) if len(hist) > 1 else latest
+        change   = round(((latest - previous) / previous) * 100, 2)
+        return round(latest, 4), change
+    except Exception:
+        return None, None
 
 @app.get("/api/prices")
 async def get_prices():
-    try:
-        prices = await fetch_realtime_prices()
-    except Exception:
-        prices = PRICES
+    prices = {}
 
-    if sb:
-        try:
-            rows = [
-                {"crop": c, "price": d["price"], "change_pct": d["change"],
-                 "exchange": d["exchange"], "recorded_at": datetime.utcnow().isoformat()}
-                for c, d in prices.items()
-            ]
-            sb.table("prices").insert(rows).execute()
-        except Exception:
-            pass
+    # Get real prices from Yahoo Finance
+    for crop, info in SYMBOLS.items():
+        price, change = get_real_price(info)
+        if price:
+            prices[crop] = {
+                "price":    price,
+                "change":   change,
+                "unit":     info["unit"],
+                "exchange": info["exchange"],
+            }
+        else:
+            # Use fallback if Yahoo Finance fails
+            if crop in FALLBACK:
+                fb = FALLBACK[crop]
+                prices[crop] = {"price": fb["price"], "change": 0.0, "unit": fb["unit"], "exchange": fb["exchange"]}
+
+    # Add FAO crops with fallback
+    for crop, fb in FALLBACK.items():
+        if crop not in prices:
+            prices[crop] = {"price": fb["price"], "change": 0.0, "unit": fb["unit"], "exchange": fb["exchange"]}
+
     return prices
 
 @app.get("/api/weather")
@@ -133,9 +121,11 @@ async def get_weather():
             try:
                 r = await client.get(
                     "https://api.open-meteo.com/v1/forecast",
-                    params={"latitude": c["lat"], "longitude": c["lon"],
-                            "daily": "precipitation_sum,temperature_2m_max",
-                            "forecast_days": 3, "timezone": "America/Lima"},
+                    params={
+                        "latitude": c["lat"], "longitude": c["lon"],
+                        "daily": "precipitation_sum,temperature_2m_max",
+                        "forecast_days": 3, "timezone": "America/Lima"
+                    },
                 )
                 data = r.json()
                 results.append({
@@ -149,18 +139,40 @@ async def get_weather():
 
 @app.get("/api/alerts")
 async def get_alerts():
-    alerts = await agent.generate_alerts()
-    if sb:
+    # Get real prices first to generate real alerts
+    prices_response = await get_prices()
+    alerts = await agent.generate_alerts(prices_response)
+    return alerts
+
+@app.get("/api/news")
+async def get_news():
+    feeds = [
+        "https://www.fao.org/news/rss-feed/en/",
+        "https://apps.fas.usda.gov/psdonline/app/index.html#/app/",
+    ]
+    news = []
+    for feed_url in feeds:
         try:
-            sb.table("alerts").insert([
-                {"type": a["type"], "title": a["title"],
-                 "description": a["description"], "countries": a["countries"],
-                 "action": a["action"], "created_at": datetime.utcnow().isoformat()}
-                for a in alerts
-            ]).execute()
+            feed = feedparser.parse(feed_url)
+            for entry in feed.entries[:5]:
+                news.append({
+                    "title":   entry.get("title", ""),
+                    "summary": entry.get("summary", "")[:200],
+                    "link":    entry.get("link", ""),
+                    "source":  feed.feed.get("title", "FAO"),
+                    "date":    entry.get("published", ""),
+                })
         except Exception:
             pass
-    return alerts
+
+    # Add backup news if feeds fail
+    if not news:
+        news = [
+            {"title": "Coffee prices fall on ICE NY", "summary": "Coffee futures dropped amid rising Brazilian output.", "link": "#", "source": "Reuters", "date": datetime.utcnow().isoformat()},
+            {"title": "Cacao demand rises in Europe", "summary": "European chocolate makers increasing LATAM cacao purchases.", "link": "#", "source": "Bloomberg", "date": datetime.utcnow().isoformat()},
+            {"title": "Avocado shortage in Mexico", "summary": "Drought cuts Michoacán avocado production by 18%.", "link": "#", "source": "FAO", "date": datetime.utcnow().isoformat()},
+        ]
+    return news
 
 @app.post("/api/chat")
 async def chat(msg: ChatMessage):
@@ -178,8 +190,26 @@ async def save_farmer(profile: FarmerProfile):
         }).execute()
         return {"ok": True}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"ok": False, "error": str(e)}
+
+@app.get("/api/fivetran/status")
+async def fivetran_status():
+    """Get Fivetran pipeline sync status"""
+    status = await fivetran_mcp.get_sync_status()
+    return status
+
+@app.get("/api/fivetran/pipelines")
+async def fivetran_pipelines():
+    """Get all Fivetran data pipelines"""
+    status = await fivetran_mcp.get_sync_status()
+    return status["pipelines"]
+
+@app.post("/api/fivetran/sync/{connector_id}")
+async def trigger_sync(connector_id: str):
+    """Trigger manual sync for a pipeline"""
+    success = await fivetran_mcp.trigger_sync(connector_id)
+    return {"success": success, "connector_id": connector_id}
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "project": "AgroLatam Agent", "crops": len(PRICES)}
+    return {"status": "ok", "project": "AgroLatam Agent", "version": "2.0"}

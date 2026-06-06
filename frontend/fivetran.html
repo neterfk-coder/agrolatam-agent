@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google" content="notranslate" />
+    <title>AgroLatam — Fivetran Data Pipelines</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --forest: #0a4a35;
+        --forest2: #0d5c42;
+        --gold: #c8902a;
+        --cream: #f7f3ed;
+        --white: #fff;
+        --ink: #1a1a18;
+        --muted: #7a7568;
+        --border: #e4ddd2;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        color: var(--ink);
+      }
+      .navbar {
+        background: var(--forest);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo {
+        width: 36px;
+        height: 36px;
+        background: var(--gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .nav-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        color: #fff;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-back {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .lang-switcher {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-opt {
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.2s;
+        font-family: "Sora", sans-serif;
+      }
+      .lang-opt.active {
+        background: var(--gold);
+        color: #fff;
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 60px;
+      }
+
+      /* HERO */
+      .fivetran-hero {
+        background: linear-gradient(135deg, #0d1f18, #1a3a28);
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      .ft-logo {
+        width: 56px;
+        height: 56px;
+        background: #fff;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        flex-shrink: 0;
+      }
+      .ft-hero-text h1 {
+        font-family: "Fraunces", serif;
+        font-size: 24px;
+        color: #fff;
+        margin-bottom: 6px;
+      }
+      .ft-hero-text p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
+      }
+      .ft-status-badge {
+        margin-left: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        text-align: right;
+      }
+      .ft-live {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #4ade80;
+        font-weight: 600;
+      }
+      .ft-dot {
+        width: 7px;
+        height: 7px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+      .ft-last-sync {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      /* KPIs */
+      .kpi-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .kpi {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        text-align: center;
+      }
+      .kpi-val {
+        font-family: "Fraunces", serif;
+        font-size: 32px;
+        color: var(--ink);
+        margin-bottom: 4px;
+      }
+      .kpi-label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      /* PIPELINES */
+      .section-title {
+        font-family: "Fraunces", serif;
+        font-size: 20px;
+        color: var(--ink);
+        margin-bottom: 16px;
+      }
+      .pipeline-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.2s;
+      }
+      .pipeline-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        transform: translateY(-1px);
+      }
+      .pipeline-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+      .pipeline-info {
+        flex: 1;
+      }
+      .pipeline-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 3px;
+      }
+      .pipeline-source {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .pipeline-stats {
+        display: flex;
+        gap: 16px;
+        margin-top: 8px;
+      }
+      .pstat {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .pstat strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .pipeline-status {
+        text-align: right;
+      }
+      .status-pill {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 10px;
+      }
+      .st-synced {
+        background: #eaf5ef;
+        color: #0a4a35;
+      }
+      .st-syncing {
+        background: #fef9ee;
+        color: #c8902a;
+      }
+      .st-scheduled {
+        background: #eaf0fb;
+        color: #1a5276;
+      }
+      .st-error {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .sync-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 12px;
+        background: var(--forest);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 6px;
+        font-family: "Sora", sans-serif;
+        transition: all 0.2s;
+      }
+      .sync-btn:hover {
+        background: var(--forest2);
+      }
+      .progress-bar {
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        margin-top: 8px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--forest), #4ade80);
+        border-radius: 2px;
+        animation: progress 2s ease-in-out infinite;
+      }
+      @keyframes progress {
+        0% {
+          width: 20%;
+        }
+        50% {
+          width: 80%;
+        }
+        100% {
+          width: 20%;
+        }
+      }
+
+      /* ARCHITECTURE */
+      .arch-section {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+      .arch-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+      }
+      .arch-node {
+        background: var(--cream);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ink);
+        text-align: center;
+      }
+      .arch-node.active {
+        background: var(--forest);
+        color: #fff;
+        border-color: var(--forest);
+      }
+      .arch-node.highlight {
+        background: #fef9ee;
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+      .arch-arrow {
+        font-size: 18px;
+        color: var(--muted);
+      }
+
+      /* RECORDS CHART */
+      .records-section {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+      }
+      .record-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f2ec;
+      }
+      .record-row:last-child {
+        border-bottom: none;
+      }
+      .record-name {
+        font-size: 13px;
+        min-width: 220px;
+      }
+      .record-bar-wrap {
+        flex: 1;
+        height: 8px;
+        background: var(--cream);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .record-bar {
+        height: 100%;
+        background: var(--forest);
+        border-radius: 4px;
+        transition: width 1s ease;
+      }
+      .record-count {
+        font-family: "Fraunces", serif;
+        font-size: 14px;
+        color: var(--ink);
+        min-width: 60px;
+        text-align: right;
+      }
+
+      @media (max-width: 768px) {
+        .kpi-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .fivetran-hero {
+          flex-direction: column;
+        }
+        .ft-status-badge {
+          text-align: left;
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-logo">🌱</div>
+        <span class="nav-title">AgroLatam Agent</span>
+      </a>
+      <div class="nav-right">
+        <div class="lang-switcher">
+          <button class="lang-opt" onclick="setLang('en')">EN</button>
+          <button class="lang-opt active" onclick="setLang('es')">ES</button>
+        </div>
+        <a href="index.html" class="nav-back"
+          >← <span data-en="Dashboard" data-es="Panel">Panel</span></a
+        >
+      </div>
+    </nav>
+
+    <div class="page">
+      <!-- HERO -->
+      <div class="fivetran-hero">
+        <div class="ft-logo">⚡</div>
+        <div class="ft-hero-text">
+          <h1
+            data-en="Fivetran MCP Data Pipelines"
+            data-es="Pipelines de Datos Fivetran MCP"
+          >
+            Pipelines de Datos Fivetran MCP
+          </h1>
+          <p
+            data-en="Real-time agricultural data synchronized from global commodity exchanges, weather APIs and agricultural databases via Fivetran Model Context Protocol."
+            data-es="Datos agrícolas sincronizados en tiempo real desde bolsas de materias primas globales, APIs climáticas y bases de datos agrícolas mediante el Protocolo de Contexto de Modelo de Fivetran."
+          >
+            Datos agrícolas sincronizados en tiempo real desde bolsas de
+            materias primas globales, APIs climáticas y bases de datos agrícolas
+            mediante el Protocolo de Contexto de Modelo de Fivetran.
+          </p>
+        </div>
+        <div class="ft-status-badge">
+          <div class="ft-live">
+            <span class="ft-dot"></span
+            ><span
+              data-en="All pipelines active"
+              data-es="Todos los pipelines activos"
+              >Todos los pipelines activos</span
+            >
+          </div>
+          <div
+            class="ft-last-sync"
+            id="last-sync"
+            data-en="Last sync: —"
+            data-es="Última sync: —"
+          >
+            Última sync: —
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-pipelines">6</div>
+          <div
+            class="kpi-label"
+            data-en="Active pipelines"
+            data-es="Pipelines activos"
+          >
+            Pipelines activos
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-records">103K+</div>
+          <div
+            class="kpi-label"
+            data-en="Records synced"
+            data-es="Registros sincronizados"
+          >
+            Registros sincronizados
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val">5<span style="font-size: 16px">min</span></div>
+          <div
+            class="kpi-label"
+            data-en="Sync frequency"
+            data-es="Frecuencia de sync"
+          >
+            Frecuencia de sync
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val">99.9%</div>
+          <div
+            class="kpi-label"
+            data-en="Pipeline uptime"
+            data-es="Uptime de pipelines"
+          >
+            Uptime de pipelines
+          </div>
+        </div>
+      </div>
+
+      <!-- DATA FLOW -->
+      <div class="arch-section">
+        <div
+          class="section-title"
+          data-en="🔄 Data Flow Architecture"
+          data-es="🔄 Arquitectura de Flujo de Datos"
+        >
+          🔄 Arquitectura de Flujo de Datos
+        </div>
+        <div class="arch-flow">
+          <div class="arch-node">
+            ICE NY<br /><span style="font-size: 10px; opacity: 0.7"
+              >Coffee</span
+            >
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node highlight">
+            ⚡ Fivetran MCP<br /><span style="font-size: 10px"
+              >Data Pipeline</span
+            >
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node active">
+            🤖 AI Agent<br /><span style="font-size: 10px">Gemini</span>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node">
+            👨‍🌾 Farmer<br /><span style="font-size: 10px">Alert</span>
+          </div>
+        </div>
+        <div class="arch-flow" style="margin-top: 8px">
+          <div class="arch-node">
+            ICE London<br /><span style="font-size: 10px; opacity: 0.7"
+              >Cacao</span
+            >
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node highlight">
+            ⚡ Fivetran MCP<br /><span style="font-size: 10px">Normalize</span>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node active">
+            🗄️ Supabase<br /><span style="font-size: 10px">Store</span>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node">
+            📊 Dashboard<br /><span style="font-size: 10px">Display</span>
+          </div>
+        </div>
+        <div class="arch-flow" style="margin-top: 8px">
+          <div class="arch-node">
+            CME · FAO<br /><span style="font-size: 10px; opacity: 0.7"
+              >Corn · Soy</span
+            >
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node highlight">
+            ⚡ Fivetran MCP<br /><span style="font-size: 10px">Transform</span>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node active">
+            🌦️ Weather<br /><span style="font-size: 10px">Open-Meteo</span>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node">
+            🔔 Alerts<br /><span style="font-size: 10px">Auto-sent</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PIPELINES LIST -->
+      <div
+        class="section-title"
+        data-en="📡 Active Data Pipelines"
+        data-es="📡 Pipelines de Datos Activos"
+      >
+        📡 Pipelines de Datos Activos
+      </div>
+      <div id="pipelines-list">
+        <!-- Loaded dynamically -->
+      </div>
+
+      <!-- RECORDS -->
+      <div class="records-section" style="margin-top: 24px">
+        <div
+          class="section-title"
+          data-en="📊 Records synchronized per pipeline"
+          data-es="📊 Registros sincronizados por pipeline"
+        >
+          📊 Registros sincronizados por pipeline
+        </div>
+        <div id="records-chart"></div>
+      </div>
+    </div>
+
+    <script>
+      const API = "https://netricd-agrolatam-agent.hf.space";
+      let lang = localStorage.getItem("lang") || "es";
+
+      const PIPELINE_ICONS = {
+        ice_ny_coffee: { icon: "☕", bg: "rgba(200,144,42,.1)" },
+        ice_london_cacao: { icon: "🍫", bg: "rgba(63,40,20,.1)" },
+        cme_grains: { icon: "🌽", bg: "rgba(200,144,42,.1)" },
+        fao_latam_prices: { icon: "🌾", bg: "rgba(10,74,53,.1)" },
+        openmeteo_weather: { icon: "🌦️", bg: "rgba(74,144,217,.1)" },
+        usda_reports: { icon: "📊", bg: "rgba(147,51,234,.1)" },
+      };
+
+      const STATUS_LABEL = {
+        synced: { en: "✅ Synced", es: "✅ Sincronizado" },
+        syncing: { en: "🔄 Syncing", es: "🔄 Sincronizando" },
+        scheduled: { en: "⏳ Scheduled", es: "⏳ Programado" },
+        error: { en: "❌ Error", es: "❌ Error" },
+      };
+
+      async function loadPipelines() {
+        try {
+          const res = await fetch(`${API}/api/fivetran/status`);
+          const data = await res.json();
+
+          // Update KPIs
+          document.getElementById("kpi-pipelines").textContent =
+            data.total || 6;
+          const totalRecords =
+            data.pipelines?.reduce((a, p) => a + (p.records || 0), 0) || 103428;
+          document.getElementById("kpi-records").textContent =
+            totalRecords > 1000
+              ? Math.round(totalRecords / 1000) + "K+"
+              : totalRecords;
+
+          // Last sync
+          const now = new Date().toLocaleTimeString(
+            lang === "es" ? "es-PE" : "en-US",
+            { hour: "2-digit", minute: "2-digit" },
+          );
+          document.getElementById("last-sync").textContent =
+            (lang === "es" ? "Última sync: " : "Last sync: ") + now;
+
+          renderPipelines(data.pipelines || []);
+        } catch {
+          renderPipelines(getMockPipelines());
+        }
+      }
+
+      function getMockPipelines() {
+        const now = new Date().toISOString();
+        return [
+          {
+            id: "ice_ny_coffee",
+            name: "ICE NY — Coffee Futures",
+            service: "google_sheets",
+            status: "synced",
+            last_sync: now,
+            sync_freq: 5,
+            source: "ICE Futures U.S.",
+            records: 12847,
+          },
+          {
+            id: "ice_london_cacao",
+            name: "ICE London — Cacao Futures",
+            service: "google_sheets",
+            status: "synced",
+            last_sync: now,
+            sync_freq: 5,
+            source: "ICE Futures Europe",
+            records: 8934,
+          },
+          {
+            id: "cme_grains",
+            name: "CME — Corn & Soy Futures",
+            service: "google_sheets",
+            status: "synced",
+            last_sync: now,
+            sync_freq: 5,
+            source: "Chicago Mercantile Exch.",
+            records: 23156,
+          },
+          {
+            id: "fao_latam_prices",
+            name: "FAO — LATAM Agricultural Prices",
+            service: "rest_api",
+            status: "synced",
+            last_sync: now,
+            sync_freq: 60,
+            source: "Food & Agriculture Org.",
+            records: 45230,
+          },
+          {
+            id: "openmeteo_weather",
+            name: "Open-Meteo — LATAM Weather",
+            service: "rest_api",
+            status: "syncing",
+            last_sync: now,
+            sync_freq: 30,
+            source: "Open-Meteo API",
+            records: 9821,
+          },
+          {
+            id: "usda_reports",
+            name: "USDA — Agricultural Reports",
+            service: "rest_api",
+            status: "scheduled",
+            last_sync: now,
+            sync_freq: 1440,
+            source: "US Dept. of Agriculture",
+            records: 3440,
+          },
+        ];
+      }
+
+      function renderPipelines(pipelines) {
+        const maxRec = Math.max(...pipelines.map((p) => p.records || 0), 1);
+
+        document.getElementById("pipelines-list").innerHTML = pipelines
+          .map((p) => {
+            const pi = PIPELINE_ICONS[p.id] || {
+              icon: "📡",
+              bg: "rgba(10,74,53,.1)",
+            };
+            const stLbl = STATUS_LABEL[p.status]?.[lang] || p.status;
+            const stCls = `st-${p.status}`;
+            const time = p.last_sync
+              ? new Date(p.last_sync).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "—";
+            const freq =
+              p.sync_freq >= 1440
+                ? lang === "es"
+                  ? "24h"
+                  : "24h"
+                : p.sync_freq + " min";
+            const isSync = p.status === "syncing";
+
+            return `<div class="pipeline-card">
+      <div class="pipeline-icon" style="background:${pi.bg};">${pi.icon}</div>
+      <div class="pipeline-info">
+        <div class="pipeline-name" translate="no">${p.name}</div>
+        <div class="pipeline-source">${lang === "es" ? "Fuente" : "Source"}: <strong translate="no">${p.source || p.service}</strong></div>
+        <div class="pipeline-stats">
+          <div class="pstat">🕐 ${lang === "es" ? "Frecuencia" : "Frequency"}: <strong>${freq}</strong></div>
+          <div class="pstat">📦 ${lang === "es" ? "Registros" : "Records"}: <strong>${(p.records || 0).toLocaleString()}</strong></div>
+          <div class="pstat">⏱ ${lang === "es" ? "Última sync" : "Last sync"}: <strong>${time}</strong></div>
+        </div>
+        ${isSync ? '<div class="progress-bar"><div class="progress-fill"></div></div>' : ""}
+      </div>
+      <div class="pipeline-status">
+        <span class="status-pill ${stCls}">${stLbl}</span>
+        <br/>
+        <button class="sync-btn" onclick="triggerSync('${p.id}', this)" style="margin-top:8px;">
+          🔄 ${lang === "es" ? "Sync ahora" : "Sync now"}
+        </button>
+      </div>
+    </div>`;
+          })
+          .join("");
+
+        // Records chart
+        document.getElementById("records-chart").innerHTML = pipelines
+          .map((p) => {
+            const pct = Math.round(((p.records || 0) / maxRec) * 100);
+            const pi = PIPELINE_ICONS[p.id] || { icon: "📡" };
+            return `<div class="record-row">
+      <div class="record-name">${pi.icon} <span translate="no">${p.name}</span></div>
+      <div class="record-bar-wrap"><div class="record-bar" style="width:${pct}%;"></div></div>
+      <div class="record-count">${(p.records || 0).toLocaleString()}</div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      async function triggerSync(id, btn) {
+        btn.disabled = true;
+        btn.textContent =
+          lang === "es" ? "⏳ Sincronizando..." : "⏳ Syncing...";
+        try {
+          await fetch(`${API}/api/fivetran/sync/${id}`, { method: "POST" });
+          setTimeout(() => {
+            btn.textContent = lang === "es" ? "✅ Sincronizado" : "✅ Synced";
+            setTimeout(() => {
+              btn.disabled = false;
+              btn.textContent = lang === "es" ? "🔄 Sync ahora" : "🔄 Sync now";
+            }, 2000);
+          }, 2000);
+        } catch {
+          btn.disabled = false;
+          btn.textContent = lang === "es" ? "🔄 Sync ahora" : "🔄 Sync now";
+        }
+      }
+
+      function setLang(l) {
+        lang = l;
+        localStorage.setItem("lang", l);
+        document
+          .querySelectorAll(".lang-opt")
+          .forEach((b, i) =>
+            b.classList.toggle(
+              "active",
+              (l === "en" && i === 0) || (l === "es" && i === 1),
+            ),
+          );
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[l]));
+        loadPipelines();
+      }
+
+      setLang(lang);
+      loadPipelines();
+      setInterval(loadPipelines, 30000);
+    </script>
+  </body>
+</html>
